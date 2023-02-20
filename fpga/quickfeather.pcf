@@ -1,0 +1,83 @@
+// [WLCSP PACKAGE]  WR42    set_io <signal name> <QFN_pin_num>
+// [BGA PACKAGE]    PD64    set_io <signal_name> <PD64_pin_num>
+// [QFN PACKAGE]    PU64    set_io <signal_name> <PU64_pin_num>
+// COMMON :                 set_io <signal_name> <IO_x_alias>
+// ref: https://quicklogic-quicklogic-fpga-toolchain.readthedocs-hosted.com/en/latest/tutorial/eos-s3/PcfDescription.html
+// pin_nums are as per the IO Location column for the corresponding package
+//
+//
+// QuickFeather uses the QFN package, others mostly use the BGA package.
+// 
+// RED LED, for example is on IO_22, which is QFN_PIN_NUM 34 (BGA BALL G7)
+// so, 
+// (QFN)    :   set_io   red_led     34 
+// (BGA)    :   set_io   red_led     G7
+// (ALL)    :   set_io   red_led     IO_22
+// are equivalent
+// NOTE that the WLSCP version of EOSS3 does not have IO_22 brought out at all!
+// So, this signal cannot be used with the WLCSP package.
+//
+// by using the IO_PAD_NUM -> we don't need to change PCF across chip package variants.
+// However, we need to be careful that the relevant IO_PAD is actually brought out in the variant we are using.
+// WLCSP package of EOSS3 has a much lower number of IOs compared to the BGA/QFN package.
+//
+// signals defined here, can be directly accessed in the Verilog code.
+//
+// [WLCSP PACKAGE]  WR42 : the pins used are not available in this package!
+//set_io red_led       X
+//set_io green_led     X
+//set_io blue_led      X
+//
+// [BGA PACKAGE]    PD64
+//set_io red_led       G7
+//set_io green_led     H7
+//set_io blue_led      E8
+//
+// [QFN PACKAGE]    PU64
+//set_io red_led       34
+//set_io green_led     39
+//set_io blue_led      38
+
+
+
+// COMMON (recommended, as long as it is understood that these pins are available in the used package)
+// LPC TOP LEVEL port signals
+set_io      LCLK            IO_0
+set_io      LRESET          IO_1
+set_io      LFRAME          IO_2
+set_io      LAD(0)          IO_3
+set_io      LAD(1)          IO_4
+set_io      LAD(2)          IO_5
+set_io      LAD(3)          IO_6
+
+// Data provider interface
+set_io      lpc_data_io(0)  IO_7
+set_io      lpc_data_io(1)  IO_8
+set_io      lpc_data_io(2)  IO_9
+set_io      lpc_data_io(3)  IO_10
+set_io      lpc_data_io(4)  IO_11
+set_io      lpc_data_io(5)  IO_12
+set_io      lpc_data_io(6)  IO_13
+set_io      lpc_data_io(7)  IO_16
+
+set_io      lpc_addr_o(0)   IO_17
+set_io      lpc_addr_o(1)   IO_18
+set_io      lpc_addr_o(2)   IO_19
+set_io      lpc_addr_o(3)   IO_20
+set_io      lpc_addr_o(4)   IO_21
+set_io      lpc_addr_o(5)   IO_22
+set_io      lpc_addr_o(6)   IO_23
+set_io      lpc_addr_o(7)   IO_24
+set_io      lpc_addr_o(8)   IO_25
+set_io      lpc_addr_o(9)   IO_26
+set_io      lpc_addr_o(10)  IO_27
+set_io      lpc_addr_o(11)  IO_28
+set_io      lpc_addr_o(12)  IO_29
+set_io      lpc_addr_o(13)  IO_30
+set_io      lpc_addr_o(14)  IO_31
+set_io      lpc_addr_o(15)  IO_32
+
+set_io      lpc_data_wr     IO_33
+set_io      lpc_wr_done     IO_34
+set_io      lpc_data_rd     IO_35
+set_io      lpc_data_req    IO_36
