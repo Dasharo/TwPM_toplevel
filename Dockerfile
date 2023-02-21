@@ -14,10 +14,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN mkdir -p /home/qorc-sdk && chown qorc-sdk:qorc-sdk -R /home/qorc-sdk
 
-ENV TZ=Europe/Warsaw
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get update && apt-get install -y gdb
-
 USER qorc-sdk
 
 # FIXME: use fixed commit instead of master
