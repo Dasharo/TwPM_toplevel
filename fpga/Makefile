@@ -59,7 +59,9 @@ all: $(FPGA_RTL_BIN_OBJ)
 $(FPGA_RTL_BIN_OBJ): $(FPGA_RTL_SRC_PATHS)
 	@time ql_symbiflow -compile -src $(QORC_FPGA_RTL_DIR) -d $(QORC_FPGA_DEVICE) -t $(QORC_FPGA_TOP_MODULE) -v $(FPGA_RTL_SRC_PATHS) -p $(QORC_FPGA_PCF_FILE) -P $(QORC_FPGA_PACKAGE) -dump binary openocd jlink
 
-
+.PHONY: flash
+flash: $(FPGA_RTL_BIN_OBJ)
+	qfprog --port /dev/ttyS_QORC --appfpga $(FPGA_RTL_BIN_OBJ) --mode fpga --reset
 
 .PHONY: clean
 clean:
@@ -68,4 +70,4 @@ clean:
 	@rm $(QORC_FPGA_RTL_DIR)/*.bin 					2> /dev/null || true
 	@rm $(QORC_FPGA_RTL_DIR)/*.jlink 				2> /dev/null || true
 	@rm $(QORC_FPGA_RTL_DIR)/*.openocd 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/Makefile.symbiflow 	2> /dev/null || true
+	@rm $(QORC_FPGA_RTL_DIR)/Makefile.symbiflow 	                2> /dev/null || true

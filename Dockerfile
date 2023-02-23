@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 ENV QORC_SDK_PATH=/home/qorc-sdk/qorc-sdk
 
-RUN useradd -p locked -m qorc-sdk
+RUN useradd -p locked -m qorc-sdk -G dialout
 
 RUN apt-get update && apt-get install -y \
    git \

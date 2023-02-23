@@ -21,6 +21,8 @@ All components are expected to be build within Docker container. If you haven't
 got Docker installed yet, follow [official installation instructions](https://docs.docker.com/engine/install/)
 and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
 
+### Building Docker image
+
 TwPM Docker image is created from [Dockerfile](https://github.com/Dasharo/TwPM_toplevel/blob/main/Dockerfile)
 that is included in this repository. As of now, this image isn't available for
 download and must be built locally with the following command executed from the
@@ -37,11 +39,61 @@ preparation ends with `Successfully tagged twpm-sdk:latest`.
 still being actively worked on and will change significantly. For the same
 reason the image isn't versioned yet.
 
+You may notice that there were some problems reported regarding `sudo` during
+installation of serial drivers near the end:
+
+```
+Configure Serial drivers for FPGA
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+Serial drivers enabled
+```
+
+These problems could be worked around in Docker, but this wouldn't actually
+help. Steps that failed must be done on host system, so it's services won't get
+in the way of programmer's application running in the container. To do so,
+execute the following:
+
+```shell
+$ id=$(docker create twpm-sdk)
+$ sudo docker cp \
+    $id:/home/qorc-sdk/qorc-sdk/TinyFPGA-Programmer-Application/71-QuickFeather.rules \
+    /etc/udev/rules.d/
+$ docker container rm $id
+$ sudo udevadm control --reload-rules
+$ sudo systemctl restart ModemManager.service
+```
+
+### Starting Docker container
+
+Before container is started, EOS S3 board has to be in programming mode. This
+mode is **not** the same as debug mode, so bootstrap jumpers (J2 and J3 on the
+[cheatsheet](https://cdn.sparkfun.com/assets/learn_tutorials/1/7/9/1/QuickLogic_Thing_Plus_EOS_S3_v1a.pdf))
+have to be kept open. In order to enter programming mode:
+
+* plug the EOS S3 to the PC through USB cable
+* press `RST` button once, blue LED will begin to blink a dozen times or so
+* while the LED is still blinking, press `USR` button
+  * it has debouncing logic to it, you may have to keep it pressed for few
+    hundreds milliseconds
+  * after that, green LED will be lit for about a second, after which it will
+    begin to blink
+* confirm that a new ACM device is created (usually `/dev/ttyACM0`, you can
+  check `dmesg` output if in doubt)
+
 The container can be started from `TwPM_toplevel` with:
 
 ```shell
-$ docker run --rm -it -v $PWD:/home/qorc-sdk/workspace twpm-sdk
+$ docker run --rm -it -v $PWD:/home/qorc-sdk/workspace \
+    --device=/dev/ttyACM0:/dev/ttyS_QORC twpm-sdk
 ```
+
+Change `ttyACM0` to proper device name, in case there is more than one `ttyACM`
+in your system. `ttyS_QORC` is used to have constant name for use by Makefile.
+It must start with `ttyS` or one of the other standard names, otherwise pySerial
+used by some of the tools can't find it.
 
 This will enable `qorc-sdk` environment and enter shell in the container:
 
@@ -82,6 +134,10 @@ qorc-sdk build env initialized.
 (base) qorc-sdk@2fb0c54fd594:~$
 ```
 
+If you get `error gathering device information while adding custom device`, most
+likely EOS S3 isn't in programming mode. Repeat steps listed earlier and try
+again.
+
 All of the following steps assume that we are in this state - inside the Docker
 container with `qorc-sdk` environment enabled, in container's home directory.
 
@@ -106,6 +162,8 @@ can follow [the easy path](#building---easy).
 
 ### FPGA
 
+To just build:
+
 ```shell
 $ cd workspace/fpga
 $ make
@@ -114,5 +172,16 @@ $ make
 This will execute all steps up to and including generation of bitstream. This
 process takes few minutes, most of that time is consumed by `symbiflow_route`.
 It may appear to be stuck, as this process doesn't output any lines on terminal.
-It also almost doesn't access disk at all, but it takes a lot of CPU time.
+It also almost doesn't access disk at all so there will be no HDD LED activity,
+but it takes a lot of CPU time.
 
+To build and flash:
+
+```shell
+$ cd workspace/fpga
+$ make flash
+```
+
+Note that this just saves the bitstream in the flash. It is up to MCU code to
+load it and release FPGA from reset, as well as configure I/O ports for being
+used by FPGA, so for some changes flashing just the FGPA part won't be enough.
