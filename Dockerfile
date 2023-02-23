@@ -21,14 +21,14 @@ RUN git clone https://github.com/QuickLogic-Corp/qorc-sdk.git $QORC_SDK_PATH
 
 # Toolchains are downloaded and configured on first inclusion of this script.
 # Do it now to save time later.
-RUN /bin/bash -ic ". $QORC_SDK_PATH/envsetup.sh"
-
-# Even though 'sudo' is installed, it won't work because above command isn't run
-# in terminal. Do steps normally done by 'apio drivers --serial-enable'.
+#
+# Even though 'sudo' is installed, it will print errors because below command
+# isn't run in terminal. Nevertheless, steps that require root permissions
+# have to be performed on host system, not in Docker.
 #
 # Note that 'sudo' still must be installed, without it Python throws an
 # exception instead of "completing successfully with errors".
-##### TBD #####
+RUN /bin/bash -ic ". $QORC_SDK_PATH/envsetup.sh"
 
 # Library provided by toolchain doesn't work, use system library instead
 RUN mv $QORC_SDK_PATH/fpga_toolchain_install/v1.3.1/conda/lib/libffi.so.7 \
