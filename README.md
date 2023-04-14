@@ -21,43 +21,15 @@ All components are expected to be build within Docker container. If you haven't
 got Docker installed yet, follow [official installation instructions](https://docs.docker.com/engine/install/)
 and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
 
-### Building Docker image
+### Preparing to use Docker image
 
-TwPM Docker image is created from [Dockerfile](https://github.com/Dasharo/TwPM_toplevel/blob/main/Dockerfile)
-that is included in this repository. As of now, this image isn't available for
-download and must be built locally with the following command executed from the
-`TwPM_toplevel` directory:
-
-```shell
-$ docker build -t twpm-sdk .
-```
-
-Go grab a cup of tea or your favourite beverage, this will take a while. Image
-preparation ends with `Successfully tagged twpm-sdk:latest`.
-
-> This image probably will eventually be available at ghcr.io, but for now it is
-still being actively worked on and will change significantly. For the same
-reason the image isn't versioned yet.
-
-You may notice that there were some problems reported regarding `sudo` during
-installation of serial drivers near the end:
-
-```
-Configure Serial drivers for FPGA
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
-Serial drivers enabled
-```
-
-These problems could be worked around in Docker, but this wouldn't actually
-help. Steps that failed must be done on host system, so it's services won't get
-in the way of programmer's application running in the container. To do so,
-execute the following:
+TwPM Docker image is created from [twpm-sdk repository](https://github.com/Dasharo/twpm-sdk).
+Before it can be used to flash FPGA image, some steps must be done on host
+system. Without those steps host's services would get in the way of programmer's
+application running in the container. Execute the following:
 
 ```shell
-$ id=$(docker create twpm-sdk)
+$ id=$(docker create ghcr.io/dasharo/twpm-sdk:main)
 $ sudo docker cp \
     $id:/home/qorc-sdk/qorc-sdk/TinyFPGA-Programmer-Application/71-QuickFeather.rules \
     /etc/udev/rules.d/
@@ -65,6 +37,9 @@ $ docker container rm $id
 $ sudo udevadm control --reload-rules
 $ sudo systemctl restart ModemManager.service
 ```
+
+This is one-time operation, it isn't required for later use. First of the
+instructions above will automatically download the image.
 
 ### Starting Docker container
 
@@ -87,7 +62,7 @@ The container can be started from `TwPM_toplevel` with:
 
 ```shell
 $ docker run --rm -it -v $PWD:/home/qorc-sdk/workspace \
-    --device=/dev/ttyACM0:/dev/ttyS_QORC twpm-sdk
+    --device=/dev/ttyACM0:/dev/ttyS_QORC ghcr.io/dasharo/twpm-sdk:main
 ```
 
 Change `ttyACM0` to proper device name, in case there is more than one `ttyACM`
