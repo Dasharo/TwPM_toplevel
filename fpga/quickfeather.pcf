@@ -49,6 +49,7 @@ set_io      LAD(0)          IO_3
 set_io      LAD(1)          IO_4
 set_io      LAD(2)          IO_5
 set_io      LAD(3)          IO_6
+set_io      SERIRQ          IO_37
 
 // Data provider interface
 set_io      lpc_data_io(0)  IO_7
@@ -81,3 +82,9 @@ set_io      lpc_data_wr     IO_33
 set_io      lpc_wr_done     IO_34
 set_io      lpc_data_rd     IO_35
 set_io      lpc_data_req    IO_36
+
+set_io      irq_num(0)      IO_38
+set_io      irq_num(1)      IO_39
+set_io      irq_num(2)      IO_40
+set_io      irq_num(3)      IO_41
+set_io      interrupt       IO_42

@@ -1,39 +1,10 @@
-// -----------------------------------------------------------------------------
-// title          : AL4S3B Example FPGA IP Top Module
-// project        : Tamar2 Device
-// -----------------------------------------------------------------------------
-// file           : AL4S3B_FPGA_top.v
-// author         : SSG
-// company        : QuickLogic Corp
-// created        : 2016/02/01	
-// last update    : 2016/02/01
-// platform       : ArcticLink 4 S3B
-// standard       : Verilog 2001
-// -----------------------------------------------------------------------------
-// description: The FPGA example IP design contains the essential logic for
-//              interfacing the ASSP of the AL4S3B to IP located in the 
-//              programmable FPGA.
-// -----------------------------------------------------------------------------
-// copyright (c) 2015
-// -----------------------------------------------------------------------------
-// revisions  :
-// date            version        author              description
-// 2016/02/01      1.0        Rakesh Moolacheri     Initial Release
-//
-// -----------------------------------------------------------------------------
-// Comments: This solution is specifically for use with the QuickLogic
-//           AL4S3B device. 
-// -----------------------------------------------------------------------------
-//
-
-`timescale 1ns / 10ps
-
 module TwPM_Top (
 // LPC interface
       LCLK,
       LRESET,
       LFRAME,
       LAD,
+      SERIRQ,
 
 // Data provider interface
       lpc_data_io,
@@ -41,7 +12,9 @@ module TwPM_Top (
       lpc_data_wr,
       lpc_wr_done,
       lpc_data_rd,
-      lpc_data_req
+      lpc_data_req,
+      irq_num,
+      interrupt
 );
 
 
@@ -55,6 +28,7 @@ input         LCLK;
 input         LRESET;
 input         LFRAME;
 inout   [3:0] LAD;
+inout         SERIRQ;
 
 // Data provider interface
 inout   [7:0] lpc_data_io;
@@ -63,6 +37,8 @@ output        lpc_data_wr;
 input         lpc_wr_done;
 input         lpc_data_rd;
 output        lpc_data_req;
+input   [3:0] irq_num;
+input         interrupt;
 
 
 //
@@ -130,13 +106,16 @@ gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
       .nrst_i(LRESET),
       .lframe_i(LFRAME),
       .lad_bus(LAD),
+      .serirq(SERIRQ),
       // Data provider interface
       .lpc_data_io(lpc_data_io),
       .lpc_addr_o(lpc_addr_o),
       .lpc_data_wr(lpc_data_wr),
       .lpc_wr_done(lpc_wr_done),
       .lpc_data_rd(lpc_data_rd),
-      .lpc_data_req(lpc_data_req)
+      .lpc_data_req(lpc_data_req),
+      .irq_num(irq_num),
+      .interrupt(interrupt)
   );
 															 
 
