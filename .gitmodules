@@ -1,3 +1,6 @@
 [submodule "fpga/verilog-lpc-module"]
 	path = fpga/verilog-lpc-module
 	url = https://github.com/3mdeb/verilog-lpc-module.git
+[submodule "fpga/verilog-tpm-fifo-registers"]
+	path = fpga/verilog-tpm-fifo-registers
+	url = https://github.com/Dasharo/verilog-tpm-fifo-registers.git
