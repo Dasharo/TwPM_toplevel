@@ -5,16 +5,10 @@ module TwPM_Top (
       LFRAME,
       LAD,
       SERIRQ,
-
-// Data provider interface
-      lpc_data_io,
-      lpc_addr_o,
-      lpc_data_wr,
-      lpc_wr_done,
-      lpc_data_rd,
-      lpc_data_req,
-      irq_num,
-      interrupt
+// M4 interface - to be removed
+      exec,
+      complete,
+      abort
 );
 
 
@@ -30,23 +24,31 @@ input         LFRAME;
 inout   [3:0] LAD;
 inout         SERIRQ;
 
-// Data provider interface
-inout   [7:0] lpc_data_io;
-output [15:0] lpc_addr_o;
-output        lpc_data_wr;
-input         lpc_wr_done;
-input         lpc_data_rd;
-output        lpc_data_req;
-input   [3:0] irq_num;
-input         interrupt;
-
-
-//
-// None at this time
-//
+output        exec;
+input         complete;
+output        abort;
 
 //------Internal Signals---------------
 //
+
+// Data provider interface
+wire    [7:0] lpc_data;
+wire   [15:0] lpc_addr;
+wire          lpc_data_wr;
+wire          lpc_wr_done;
+wire          lpc_data_rd;
+wire          lpc_data_req;
+wire    [3:0] irq_num;
+wire          interrupt;
+wire   [10:0] DP_addr;
+wire    [7:0] DP_data;
+
+// RAM lines
+wire    [8:0] RAM_A;
+wire   [31:0] RAM_D;
+wire          RAM_rd_clk_en;
+wire          RAM_wr_clk_en;
+wire    [3:0] RAM_byte_sel;
 
 // FPGA Global Signals
 //
@@ -70,17 +72,14 @@ wire    [31:0]  WBs_RD_DAT     ; // Wishbone Read   Data Bus
 wire    [31:0]  WBs_WR_DAT     ; // Wishbone Write  Data Bus
 wire            WBs_ACK        ; // Wishbone Client Acknowledge
 wire            WB_RST         ; // Wishbone FPGA Reset
-wire            WB_RST_FPGA  ; // Wishbone FPGA Reset
+wire            WB_RST_FPGA    ; // Wishbone FPGA Reset
 
 // Misc
 //
-wire    [31:0]  Device_ID      ;
-
-wire   			boot;
-wire   			clk_48mhz;
-wire   			reset;
-
-wire            Interrupt_o;
+wire    [31:0]  Device_ID;
+wire   	        boot;
+wire            clk_48mhz;
+wire            reset;
 
 
 //------Logic Operations---------------
@@ -96,6 +95,28 @@ gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK     ));
 gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
 
+assign RAM_A =    DP_addr[10:2];    // 32b words
+assign RAM_D =    lpc_data_wr ? (   // TODO: check if endianness needs changing
+                    DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data} :
+                    DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data, 8'h00} :
+                    DP_addr[1:0] === 2'b10 ? {8'h00, DP_data, 16'h0000} :
+                    DP_addr[1:0] === 2'b11 ? {DP_data, 24'h000000} :
+                    32'hzzzzzzzz
+                  ) : 32'hzzzzzzzz;
+assign DP_data =  lpc_data_rd ? (   // TODO: check if endianness needs changing
+                    DP_addr[1:0] === 2'b00 ? RAM_D[ 7: 0] :
+                    DP_addr[1:0] === 2'b01 ? RAM_D[15: 8] :
+                    DP_addr[1:0] === 2'b10 ? RAM_D[23:16] :
+                    DP_addr[1:0] === 2'b11 ? RAM_D[31:24] :
+                    8'hzz
+                  ) : 8'hzz;
+assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs changing
+                        DP_addr[1:0] === 2'b00 ? 4'b0001 :
+                        DP_addr[1:0] === 2'b01 ? 4'b0010 :
+                        DP_addr[1:0] === 2'b10 ? 4'b0100 :
+                        DP_addr[1:0] === 2'b11 ? 4'b1000 :
+                        4'b0000
+                      ) : 4'b0000;
 
 // Example FPGA Design
 //
@@ -108,8 +129,8 @@ gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
       .lad_bus(LAD),
       .serirq(SERIRQ),
       // Data provider interface
-      .lpc_data_io(lpc_data_io),
-      .lpc_addr_o(lpc_addr_o),
+      .lpc_data_io(lpc_data),
+      .lpc_addr_o(lpc_addr),
       .lpc_data_wr(lpc_data_wr),
       .lpc_wr_done(lpc_wr_done),
       .lpc_data_rd(lpc_data_rd),
@@ -117,7 +138,40 @@ gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
       .irq_num(irq_num),
       .interrupt(interrupt)
   );
-															 
+
+  regs_module regs_module_inst (
+      // Signals to/from LPC module
+      .clk_i(LCLK),
+      .data_io(lpc_data),
+      .addr_i(lpc_addr),
+      .data_wr(lpc_data_wr),
+      .wr_done(lpc_wr_done),
+      .data_rd(lpc_data_rd),
+      .data_req(lpc_data_req),
+      .irq_num(irq_num),
+      .interrupt(interrupt),
+      // Signals to/from M4
+      .exec(exec),
+      .complete(complete),
+      .abort(abort),
+      // Signals to/from RAM
+      .RAM_addr(RAM_A),
+      .RAM_data(RAM_D),
+      .RAM_rd(RAM_rd_clk_en),
+      .RAM_wr(RAM_wr_clk_en)
+  );
+
+r512x32_512x32 RAM_INST (
+			.WA(RAM_A),
+			.RA(RAM_A),
+			.WD(RAM_D),
+			.WClk(~LCLK),
+			.RClk(~LCLK),
+			.WClk_En(RAM_wr_clk_en),
+			.RClk_En(RAM_rd_clk_en),
+			.WEN({FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd}),
+			.RD(RAM_D)
+			);
 
 // Empty Verilog model of QLAL4S3B
 //

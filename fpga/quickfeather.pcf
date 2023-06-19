@@ -49,42 +49,9 @@ set_io      LAD(0)          IO_3
 set_io      LAD(1)          IO_4
 set_io      LAD(2)          IO_5
 set_io      LAD(3)          IO_6
-set_io      SERIRQ          IO_37
+set_io      SERIRQ          IO_7
 
-// Data provider interface
-set_io      lpc_data_io(0)  IO_7
-set_io      lpc_data_io(1)  IO_8
-set_io      lpc_data_io(2)  IO_9
-set_io      lpc_data_io(3)  IO_10
-set_io      lpc_data_io(4)  IO_11
-set_io      lpc_data_io(5)  IO_12
-set_io      lpc_data_io(6)  IO_13
-set_io      lpc_data_io(7)  IO_16
-
-set_io      lpc_addr_o(0)   IO_17
-set_io      lpc_addr_o(1)   IO_18
-set_io      lpc_addr_o(2)   IO_19
-set_io      lpc_addr_o(3)   IO_20
-set_io      lpc_addr_o(4)   IO_21
-set_io      lpc_addr_o(5)   IO_22
-set_io      lpc_addr_o(6)   IO_23
-set_io      lpc_addr_o(7)   IO_24
-set_io      lpc_addr_o(8)   IO_25
-set_io      lpc_addr_o(9)   IO_26
-set_io      lpc_addr_o(10)  IO_27
-set_io      lpc_addr_o(11)  IO_28
-set_io      lpc_addr_o(12)  IO_29
-set_io      lpc_addr_o(13)  IO_30
-set_io      lpc_addr_o(14)  IO_31
-set_io      lpc_addr_o(15)  IO_32
-
-set_io      lpc_data_wr     IO_33
-set_io      lpc_wr_done     IO_34
-set_io      lpc_data_rd     IO_35
-set_io      lpc_data_req    IO_36
-
-set_io      irq_num(0)      IO_38
-set_io      irq_num(1)      IO_39
-set_io      irq_num(2)      IO_40
-set_io      irq_num(3)      IO_41
-set_io      interrupt       IO_42
+// Temporary routing of signals that should go towards M4
+set_io      exec            IO_8
+set_io      complete        IO_9
+set_io      abort           IO_10
