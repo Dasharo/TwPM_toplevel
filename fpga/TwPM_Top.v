@@ -45,7 +45,8 @@ wire    [7:0] DP_data;
 
 // RAM lines
 wire    [8:0] RAM_A;
-wire   [31:0] RAM_D;
+wire   [31:0] RAM_WD;
+wire   [31:0] RAM_RD;
 wire          RAM_rd_clk_en;
 wire          RAM_wr_clk_en;
 wire    [3:0] RAM_byte_sel;
@@ -77,7 +78,7 @@ wire            WB_RST_FPGA    ; // Wishbone FPGA Reset
 // Misc
 //
 wire    [31:0]  Device_ID;
-wire   	        boot;
+wire            boot;
 wire            clk_48mhz;
 wire            reset;
 
@@ -96,7 +97,7 @@ gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
 
 assign RAM_A =    DP_addr[10:2];    // 32b words
-assign RAM_D =    lpc_data_wr ? (   // TODO: check if endianness needs changing
+assign RAM_WD =   lpc_data_wr ? (   // TODO: check if endianness needs changing
                     DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data} :
                     DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data, 8'h00} :
                     DP_addr[1:0] === 2'b10 ? {8'h00, DP_data, 16'h0000} :
@@ -104,10 +105,10 @@ assign RAM_D =    lpc_data_wr ? (   // TODO: check if endianness needs changing
                     32'hzzzzzzzz
                   ) : 32'hzzzzzzzz;
 assign DP_data =  lpc_data_rd ? (   // TODO: check if endianness needs changing
-                    DP_addr[1:0] === 2'b00 ? RAM_D[ 7: 0] :
-                    DP_addr[1:0] === 2'b01 ? RAM_D[15: 8] :
-                    DP_addr[1:0] === 2'b10 ? RAM_D[23:16] :
-                    DP_addr[1:0] === 2'b11 ? RAM_D[31:24] :
+                    DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
+                    DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
+                    DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
+                    DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
                     8'hzz
                   ) : 8'hzz;
 assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs changing
@@ -155,8 +156,8 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
       .complete(complete),
       .abort(abort),
       // Signals to/from RAM
-      .RAM_addr(RAM_A),
-      .RAM_data(RAM_D),
+      .RAM_addr(DP_addr),
+      .RAM_data(DP_data),
       .RAM_rd(RAM_rd_clk_en),
       .RAM_wr(RAM_wr_clk_en)
   );
@@ -164,13 +165,13 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
 r512x32_512x32 RAM_INST (
 			.WA(RAM_A),
 			.RA(RAM_A),
-			.WD(RAM_D),
+			.WD(RAM_WD),
 			.WClk(~LCLK),
 			.RClk(~LCLK),
 			.WClk_En(RAM_wr_clk_en),
 			.RClk_En(RAM_rd_clk_en),
-			.WEN({FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd,FB_RAM3_Wr_Dcd}),
-			.RD(RAM_D)
+			.WEN(RAM_byte_sel),
+			.RD(RAM_RD)
 			);
 
 // Empty Verilog model of QLAL4S3B
