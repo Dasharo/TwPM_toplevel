@@ -163,8 +163,7 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
   );
 
 r512x32_512x32 RAM_INST (
-			.WA(RAM_A),
-			.RA(RAM_A),
+			.A(RAM_A),
 			.WD(RAM_WD),
 			.WClk(~LCLK),
 			.RClk(~LCLK),
@@ -276,7 +275,7 @@ qlal4s3b_cell_macro              u_qlal4s3b_cell_macro
     .WB_CLKS                   ( 1'b0                        )  // input
                                                              );
 
-//pragma attribute u_qlal4s3b_cell_macro         preserve_cell true
-//pragma attribute u_AL4S3B_FPGA_IP            preserve_cell true
+//pragma attribute u_qlal4s3b_cell_macro        preserve_cell true
+//pragma attribute RAM_INST                     preserve_cell true
 
 endmodule
