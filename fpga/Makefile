@@ -29,9 +29,7 @@ export QORC_FPGA_PCF_FILE?=$(notdir $(firstword $(wildcard $(QORC_FPGA_RTL_DIR)/
 export QORC_FPGA_DEVICE=ql-eos-s3
 
 # get the RTL source file (paths)
-FPGA_RTL_SRC_PATHS:=verilog-lpc-module/lpc_defines.v
 FPGA_RTL_SRC_PATHS+=verilog-lpc-module/lpc_periph.v
-FPGA_RTL_SRC_PATHS+=verilog-tpm-fifo-registers/defines.v
 FPGA_RTL_SRC_PATHS+=verilog-tpm-fifo-registers/regs_module.v
 # Wishbone on S3 is 32b wide, so use 32b RAM and divide it for regs_module.v.
 # This is easier than the other way around.
