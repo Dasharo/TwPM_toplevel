@@ -42,16 +42,20 @@
 
 // COMMON (recommended, as long as it is understood that these pins are available in the used package)
 // LPC TOP LEVEL port signals
-set_io      LCLK            IO_0
-set_io      LRESET          IO_1
-set_io      LFRAME          IO_2
-set_io      LAD(0)          IO_3
-set_io      LAD(1)          IO_4
-set_io      LAD(2)          IO_5
-set_io      LAD(3)          IO_6
-set_io      SERIRQ          IO_7
+// MUST be one of CLOCK pads
+set_io      LCLK            IO_8
+set_io      LRESET          IO_4
+set_io      LFRAME          IO_11
+set_io      LAD(0)          IO_12
+set_io      LAD(1)          IO_5
+set_io      LAD(2)          IO_7
+set_io      LAD(3)          IO_10
+set_io      SERIRQ          IO_24
 
 // Temporary routing of signals that should go towards M4
-set_io      exec            IO_8
-set_io      complete        IO_9
-set_io      abort           IO_10
+// Green LED, reversed logic
+set_io      exec            IO_21
+// User button, no debounce
+set_io      complete        IO_6
+// Red LED, reversed logic
+set_io      abort           IO_22
