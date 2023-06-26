@@ -32,7 +32,8 @@ output        abort;
 //
 
 // Data provider interface
-wire    [7:0] lpc_data;
+wire    [7:0] data_lpc2dp;
+wire    [7:0] data_dp2lpc;
 wire   [15:0] lpc_addr;
 wire          lpc_data_wr;
 wire          lpc_wr_done;
@@ -41,7 +42,8 @@ wire          lpc_data_req;
 wire    [3:0] irq_num;
 wire          interrupt;
 wire   [10:0] DP_addr;
-wire    [7:0] DP_data;
+wire    [7:0] DP_data_rd;
+wire    [7:0] DP_data_wr;
 
 // RAM lines
 wire    [8:0] RAM_A;
@@ -97,27 +99,24 @@ gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
 
 assign RAM_A =    DP_addr[10:2];    // 32b words
-assign RAM_WD =   lpc_data_wr ? (   // TODO: check if endianness needs changing
-                    DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data} :
-                    DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data, 8'h00} :
-                    DP_addr[1:0] === 2'b10 ? {8'h00, DP_data, 16'h0000} :
-                    DP_addr[1:0] === 2'b11 ? {DP_data, 24'h000000} :
-                    32'hzzzzzzzz
-                  ) : 32'hzzzzzzzz;
-assign DP_data =  lpc_data_rd ? (   // TODO: check if endianness needs changing
-                    DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
-                    DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
-                    DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
-                    DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
-                    8'hzz
-                  ) : 8'hzz;
-assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs changing
-                        DP_addr[1:0] === 2'b00 ? 4'b0001 :
-                        DP_addr[1:0] === 2'b01 ? 4'b0010 :
-                        DP_addr[1:0] === 2'b10 ? 4'b0100 :
-                        DP_addr[1:0] === 2'b11 ? 4'b1000 :
-                        4'b0000
-                      ) : 4'b0000;
+// TODO: check if endianness needs changing in below assignments
+assign RAM_WD =       DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data_wr} :
+                      DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data_wr, 8'h00} :
+                      DP_addr[1:0] === 2'b10 ? {8'h00, DP_data_wr, 16'h0000} :
+                      DP_addr[1:0] === 2'b11 ? {DP_data_wr, 24'h000000} :
+                      32'h00000000;
+
+assign DP_data_rd =   DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
+                      DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
+                      DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
+                      DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
+                      8'hFF;
+
+assign RAM_byte_sel = DP_addr[1:0] === 2'b00 ? 4'b0001 :
+                      DP_addr[1:0] === 2'b01 ? 4'b0010 :
+                      DP_addr[1:0] === 2'b10 ? 4'b0100 :
+                      DP_addr[1:0] === 2'b11 ? 4'b1000 :
+                      4'b0000;
 
 // Example FPGA Design
 //
@@ -130,7 +129,8 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
       .lad_bus(LAD),
       .serirq(SERIRQ),
       // Data provider interface
-      .lpc_data_io(lpc_data),
+      .lpc_data_i(data_dp2lpc),
+      .lpc_data_o(data_lpc2dp),
       .lpc_addr_o(lpc_addr),
       .lpc_data_wr(lpc_data_wr),
       .lpc_wr_done(lpc_wr_done),
@@ -143,7 +143,8 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
   regs_module regs_module_inst (
       // Signals to/from LPC module
       .clk_i(LCLK),
-      .data_io(lpc_data),
+      .data_i(data_lpc2dp),
+      .data_o(data_dp2lpc),
       .addr_i(lpc_addr),
       .data_wr(lpc_data_wr),
       .wr_done(lpc_wr_done),
@@ -157,7 +158,8 @@ assign RAM_byte_sel = lpc_data_wr ? (   // TODO: check if endianness needs chang
       .abort(abort),
       // Signals to/from RAM
       .RAM_addr(DP_addr),
-      .RAM_data(DP_data),
+      .RAM_data_rd(DP_data_rd),
+      .RAM_data_wr(DP_data_wr),
       .RAM_rd(RAM_rd_clk_en),
       .RAM_wr(RAM_wr_clk_en)
   );
