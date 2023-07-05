@@ -29,7 +29,7 @@ system. Without those steps host's services would get in the way of programmer's
 application running in the container. Execute the following:
 
 ```shell
-$ id=$(docker create ghcr.io/dasharo/twpm-sdk:main)
+$ id=$(docker create ghcr.io/dasharo/twpm-sdk@sha256:ca99beadbc692e921762fdbe478d79bdfad3afd3db8d3e4084041bd51caaf6af)
 $ sudo docker cp \
     $id:/home/qorc-sdk/qorc-sdk/TinyFPGA-Programmer-Application/71-QuickFeather.rules \
     /etc/udev/rules.d/
@@ -62,7 +62,7 @@ The container can be started from `TwPM_toplevel` with:
 
 ```shell
 $ docker run --rm -it -v $PWD:/home/qorc-sdk/workspace \
-    --device=/dev/ttyACM0:/dev/ttyS_QORC ghcr.io/dasharo/twpm-sdk:main
+    --device=/dev/ttyACM0:/dev/ttyS_QORC ghcr.io/dasharo/twpm-sdk@sha256:ca99beadbc692e921762fdbe478d79bdfad3afd3db8d3e4084041bd51caaf6af
 ```
 
 Change `ttyACM0` to proper device name, in case there is more than one `ttyACM`
