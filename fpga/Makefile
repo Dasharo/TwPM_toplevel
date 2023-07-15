@@ -1,66 +1,21 @@
-# simple makefile wrapper for QORC SDK project FPGA build
-SHELL:=bash
-
-# for all targets, check whether the QORC SDK environment has been setup first.
-ifndef QORC_SDK_PATH
-$(info )
-$(info QORC_SDK_PATH is not set in the environment, is the QORC SDK initialized?)
-$(info initialize with: 'source envsetup.sh' from the QORC SDK directory in the current shell)
-$(info )
-$(error QORC_SDK_PATH not defined)
+ifndef F4PGA_INSTALL_DIR
+    $(error $F4PGA_INSTALL_DIR not defined)
+endif
+ifndef FPGA_FAM
+    $(error $FPGA_FAM not defined)
+endif
+ifndef F4PGA_PACKAGES
+    $(error $F4PGA_PACKAGES not defined)
 endif
 
-
-# we should be squatting in the 'fpga' dir
-export QORC_FPGA_RTL_DIR=$(shell pwd)
-
-
-# "top" module name : change as per the project
-export QORC_FPGA_TOP_MODULE=TwPM_Top
-
-# PD64/PU64/WR42 : choose the package as per the project
-export QORC_FPGA_PACKAGE=PU64
-
-# if there are multiple .pcf files, we take the first one by default
-# if this is already defined by user in the current environment, we use that instead.
-export QORC_FPGA_PCF_FILE?=$(notdir $(firstword $(wildcard $(QORC_FPGA_RTL_DIR)/*.pcf)))
-
-# device is fixed, ql-eos-s3
-export QORC_FPGA_DEVICE=ql-eos-s3
-
-# get the RTL source file (paths)
-FPGA_RTL_SRC_PATHS+=verilog-lpc-module/lpc_periph.v
-FPGA_RTL_SRC_PATHS+=verilog-tpm-fifo-registers/regs_module.v
-# Wishbone on S3 is 32b wide, so use 32b RAM and divide it for regs_module.v.
-# This is easier than the other way around.
-FPGA_RTL_SRC_PATHS+=ram/r512x32_512x32.v
-FPGA_RTL_SRC_PATHS+=TwPM_Top.v
-# file-names only
-FPGA_RTL_SRCS:=$(notdir $(FPGA_RTL_SRC_PATHS))
-# filter-out some files, enable if needed
-#filters=
-#FPGA_RTL_SRCS:=$(filter-out $(filters),$(FPGA_RTL_SRCS))
-ifeq ($(FPGA_RTL_SRCS),)
-$(error No FPGA RTL Sources Found in $(QORC_FPGA_RTL_DIR))
-else
-# define the target for the build as the generated FPGA binary
-FPGA_RTL_BIN_OBJ:=$(QORC_FPGA_TOP_MODULE).bin
-endif
-
-$(info )
-$(info top: $(QORC_FPGA_TOP_MODULE))
-$(info rtl-dir: $(QORC_FPGA_RTL_DIR))
-$(info rtl-file-names: $(FPGA_RTL_SRCS))
-#$(info rtl-file-paths: $(FPGA_RTL_SRC_PATHS))
-$(info pcf: $(QORC_FPGA_PCF_FILE))
-#$(info bin : $(FPGA_RTL_BIN_OBJ))
-$(info )
+FPGA_TOP_MODULE := TwPM_Top
+FPGA_RTL_BIN_OBJ := build/$(FPGA_TOP_MODULE).bin
 
 .PHONY: all
 all: $(FPGA_RTL_BIN_OBJ)
 
-$(FPGA_RTL_BIN_OBJ): $(FPGA_RTL_SRC_PATHS)
-	@time ql_symbiflow -compile -src $(QORC_FPGA_RTL_DIR) -d $(QORC_FPGA_DEVICE) -t $(QORC_FPGA_TOP_MODULE) -v $(FPGA_RTL_SRC_PATHS) -p $(QORC_FPGA_PCF_FILE) -P $(QORC_FPGA_PACKAGE) -dump binary openocd jlink
+$(FPGA_RTL_BIN_OBJ): flow.json
+	f4pga -vvv build --flow ./flow.json
 
 .PHONY: flash
 flash: $(FPGA_RTL_BIN_OBJ)
@@ -68,9 +23,4 @@ flash: $(FPGA_RTL_BIN_OBJ)
 
 .PHONY: clean
 clean:
-	@rm -r $(QORC_FPGA_RTL_DIR)/build 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*bit.h 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.bin 					2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.jlink 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.openocd 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/Makefile.symbiflow 	                2> /dev/null || true
+	@$(RM) -r build/

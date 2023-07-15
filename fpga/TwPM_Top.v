@@ -210,10 +210,10 @@ qlal4s3b_cell_macro              u_qlal4s3b_cell_macro
     //
     // FB Clocks
     //
-    .Sys_Clk0                  ( Sys_Clk0                    ), // output
-    .Sys_Clk0_Rst              ( Sys_Clk0_Rst                ), // output
-    .Sys_Clk1                  ( Sys_Clk1                    ), // output
-    .Sys_Clk1_Rst              ( Sys_Clk1_Rst                ), // output
+    .Clk_C16                   ( Sys_Clk0                    ), // output
+    .Clk_C16_Rst               ( Sys_Clk0_Rst                ), // output
+    .Clk_C21                   ( Sys_Clk1                    ), // output
+    .Clk_C21_Rst               ( Sys_Clk1_Rst                ), // output
     //
     // Packet FIFO
     //

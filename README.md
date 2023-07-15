@@ -131,6 +131,18 @@ Note that if you already have built whole project earlier, `make` should be able
 to detect which components have changed and rebuild only those. In that case you
 can follow [the easy path](#building---easy).
 
+### f4pga toolchain
+
+[This page](https://f4pga-examples.readthedocs.io/en/latest/getting.html) covers
+setting up local environment for EOS S3 which can later be activated as:
+```
+# Use the correct value for this
+F4PGA_INSTALL_DIR=$HOME/...
+
+source "$F4PGA_INSTALL_DIR/eos-s3/conda/etc/profile.d/conda.sh"
+conda activate eos-s3
+```
+
 ### MCU
 
 > TBD: description of building and hacking TPM stack and platform glue code.
