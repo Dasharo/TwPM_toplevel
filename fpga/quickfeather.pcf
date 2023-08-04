@@ -53,9 +53,5 @@ set_io      LAD(3)          IO_10
 set_io      SERIRQ          IO_24
 
 // Temporary routing of signals that should go towards M4
-// Green LED, reversed logic
-set_io      exec            IO_21
 // User button, no debounce
 set_io      complete        IO_6
-// Red LED, reversed logic
-set_io      abort           IO_22
