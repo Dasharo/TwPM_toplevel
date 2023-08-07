@@ -40,6 +40,7 @@ wire          interrupt;
 wire   [10:0] DP_addr;
 wire    [7:0] DP_data_rd;
 wire    [7:0] DP_data_wr;
+wire          DP_wr_en;
 wire          exec;
 wire          abort;
 
@@ -53,8 +54,6 @@ wire    [3:0] RAM_byte_sel;
 // RAM lines - DP
 wire    [8:0] DP_RAM_A;
 wire   [31:0] DP_RAM_WD;
-wire          DP_RAM_rd_clk_en;   // TODO: remove
-wire          DP_RAM_wr_en;
 wire    [3:0] DP_RAM_byte_sel;
 
 // RAM lines - WB
@@ -122,7 +121,7 @@ assign DP_data_rd =       DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
                           DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
                           8'hFF;
 
-assign DP_RAM_byte_sel =  DP_RAM_wr_en === 1'b0  ? 4'b0000 :
+assign DP_RAM_byte_sel =  DP_wr_en     === 1'b0  ? 4'b0000 :
                           DP_addr[1:0] === 2'b00 ? 4'b0001 :
                           DP_addr[1:0] === 2'b01 ? 4'b0010 :
                           DP_addr[1:0] === 2'b10 ? 4'b0100 :
@@ -201,18 +200,15 @@ regs_module regs_module_inst (
   .RAM_addr(DP_addr),
   .RAM_data_rd(DP_data_rd),
   .RAM_data_wr(DP_data_wr),
-  .RAM_wr(DP_RAM_wr_en)
+  .RAM_wr(DP_wr_en)
 );
 
 r512x32_512x32 RAM_INST (
   .A(RAM_A),
+  .RD(RAM_RD),
   .WD(RAM_WD),
-  .WClk(RAM_CLK),
-  .RClk(RAM_CLK), // TODO: remove, unused
-  .WClk_En(1'b1), // TODO: remove, constant
-  .RClk_En(1'b1), // TODO: remove, constant
-  .WEN(RAM_byte_sel),
-  .RD(RAM_RD)
+  .Clk(RAM_CLK),
+  .WEN(RAM_byte_sel)
 );
 
 // Empty Verilog model of QLAL4S3B

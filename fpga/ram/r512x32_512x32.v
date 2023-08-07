@@ -1,22 +1,19 @@
-module r512x32_512x32 (A,WD,WClk,RClk,WClk_En,RClk_En,WEN,RD);
+module r512x32_512x32 (A,RD,WD,Clk,WEN);
 
-input [8:0] A;
-input WClk,RClk;
-input WClk_En,RClk_En;
-input [3:0] WEN;
-input [31:0] WD;
+input       [8:0] A;
 output reg [31:0] RD;
+input      [31:0] WD;
+input             Clk;
+input       [3:0] WEN;
 
-reg [31:0] mem [0:511];
-integer    i;
+reg        [31:0] mem [0:511];
+integer           i;
 
-always @(posedge WClk)
+always @(posedge Clk)
   begin
-    if (RClk_En)
-      RD <= mem[A];
-    if (WClk_En)
-      for (i = 0; i < 4; i++)
-        if (WEN[i])
-          mem[A][i*8 +: 8] <= WD[i*8 +: 8];
+    RD <= mem[A];
+    for (i = 0; i < 4; i++)
+      if (WEN[i])
+        mem[A][i*8 +: 8] <= WD[i*8 +: 8];
   end
 endmodule
