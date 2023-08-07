@@ -1,3 +1,11 @@
+parameter OP_TYPE_REG_ADDRESS   = 17'h00000;      // 0x40020000
+parameter LOCALITY_REG_ADDRESS  = 17'h00004;      // 0x40020004
+parameter BUF_SIZE_REG_ADDRESS  = 17'h00008;      // 0x40020008
+parameter COMPLETE_REG_ADDRESS  = 17'h00040;      // 0x40020400
+parameter FPGA_RAM_BASE_ADDRESS = 17'h00800;      // 0x40020800
+parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
+parameter RAM_ADDR_WIDTH        = 11;
+
 module TwPM_Top (
 // LPC interface
   LCLK,
@@ -37,10 +45,13 @@ wire          lpc_data_rd;
 wire          lpc_data_req;
 wire    [3:0] irq_num;
 wire          interrupt;
-wire   [10:0] DP_addr;
+wire [RAM_ADDR_WIDTH-1:0] DP_addr;
 wire    [7:0] DP_data_rd;
 wire    [7:0] DP_data_wr;
 wire          DP_wr_en;
+wire   [ 3:0] op_type;
+wire   [ 3:0] locality;
+wire [RAM_ADDR_WIDTH-1:0] buf_len;
 wire          exec;
 wire          abort;
 
@@ -89,10 +100,6 @@ wire  [15:0]  Device_ID = 16'h0123;   // TODO: decide what to do with it
 wire          clk_48mhz;
 wire          reset;
 
-parameter     FPGA_REG_BASE_ADDRESS = 17'h00000; //0x40020000
-parameter     FPGA_RAM_BASE_ADDRESS = 17'h00800; //0x40020800
-parameter     DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
-
 //------Logic Operations---------------
 //
 
@@ -107,7 +114,7 @@ gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
 
 // RAM DP lines assignments
-assign DP_RAM_A =         DP_addr[10:2];    // 32b words
+assign DP_RAM_A =         DP_addr[RAM_ADDR_WIDTH-1:2];    // 32b words
 // TODO: check if endianness needs changing in below assignments
 assign DP_RAM_WD =        DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data_wr} :
                           DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data_wr, 8'h00} :
@@ -129,9 +136,10 @@ assign DP_RAM_byte_sel =  DP_wr_en     === 1'b0  ? 4'b0000 :
                           4'b0000;
 
 // RAM WB lines assignments
-assign WB_RAM_A =         WBs_ADR[10:2];    // 32b words
-assign WB_RAM_byte_sel =  (WBs_ADR[16:11] === FPGA_RAM_BASE_ADDRESS[16:11] && WBs_CYC === 1'b1 &&
-                           WBs_STB === 1'b1 && WBs_WE  === 1'b1 && WBs_ACK === 1'b0) ?
+assign WB_RAM_A =         WBs_ADR[RAM_ADDR_WIDTH-1:2];    // 32b words
+assign WB_RAM_byte_sel =  (WBs_ADR[16:RAM_ADDR_WIDTH] === FPGA_RAM_BASE_ADDRESS[16:RAM_ADDR_WIDTH]
+                           && WBs_CYC === 1'b1 && WBs_STB === 1'b1 && WBs_WE  === 1'b1
+                           && WBs_ACK === 1'b0) ?
                           WBs_BYTE_STB : 4'b0000;
 
 // Combined RAM signals
@@ -152,12 +160,16 @@ always @(posedge WB_CLK or posedge WB_RST) begin
 end
 
 // Define the how to read from each IP
-always @(WBs_ADR /* TODO: or REG_RD */ or RAM_RD) begin
-  case(WBs_ADR[16:11])
-    FPGA_REG_BASE_ADDRESS[16:11]: WBs_RD_DAT <= DEFAULT_READ_VALUE; // TODO: implement registers
-    FPGA_RAM_BASE_ADDRESS[16:11]: WBs_RD_DAT <= RAM_RD;
-    default:                      WBs_RD_DAT <= DEFAULT_READ_VALUE;
-  endcase
+always @(WBs_ADR or op_type or locality or buf_len or RAM_RD) begin
+  if (WBs_ADR[16:RAM_ADDR_WIDTH] === FPGA_RAM_BASE_ADDRESS[16:RAM_ADDR_WIDTH])
+    WBs_RD_DAT <= RAM_RD;
+  else
+    case (WBs_ADR[16:2])
+      OP_TYPE_REG_ADDRESS[16:2]:  WBs_RD_DAT <= {28'h0000000, op_type};
+      LOCALITY_REG_ADDRESS[16:2]: WBs_RD_DAT <= {28'h0000000, locality};
+      BUF_SIZE_REG_ADDRESS[16:2]: WBs_RD_DAT <= {{(32-RAM_ADDR_WIDTH){1'b0}}, buf_len};
+      default:                    WBs_RD_DAT <= DEFAULT_READ_VALUE;
+    endcase
 end
 
 // LPC Peripheral instantiation
@@ -193,6 +205,9 @@ regs_module regs_module_inst (
   .irq_num(irq_num),
   .interrupt(interrupt),
   // Signals to/from M4
+  .op_type(op_type),
+  .locality(locality),
+  .buf_len(buf_len),
   .exec(exec),
   .complete(complete),
   .abort(abort),
@@ -203,6 +218,7 @@ regs_module regs_module_inst (
   .RAM_wr(DP_wr_en)
 );
 
+// TODO: parameterize address width
 r512x32_512x32 RAM_INST (
   .A(RAM_A),
   .RD(RAM_RD),
