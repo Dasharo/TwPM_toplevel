@@ -43,13 +43,23 @@ wire    [7:0] DP_data_wr;
 wire          exec;
 wire          abort;
 
-// RAM lines
+// RAM lines - final
 wire    [8:0] RAM_A;
 wire   [31:0] RAM_WD;
 wire   [31:0] RAM_RD;
-wire          RAM_rd_clk_en;
-wire          RAM_wr_clk_en;
+wire          RAM_CLK;
 wire    [3:0] RAM_byte_sel;
+
+// RAM lines - DP
+wire    [8:0] DP_RAM_A;
+wire   [31:0] DP_RAM_WD;
+wire          DP_RAM_rd_clk_en;   // TODO: remove
+wire          DP_RAM_wr_en;
+wire    [3:0] DP_RAM_byte_sel;
+
+// RAM lines - WB
+wire    [8:0] WB_RAM_A;
+wire    [3:0] WB_RAM_byte_sel;
 
 // FPGA Global Signals
 //
@@ -67,18 +77,22 @@ wire   [3:0]  WBs_BYTE_STB   ; // Wishbone Byte   Enables
 wire          WBs_WE         ; // Wishbone Write  Enable Strobe
 wire          WBs_RD         ; // Wishbone Read   Enable Strobe
 wire          WBs_STB        ; // Wishbone Transfer      Strobe
-wire  [31:0]  WBs_RD_DAT     ; // Wishbone Read   Data Bus
+reg   [31:0]  WBs_RD_DAT     ; // Wishbone Read   Data Bus
 wire  [31:0]  WBs_WR_DAT     ; // Wishbone Write  Data Bus
-wire          WBs_ACK        ; // Wishbone Client Acknowledge
+reg           WBs_ACK        ; // Wishbone Client Acknowledge
 wire          WB_RST         ; // Wishbone FPGA Reset
 wire          WB_RST_FPGA    ; // Wishbone FPGA Reset
 
 // Misc
 //
-wire  [31:0]  Device_ID;
+wire          WBs_ACK_nxt;
+wire  [15:0]  Device_ID = 16'h0123;   // TODO: decide what to do with it
 wire          clk_48mhz;
 wire          reset;
 
+parameter     FPGA_REG_BASE_ADDRESS = 17'h00000; //0x40020000
+parameter     FPGA_RAM_BASE_ADDRESS = 17'h00800; //0x40020800
+parameter     DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
 
 //------Logic Operations---------------
 //
@@ -93,25 +107,59 @@ gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK     ));
 gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
 
-assign RAM_A =        DP_addr[10:2];    // 32b words
+// RAM DP lines assignments
+assign DP_RAM_A =         DP_addr[10:2];    // 32b words
 // TODO: check if endianness needs changing in below assignments
-assign RAM_WD =       DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data_wr} :
-                      DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data_wr, 8'h00} :
-                      DP_addr[1:0] === 2'b10 ? {8'h00, DP_data_wr, 16'h0000} :
-                      DP_addr[1:0] === 2'b11 ? {DP_data_wr, 24'h000000} :
-                      32'h00000000;
+assign DP_RAM_WD =        DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data_wr} :
+                          DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data_wr, 8'h00} :
+                          DP_addr[1:0] === 2'b10 ? {8'h00, DP_data_wr, 16'h0000} :
+                          DP_addr[1:0] === 2'b11 ? {DP_data_wr, 24'h000000} :
+                          32'h00000000;
 
-assign DP_data_rd =   DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
-                      DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
-                      DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
-                      DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
-                      8'hFF;
+assign DP_data_rd =       DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
+                          DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
+                          DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
+                          DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
+                          8'hFF;
 
-assign RAM_byte_sel = DP_addr[1:0] === 2'b00 ? 4'b0001 :
-                      DP_addr[1:0] === 2'b01 ? 4'b0010 :
-                      DP_addr[1:0] === 2'b10 ? 4'b0100 :
-                      DP_addr[1:0] === 2'b11 ? 4'b1000 :
-                      4'b0000;
+assign DP_RAM_byte_sel =  DP_RAM_wr_en === 1'b0  ? 4'b0000 :
+                          DP_addr[1:0] === 2'b00 ? 4'b0001 :
+                          DP_addr[1:0] === 2'b01 ? 4'b0010 :
+                          DP_addr[1:0] === 2'b10 ? 4'b0100 :
+                          DP_addr[1:0] === 2'b11 ? 4'b1000 :
+                          4'b0000;
+
+// RAM WB lines assignments
+assign WB_RAM_A =         WBs_ADR[10:2];    // 32b words
+assign WB_RAM_byte_sel =  (WBs_ADR[16:11] === FPGA_RAM_BASE_ADDRESS[16:11] && WBs_CYC === 1'b1 &&
+                           WBs_STB === 1'b1 && WBs_WE  === 1'b1 && WBs_ACK === 1'b0) ?
+                          WBs_BYTE_STB : 4'b0000;
+
+// Combined RAM signals
+assign RAM_A =        exec ? WB_RAM_A         : DP_RAM_A;
+assign RAM_WD =       exec ? WBs_WR_DAT       : DP_RAM_WD;
+assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
+// This is sketchy, may produce spurious edges and not give enough time for signals to stabilize
+assign RAM_CLK =      exec ? WB_CLK           : ~LCLK;
+
+// WB acknowledge signal
+assign WBs_ACK_nxt = WBs_CYC & WBs_STB & (~WBs_ACK);
+
+always @(posedge WB_CLK or posedge WB_RST) begin
+  if (WB_RST)
+    WBs_ACK <= 1'b0;
+  else
+    WBs_ACK <= WBs_ACK_nxt;
+end
+
+// Define the how to read from each IP
+always @(WBs_ADR /* TODO: or REG_RD */ or RAM_RD) begin
+  case(WBs_ADR[16:11])
+    FPGA_REG_BASE_ADDRESS[16:11]: WBs_RD_DAT <= DEFAULT_READ_VALUE; // TODO: implement registers
+    FPGA_RAM_BASE_ADDRESS[16:11]: WBs_RD_DAT <= RAM_RD;
+    default:                      WBs_RD_DAT <= DEFAULT_READ_VALUE;
+  endcase
+end
 
 // LPC Peripheral instantiation
 lpc_periph lpc_periph_inst (
@@ -153,17 +201,16 @@ regs_module regs_module_inst (
   .RAM_addr(DP_addr),
   .RAM_data_rd(DP_data_rd),
   .RAM_data_wr(DP_data_wr),
-  .RAM_rd(RAM_rd_clk_en),
-  .RAM_wr(RAM_wr_clk_en)
+  .RAM_wr(DP_RAM_wr_en)
 );
 
 r512x32_512x32 RAM_INST (
   .A(RAM_A),
   .WD(RAM_WD),
-  .WClk(~LCLK),
-  .RClk(~LCLK),
-  .WClk_En(RAM_wr_clk_en),
-  .RClk_En(RAM_rd_clk_en),
+  .WClk(RAM_CLK),
+  .RClk(RAM_CLK), // TODO: remove, unused
+  .WClk_En(1'b1), // TODO: remove, constant
+  .RClk_En(1'b1), // TODO: remove, constant
   .WEN(RAM_byte_sel),
   .RD(RAM_RD)
 );
@@ -237,7 +284,7 @@ qlal4s3b_cell_macro u_qlal4s3b_cell_macro
   //
   // Misc
   //
-  .Device_ID                 ( Device_ID[15:0]      ), // input  [15:0]
+  .Device_ID                 ( Device_ID            ), // input  [15:0]
   //
   // FBIO Signals
   //
