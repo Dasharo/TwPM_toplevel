@@ -1,7 +1,8 @@
-parameter OP_TYPE_REG_ADDRESS   = 17'h00000;      // 0x40020000
-parameter LOCALITY_REG_ADDRESS  = 17'h00004;      // 0x40020004
-parameter BUF_SIZE_REG_ADDRESS  = 17'h00008;      // 0x40020008
-parameter COMPLETE_REG_ADDRESS  = 17'h00040;      // 0x40020400
+parameter STATUS_REG_ADDRESS    = 17'h00000;      // 0x40020000
+parameter OP_TYPE_REG_ADDRESS   = 17'h00004;      // 0x40020004
+parameter LOCALITY_REG_ADDRESS  = 17'h00008;      // 0x40020008
+parameter BUF_SIZE_REG_ADDRESS  = 17'h0000C;      // 0x4002000C
+parameter COMPLETE_REG_ADDRESS  = 17'h00040;      // 0x40020040
 parameter FPGA_RAM_BASE_ADDRESS = 17'h00800;      // 0x40020800
 parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
 parameter RAM_ADDR_WIDTH        = 11;
@@ -165,6 +166,7 @@ always @(WBs_ADR or op_type or locality or buf_len or RAM_RD) begin
     WBs_RD_DAT <= RAM_RD;
   else
     case (WBs_ADR[16:2])
+      STATUS_REG_ADDRESS[16:2]:   WBs_RD_DAT <= {29'h0000000, complete, abort, exec};
       OP_TYPE_REG_ADDRESS[16:2]:  WBs_RD_DAT <= {28'h0000000, op_type};
       LOCALITY_REG_ADDRESS[16:2]: WBs_RD_DAT <= {28'h0000000, locality};
       BUF_SIZE_REG_ADDRESS[16:2]: WBs_RD_DAT <= {{(32-RAM_ADDR_WIDTH){1'b0}}, buf_len};
