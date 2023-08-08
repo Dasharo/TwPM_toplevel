@@ -6,6 +6,7 @@ parameter COMPLETE_REG_ADDRESS  = 17'h00040;      // 0x40020040
 parameter FPGA_RAM_BASE_ADDRESS = 17'h00800;      // 0x40020800
 parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
 parameter RAM_ADDR_WIDTH        = 11;
+parameter COMPLETE_PULSE_WIDTH  = 20;
 
 module TwPM_Top (
 // LPC interface
@@ -13,9 +14,7 @@ module TwPM_Top (
   LRESET,
   LFRAME,
   LAD,
-  SERIRQ,
-// M4 interface - to be removed
-  complete
+  SERIRQ
 );
 
 
@@ -30,8 +29,6 @@ input         LRESET;
 input         LFRAME;
 inout   [3:0] LAD;
 inout         SERIRQ;
-
-input         complete;
 
 //------Internal Signals---------------
 //
@@ -55,6 +52,7 @@ wire   [ 3:0] locality;
 wire [RAM_ADDR_WIDTH-1:0] buf_len;
 wire          exec;
 wire          abort;
+wire          complete;
 
 // RAM lines - final
 wire    [8:0] RAM_A;
@@ -100,6 +98,7 @@ wire          WBs_ACK_nxt;
 wire  [15:0]  Device_ID = 16'h0123;   // TODO: decide what to do with it
 wire          clk_48mhz;
 wire          reset;
+reg   [ 7:0]  complete_pulse_counter = 0;
 
 //------Logic Operations---------------
 //
@@ -113,6 +112,8 @@ gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK     ));
 
 gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
 gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
+
+assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
 
 // RAM DP lines assignments
 assign DP_RAM_A =         DP_addr[RAM_ADDR_WIDTH-1:2];    // 32b words
@@ -147,17 +148,25 @@ assign WB_RAM_byte_sel =  (WBs_ADR[16:RAM_ADDR_WIDTH] === FPGA_RAM_BASE_ADDRESS[
 assign RAM_A =        exec ? WB_RAM_A         : DP_RAM_A;
 assign RAM_WD =       exec ? WBs_WR_DAT       : DP_RAM_WD;
 assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
-// This is sketchy, may produce spurious edges and not give enough time for signals to stabilize
+// This is sketchy, may produce spurious edges and not give enough time for signals to stabilize.
+// It depends on RAM_byte_sel being zeroed on exec changes.
 assign RAM_CLK =      exec ? WB_CLK           : ~LCLK;
 
 // WB acknowledge signal
 assign WBs_ACK_nxt = WBs_CYC & WBs_STB & (~WBs_ACK);
 
 always @(posedge WB_CLK or posedge WB_RST) begin
-  if (WB_RST)
-    WBs_ACK <= 1'b0;
-  else
+  if (WB_RST) begin
+    WBs_ACK                 <= 1'b0;
+    complete_pulse_counter  <= 1'b0;
+  end else begin
     WBs_ACK <= WBs_ACK_nxt;
+    if (WBs_ADR[16:2] === COMPLETE_REG_ADDRESS[16:2] && complete_pulse_counter === 8'h0
+        && WBs_CYC === 1'b1 && WBs_STB === 1'b1 && WBs_WE  === 1'b1 && WBs_ACK === 1'b0)
+      complete_pulse_counter <= COMPLETE_PULSE_WIDTH;
+    else
+      complete_pulse_counter <= complete_pulse_counter - 1;
+  end
 end
 
 // Define the how to read from each IP
