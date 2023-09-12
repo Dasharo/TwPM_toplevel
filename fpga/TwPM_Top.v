@@ -73,10 +73,8 @@ wire    [3:0] WB_RAM_byte_sel;
 // FPGA Global Signals
 //
 wire          WB_CLK         ; // Selected FPGA Clock
-wire          Sys_Clk0       ; // Selected FPGA Clock
-wire          Sys_Clk0_Rst   ; // Selected FPGA Reset
-wire          Sys_Clk1       ; // Selected FPGA Clock
-wire          Sys_Clk1_Rst   ; // Selected FPGA Reset
+wire          Sys_Clk0       ; // Clock coming from Cortex-M4 (domain C16)
+wire          Sys_Clk0_Rst   ; // C16 clock reset
 
 // Wishbone Bus Signals
 //
@@ -90,13 +88,11 @@ reg   [31:0]  WBs_RD_DAT     ; // Wishbone Read   Data Bus
 wire  [31:0]  WBs_WR_DAT     ; // Wishbone Write  Data Bus
 reg           WBs_ACK        ; // Wishbone Client Acknowledge
 wire          WB_RST         ; // Wishbone FPGA Reset
-wire          WB_RST_FPGA    ; // Wishbone FPGA Reset
 
 // Misc
 //
 wire          WBs_ACK_nxt;
 wire  [15:0]  Device_ID = 16'h0123;   // TODO: decide what to do with it
-wire          clk_48mhz;
 wire          reset;
 reg   [ 7:0]  complete_pulse_counter = 0;
 
@@ -105,13 +101,10 @@ reg   [ 7:0]  complete_pulse_counter = 0;
 
 // Determine the FPGA reset
 //
-// Note: Reset the FPGA IP on either the AHB or clock domain reset signals.
+// Note: Reset the FPGA IP on either the Wishbone or C16 reset signals.
 //
-gclkbuff u_gclkbuff_reset ( .A(Sys_Clk0_Rst | WB_RST) , .Z(WB_RST_FPGA) );
-gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK     ));
-
-gclkbuff u_gclkbuff_reset1 ( .A(Sys_Clk1_Rst) , .Z(reset) );
-gclkbuff u_gclkbuff_clock1  ( .A(Sys_Clk1   ) , .Z(clk_48mhz ) );
+gclkbuff u_gclkbuff_reset ( .A(Sys_Clk0_Rst | WB_RST) , .Z(reset) );
+gclkbuff u_gclkbuff_clock ( .A(Sys_Clk0             ) , .Z(WB_CLK ));
 
 assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
 
@@ -256,13 +249,6 @@ qlal4s3b_cell_macro u_qlal4s3b_cell_macro
   .WBs_RD_DAT                ( WBs_RD_DAT           ), // input  [31:0] | Read Data Bus              from FPGA
   .WBs_ACK                   ( WBs_ACK              ), // input         | Transfer Cycle Acknowledge from FPGA
   //
-  // SDMA Signals
-  //
-  .SDMA_Req                  ( 4'b0000              ), // input   [3:0]
-  .SDMA_Sreq                 ( 4'b0000              ), // input   [3:0]
-  .SDMA_Done                 (                      ), // output  [3:0]
-  .SDMA_Active               (                      ), // output  [3:0]
-  //
   // FB Interrupts
   //
   .FB_msg_out                ( {2'b00, abort, exec} ), // input   [3:0]
@@ -274,69 +260,10 @@ qlal4s3b_cell_macro u_qlal4s3b_cell_macro
   //
   .Sys_Clk0                  ( Sys_Clk0             ), // output
   .Sys_Clk0_Rst              ( Sys_Clk0_Rst         ), // output
-  .Sys_Clk1                  ( Sys_Clk1             ), // output
-  .Sys_Clk1_Rst              ( Sys_Clk1_Rst         ), // output
-  //
-  // Packet FIFO
-  //
-  .Sys_PKfb_Clk              (  1'b0                ), // input
-  .Sys_PKfb_Rst              (                      ), // output
-  .FB_PKfbData               ( 32'h0                ), // input  [31:0]
-  .FB_PKfbPush               (  4'h0                ), // input   [3:0]
-  .FB_PKfbSOF                (  1'b0                ), // input
-  .FB_PKfbEOF                (  1'b0                ), // input
-  .FB_PKfbOverflow           (                      ), // output
-  //
-  // Sensor Interface
-  //
-  .Sensor_Int                (                      ), // output  [7:0]
-  .TimeStamp                 (                      ), // output [23:0]
-  //
-  // SPI Master APB Bus
-  //
-  .Sys_Pclk                  (                      ), // output
-  .Sys_Pclk_Rst              (                      ), // output      <-- Fixed to add "_Rst"
-  .Sys_PSel                  (  1'b0                ), // input
-  .SPIm_Paddr                ( 16'h0                ), // input  [15:0]
-  .SPIm_PEnable              (  1'b0                ), // input
-  .SPIm_PWrite               (  1'b0                ), // input
-  .SPIm_PWdata               ( 32'h0                ), // input  [31:0]
-  .SPIm_Prdata               (                      ), // output [31:0]
-  .SPIm_PReady               (                      ), // output
-  .SPIm_PSlvErr              (                      ), // output
   //
   // Misc
   //
   .Device_ID                 ( Device_ID            ), // input  [15:0]
-  //
-  // FBIO Signals
-  //
-  .FBIO_In                   (                      ), // output [13:0] <-- Do Not make any connections; Use Constraint manager in SpDE to sFBIO
-  .FBIO_In_En                (                      ), // input  [13:0] <-- Do Not make any connections; Use Constraint manager in SpDE to sFBIO
-  .FBIO_Out                  (                      ), // input  [13:0] <-- Do Not make any connections; Use Constraint manager in SpDE to sFBIO
-  .FBIO_Out_En               (                      ), // input  [13:0] <-- Do Not make any connections; Use Constraint manager in SpDE to sFBIO
-  //
-  // ???
-  //
-  .SFBIO                     (                      ), // inout  [13:0]
-  .Device_ID_6S              ( 1'b0                 ), // input
-  .Device_ID_4S              ( 1'b0                 ), // input
-  .SPIm_PWdata_26S           ( 1'b0                 ), // input
-  .SPIm_PWdata_24S           ( 1'b0                 ), // input
-  .SPIm_PWdata_14S           ( 1'b0                 ), // input
-  .SPIm_PWdata_11S           ( 1'b0                 ), // input
-  .SPIm_PWdata_0S            ( 1'b0                 ), // input
-  .SPIm_Paddr_8S             ( 1'b0                 ), // input
-  .SPIm_Paddr_6S             ( 1'b0                 ), // input
-  .FB_PKfbPush_1S            ( 1'b0                 ), // input
-  .FB_PKfbData_31S           ( 1'b0                 ), // input
-  .FB_PKfbData_21S           ( 1'b0                 ), // input
-  .FB_PKfbData_19S           ( 1'b0                 ), // input
-  .FB_PKfbData_9S            ( 1'b0                 ), // input
-  .FB_PKfbData_6S            ( 1'b0                 ), // input
-  .Sys_PKfb_ClkS             ( 1'b0                 ), // input
-  .FB_BusyS                  ( 1'b0                 ), // input
-  .WB_CLKS                   ( 1'b0                 )  // input
 );
 
 //pragma attribute u_qlal4s3b_cell_macro        preserve_cell true
