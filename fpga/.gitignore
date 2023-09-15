@@ -4,3 +4,4 @@ build
 *.jlink
 *.openocd
 Makefile.symbiflow
+__pycache__
