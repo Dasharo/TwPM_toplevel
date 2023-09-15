@@ -1,0 +1,39 @@
+partname qlal4s3b
+packname PU90
+
+place LAD[0] FBIO_23
+place LAD[1] FBIO_31
+place LAD[2] FBIO_12
+place LAD[3] FBIO_5
+place LRESET FBIO_11
+place LFRAME FBIO_10
+place SERIRQ FBIO_4
+place LCLK   FBIO_7
+
+UnusedIO HIZ
+
+bankstandard BANK_A LVTTL
+bankstandard BANK_B LVTTL
+
+bank BANK_A vccio 3.3
+bank BANK_B vccio 3.3
+
+# Setup clock constraints
+create_clock LCLK -source LCLK -period 30.30 -clktoout 10
+set_false_path -from LRESET
+
+# Generate as fastest circuit as possible
+toollogic Mode Overnight
+toollogic Goal Speed
+toollogic Level 2
+
+toolplacer Mode Overnight
+toolplacer Lambda 0.300000
+toolplacer Level 2
+toolplacer newGreedyFlow true
+
+tooldelay SpeedGrade 8
+tooldelay Corner Best
+tooldelay Mode Commercial
+
+set_delay_opt  -range COM -corner BST -speedgrade 8
