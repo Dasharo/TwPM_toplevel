@@ -9,6 +9,11 @@ place LRESET FBIO_11
 place LFRAME FBIO_10
 place SERIRQ FBIO_4
 place LCLK   FBIO_7
+place fsm_state_export[0] FBIO_2
+place fsm_state_export[1] FBIO_13
+place fsm_state_export[2] FBIO_25
+place fsm_state_export[3] FBIO_30
+place fsm_state_export[4] SFBIO_2
 
 UnusedIO HIZ
 

@@ -14,7 +14,8 @@ module TwPM_Top (
   LRESET,
   LFRAME,
   LAD,
-  SERIRQ
+  SERIRQ,
+  fsm_state_export
 );
 
 
@@ -22,6 +23,7 @@ module TwPM_Top (
 //
 
 
+output [4:0] fsm_state_export;
 //------Port Signals-------------------
 
 input         LCLK;
@@ -35,15 +37,15 @@ inout         SERIRQ;
 
 // Data provider interface
 wire    [7:0] data_lpc2dp;
-wire    [7:0] data_dp2lpc;
+wire    [7:0] data_dp2lpc = 8'b11100011;
 wire   [15:0] lpc_addr;
 wire          lpc_data_wr;
 wire          lpc_wr_done;
-wire          lpc_data_rd;
+wire          lpc_data_rd = 1;
 wire          lpc_data_req;
 wire    [3:0] irq_num;
 wire          interrupt;
-wire [RAM_ADDR_WIDTH-1:0] DP_addr;
+/*wire [RAM_ADDR_WIDTH-1:0] DP_addr;
 wire    [7:0] DP_data_rd;
 wire    [7:0] DP_data_wr;
 wire          DP_wr_en;
@@ -174,7 +176,7 @@ always @(WBs_ADR or op_type or locality or buf_len or RAM_RD) begin
       BUF_SIZE_REG_ADDRESS[16:2]: WBs_RD_DAT <= {{(32-RAM_ADDR_WIDTH){1'b0}}, buf_len};
       default:                    WBs_RD_DAT <= DEFAULT_READ_VALUE;
     endcase
-end
+end*/
 
 // LPC Peripheral instantiation
 lpc_periph lpc_periph_inst (
@@ -193,10 +195,11 @@ lpc_periph lpc_periph_inst (
   .lpc_data_rd(lpc_data_rd),
   .lpc_data_req(lpc_data_req),
   .irq_num(irq_num),
-  .interrupt(interrupt)
+  .interrupt(interrupt),
+  .fsm_state_export(fsm_state_export)
 );
 
-regs_module regs_module_inst (
+/*regs_module regs_module_inst (
   // Signals to/from LPC module
   .clk_i(LCLK),
   .data_i(data_lpc2dp),
@@ -268,5 +271,5 @@ qlal4s3b_cell_macro u_qlal4s3b_cell_macro
 
 //pragma attribute u_qlal4s3b_cell_macro        preserve_cell true
 //pragma attribute RAM_INST                     preserve_cell true
-
+*/
 endmodule

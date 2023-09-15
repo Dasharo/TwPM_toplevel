@@ -177,8 +177,8 @@ def main():
         pad_config[constraint.pad] = {
             "mode": mode,
             "pull": Pull.DISABLED,
-            "drive": Drive.MA_2,
-            "slew": Slew.SLOW,
+            "drive": Drive.MA_12,
+            "slew": Slew.FAST,
             "schmitt": Schmitt.DISABLED,
             "control": Control.FABRIC,
             # TODO: some pads have FBIO under different function number, need to handle this case
