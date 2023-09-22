@@ -1,0 +1,10 @@
+name:
+  lattice
+
+channels:
+  - litex-hub
+
+dependencies:
+  - litex-hub::yosys
+  - litex-hub::nextpnr-ice40
+  - litex-hub::nextpnr-ecp5

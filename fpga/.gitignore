@@ -4,3 +4,5 @@ build
 *.jlink
 *.openocd
 Makefile.symbiflow
+*.log
+.f4cache

@@ -1,0 +1,9 @@
+# Randomly assigned pins just to make nextpnr happy
+set_io LCLK 39
+set_io LRESET 40
+set_io LFRAME 41
+set_io LAD[0] 42
+set_io LAD[1] 43
+set_io LAD[2] 44
+set_io LAD[3] 45
+set_io SERIRQ 46
