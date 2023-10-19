@@ -1,76 +1,43 @@
-# simple makefile wrapper for QORC SDK project FPGA build
-SHELL:=bash
+BOARD ?= orangecrab
 
-# for all targets, check whether the QORC SDK environment has been setup first.
-ifndef QORC_SDK_PATH
-$(info )
-$(info QORC_SDK_PATH is not set in the environment, is the QORC SDK initialized?)
-$(info initialize with: 'source envsetup.sh' from the QORC SDK directory in the current shell)
-$(info )
-$(error QORC_SDK_PATH not defined)
+SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+TOP = twpm_top
+NEORV32_DIR = neorv32
+NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd
+BUILD_DIR = build
+NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(BUILD_DIR)/nextpnr.config
+NEORV32_SRC = $(wildcard $(NEORV32_DIR)/rtl/core/*.vhd) $(wildcard $(NEORV32_DIR)/rtl/core/mem/*.vhd)
+
+ifeq ($(BOARD),orangecrab)
+NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops
 endif
 
+all: $(BUILD_DIR)/twpm.bit
 
-# we should be squatting in the 'fpga' dir
-export QORC_FPGA_RTL_DIR=$(shell pwd)
-
-
-# "top" module name : change as per the project
-export QORC_FPGA_TOP_MODULE=TwPM_Top
-
-# PD64/PU64/WR42 : choose the package as per the project
-export QORC_FPGA_PACKAGE=PU64
-
-# if there are multiple .pcf files, we take the first one by default
-# if this is already defined by user in the current environment, we use that instead.
-export QORC_FPGA_PCF_FILE?=$(notdir $(firstword $(wildcard $(QORC_FPGA_RTL_DIR)/*.pcf)))
-
-# device is fixed, ql-eos-s3
-export QORC_FPGA_DEVICE=ql-eos-s3
-
-# get the RTL source file (paths)
-FPGA_RTL_SRC_PATHS+=verilog-lpc-module/lpc_periph.v
-FPGA_RTL_SRC_PATHS+=verilog-tpm-fifo-registers/regs_module.v
-# Wishbone on S3 is 32b wide, so use 32b RAM and divide it for regs_module.v.
-# This is easier than the other way around.
-FPGA_RTL_SRC_PATHS+=ram/r512x32_512x32.v
-FPGA_RTL_SRC_PATHS+=TwPM_Top.v
-# file-names only
-FPGA_RTL_SRCS:=$(notdir $(FPGA_RTL_SRC_PATHS))
-# filter-out some files, enable if needed
-#filters=
-#FPGA_RTL_SRCS:=$(filter-out $(filters),$(FPGA_RTL_SRCS))
-ifeq ($(FPGA_RTL_SRCS),)
-$(error No FPGA RTL Sources Found in $(QORC_FPGA_RTL_DIR))
-else
-# define the target for the build as the generated FPGA binary
-FPGA_RTL_BIN_OBJ:=$(QORC_FPGA_TOP_MODULE).bin
-endif
-
-$(info )
-$(info top: $(QORC_FPGA_TOP_MODULE))
-$(info rtl-dir: $(QORC_FPGA_RTL_DIR))
-$(info rtl-file-names: $(FPGA_RTL_SRCS))
-#$(info rtl-file-paths: $(FPGA_RTL_SRC_PATHS))
-$(info pcf: $(QORC_FPGA_PCF_FILE))
-#$(info bin : $(FPGA_RTL_BIN_OBJ))
-$(info )
-
-.PHONY: all
-all: $(FPGA_RTL_BIN_OBJ)
-
-$(FPGA_RTL_BIN_OBJ): $(FPGA_RTL_SRC_PATHS)
-	@time ql_symbiflow -compile -src $(QORC_FPGA_RTL_DIR) -d $(QORC_FPGA_DEVICE) -t $(QORC_FPGA_TOP_MODULE) -v $(FPGA_RTL_SRC_PATHS) -p $(QORC_FPGA_PCF_FILE) -P $(QORC_FPGA_PACKAGE) -dump binary openocd jlink
-
-.PHONY: flash
-flash: $(FPGA_RTL_BIN_OBJ)
-	qfprog --port /dev/ttyS_QORC --appfpga $(FPGA_RTL_BIN_OBJ) --mode fpga --reset
-
-.PHONY: clean
 clean:
-	@rm -r $(QORC_FPGA_RTL_DIR)/build 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*bit.h 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.bin 					2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.jlink 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/*.openocd 				2> /dev/null || true
-	@rm $(QORC_FPGA_RTL_DIR)/Makefile.symbiflow 	                2> /dev/null || true
+	@rm -rf $(BUILD_DIR)
+
+$(BUILD_DIR):
+	@mkdir -p $@
+
+$(BUILD_DIR)/neorv32: $(BUILD_DIR)
+	@mkdir -p $@
+
+$(BUILD_DIR)/neorv32.v: $(BUILD_DIR)/neorv32 $(NEORV32_SRC) $(NEORV32_WRAPPER)
+	@ghdl -i --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild $(NEORV32_SRC) $(NEORV32_WRAPPER)
+	@ghdl -m --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 neorv32_verilog_wrapper
+	@ghdl synth --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild --out=verilog neorv32_verilog_wrapper > $@
+
+$(BUILD_DIR)/build.ys $(BUILD_DIR)/twpm.json $(BUILD_DIR)/twpm_synth.v: $(SRC) $(BUILD_DIR)/neorv32.v
+	@rm -f $@ $(BUILD_DIR)/build.ys
+	@echo "read_verilog $^" >> $(BUILD_DIR)/build.ys
+	@echo "synth_ecp5 -top $(TOP)" >> $(BUILD_DIR)/build.ys
+	@echo "write_verilog $(BUILD_DIR)/twpm_synth.v" >> $(BUILD_DIR)/build.ys
+	@echo "write_json $(BUILD_DIR)/twpm.json" >> $(BUILD_DIR)/build.ys
+	@yosys $(BUILD_DIR)/build.ys |& tee $(BUILD_DIR)/yosys.log
+
+$(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json
+	@nextpnr-ecp5 $(NEXTPNR_ARGS) |& tee $(BUILD_DIR)/nextpnr.log
+
+$(BUILD_DIR)/twpm.bit: $(BUILD_DIR)/nextpnr.config
+	@ecppack  --bootaddr 0   --compress $< --svf $(BUILD_DIR)/twpm.svf --bit $@
