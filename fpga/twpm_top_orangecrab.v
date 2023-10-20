@@ -18,7 +18,12 @@ module twpm_top (
     input  wire         LRESET,
     input  wire         LFRAME,
     inout  wire [  3:0] LAD,
-    inout  wire         SERIRQ
+    inout  wire         SERIRQ,
+    // SPI interface
+    output wire         spi_clk_o,
+    output wire         spi_dat_o,
+    input  wire         spi_dat_i,
+    output wire         spi_flash_cs_o
 );
 
 // Wishbone interface
@@ -72,6 +77,7 @@ wire    [3:0] WB_RAM_byte_sel;
 
 // Misc
 wire          WBs_ACK_nxt;
+wire    [7:0] spi_csn;
 
 neorv32_verilog_wrapper cpu (
     .clk_i(clk_i),
@@ -92,8 +98,15 @@ neorv32_verilog_wrapper cpu (
     .wb_stb_o(wb_stb),
     .wb_cyc_o(wb_cyc),
     .wb_ack_i(wb_ack),
-    .wb_err_i(wb_err)
+    .wb_err_i(wb_err),
+    .spi_clk_o(spi_clk_o),
+    .spi_dat_o(spi_dat_o),
+    .spi_dat_i(spi_dat_i),
+    .spi_csn_o(spi_csn)
 );
+
+// SPI flash interface
+assign spi_flash_cs_o = spi_csn[0]; // CS0 from NeoRV32
 
 // Wishbone and CPU use the same clock.
 assign wb_clk = clk_i;

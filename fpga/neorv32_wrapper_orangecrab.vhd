@@ -27,7 +27,12 @@ entity neorv32_verilog_wrapper is
     wb_stb_o    : out std_ulogic; -- strobe
     wb_cyc_o    : out std_ulogic; -- valid cycle
     wb_ack_i    : in  std_ulogic; -- transfer acknowledge
-    wb_err_i    : in  std_ulogic -- transfer error
+    wb_err_i    : in  std_ulogic; -- transfer error
+    -- SPI interface --
+    spi_clk_o   : out std_ulogic; -- serial clock output
+    spi_dat_o   : out std_ulogic; -- serial data output
+    spi_dat_i   : in  std_ulogic; -- serial data input
+    spi_csn_o   : out std_ulogic_vector(07 downto 0) -- 8-bit dedicated chip select output (low-active)
   );
 end entity;
 
@@ -49,15 +54,17 @@ begin
     CPU_EXTENSION_RISCV_Zifencei => true,        -- implement instruction stream sync? Required by ON_CHIP_DEBUGGER_EN
     -- Internal Instruction memory (IMEM) --
     MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
-    MEM_INT_IMEM_SIZE            => 16*1024,     -- size of processor-internal instruction memory in bytes
+    MEM_INT_IMEM_SIZE            => 64*1024,     -- size of processor-internal instruction memory in bytes
     -- Internal Data memory (DMEM) --
-    MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
+    MEM_INT_DMEM_EN              => false,       -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => 8*1024,      -- size of processor-internal data memory in bytes
     -- Processor peripherals --
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
     IO_UART0_RX_FIFO             => 64,          -- RX fifo depth, has to be a power of two, min 1
     IO_UART0_TX_FIFO             => 64,          -- TX fifo depth, has to be a power of two, min 1
+    IO_TRNG_EN                   => true,        -- implement true random number generator (TRNG)?
+    IO_SPI_EN                    => true,
     -- External memory interface (WISHBONE) --
     MEM_EXT_EN                   => true,        -- implement external memory bus interface?
     MEM_EXT_TIMEOUT              => 4096,        -- cycles after a pending bus access auto-terminates (0 = disabled)
@@ -89,7 +96,12 @@ begin
     wb_stb_o    => wb_stb_o,    -- strobe
     wb_cyc_o    => wb_cyc_o,    -- valid cycle
     wb_ack_i    => wb_ack_i,    -- transfer acknowledge
-    wb_err_i    => wb_err_i     -- transfer error
+    wb_err_i    => wb_err_i,    -- transfer error
+    -- SPI interface --
+    spi_clk_o   => spi_clk_o,   -- serial clock output
+    spi_dat_o   => spi_dat_o,   -- serial data output
+    spi_dat_i   => spi_dat_i,   -- serial data input
+    spi_csn_o   => spi_csn_o    -- 8-bit dedicated chip select output (low-active)
   );
 
 end architecture;
