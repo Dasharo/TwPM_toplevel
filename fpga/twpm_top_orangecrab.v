@@ -28,13 +28,13 @@ module twpm_top (
 
 // Wishbone interface
 wire [ 31:0] wb_adr;    // address
-wire [ 31:0] wb_dat_rd; // read data
+reg  [ 31:0] wb_dat_rd; // read data
 wire [ 31:0] wb_dat_wr; // write data
 wire         wb_we;     // write enable
 wire [  3:0] wb_sel;    // byte enable
 wire         wb_stb;    // strobe
 wire         wb_cyc;    // cycle valid
-wire         wb_ack;    // transfer ack
+reg          wb_ack;    // transfer ack
 wire         wb_err;    // transfer error
 wire         wb_clk;    // wishbone clock
 
@@ -78,6 +78,7 @@ wire    [3:0] WB_RAM_byte_sel;
 // Misc
 wire          WBs_ACK_nxt;
 wire    [7:0] spi_csn;
+reg     [7:0] complete_pulse_counter = 0;
 
 neorv32_verilog_wrapper cpu (
     .clk_i(clk_i),
@@ -153,8 +154,10 @@ assign RAM_CLK =      exec ? wb_clk           : ~LCLK;
 // WB acknowledge signal
 assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
 
-always @(posedge wb_clk or negedge nrst_i) begin
-  if (~nrst_i) begin
+assign wb_err = 0;
+
+always @(posedge wb_clk or negedge rstn_i) begin
+  if (~rstn_i) begin
     wb_ack                  <= 1'b0;
     complete_pulse_counter  <= 1'b0;
   end else begin
