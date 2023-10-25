@@ -40,9 +40,6 @@ IOBUF PORT "LAD[3]" IO_TYPE=LVCMOS33;
 LOCATE COMP "SERIRQ" SITE "C9";             # SCL
 IOBUF PORT "SERIRQ" IO_TYPE=LVCMOS33;
 
-LOCATE COMP "spi_clk_o" SITE "R17";         # FIXME: constrained anywhere to prevent nexpnr from complaining. Flash is connected to U16 pin which cannot be constrained from here.
-IOBUF PORT "spi_clk_o" IO_TYPE=LVCMOS33;
-
 LOCATE COMP "spi_dat_o" SITE "U18";         # MOSI
 IOBUF PORT "spi_dat_o" IO_TYPE=LVCMOS33;
 

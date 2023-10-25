@@ -20,7 +20,6 @@ module twpm_top (
     inout  wire [  3:0] LAD,
     inout  wire         SERIRQ,
     // SPI interface
-    output wire         spi_clk_o,
     output wire         spi_dat_o,
     input  wire         spi_dat_i,
     output wire         spi_flash_cs_o
@@ -78,6 +77,7 @@ wire    [3:0] WB_RAM_byte_sel;
 // Misc
 wire          WBs_ACK_nxt;
 wire    [7:0] spi_csn;
+wire          spi_clk_o;
 reg     [7:0] complete_pulse_counter = 0;
 
 neorv32_verilog_wrapper cpu (
@@ -108,6 +108,13 @@ neorv32_verilog_wrapper cpu (
 
 // SPI flash interface
 assign spi_flash_cs_o = spi_csn[0]; // CS0 from NeoRV32
+
+// Export clock to SPI flash, this has to be done through USRMCLK primitive.
+USRMCLK spi_flash_clk (
+  .USRMCLKI(spi_clk_o),
+  // If 1 then SPI flash clock is tri-stated
+  .USRMCLKTS(1'b0)
+);
 
 // Wishbone and CPU use the same clock.
 assign wb_clk = clk_i;
