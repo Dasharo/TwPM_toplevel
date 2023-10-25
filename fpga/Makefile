@@ -12,7 +12,7 @@ ifeq ($(BOARD),orangecrab)
 NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops
 endif
 
-all: $(BUILD_DIR)/twpm.bit
+all: $(BUILD_DIR)/twpm.dfu
 
 clean:
 	@rm -rf $(BUILD_DIR)
@@ -41,3 +41,8 @@ $(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json
 
 $(BUILD_DIR)/twpm.bit: $(BUILD_DIR)/nextpnr.config
 	@ecppack  --bootaddr 0   --compress $< --svf $(BUILD_DIR)/twpm.svf --bit $@
+
+$(BUILD_DIR)/twpm.dfu: $(BUILD_DIR)/twpm.bit
+	@cp $< $@.temp
+	@dfu-suffix -v 1209 -p 5bf0 -a $@.temp
+	@mv $@.temp $@
