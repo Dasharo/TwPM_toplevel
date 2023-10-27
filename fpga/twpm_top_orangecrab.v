@@ -1,13 +1,3 @@
-parameter STATUS_REG_ADDRESS    = 17'h00000;
-parameter OP_TYPE_REG_ADDRESS   = 17'h00004;
-parameter LOCALITY_REG_ADDRESS  = 17'h00008;
-parameter BUF_SIZE_REG_ADDRESS  = 17'h0000C;
-parameter COMPLETE_REG_ADDRESS  = 17'h00040;
-parameter FPGA_RAM_BASE_ADDRESS = 17'h00800;
-parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
-parameter RAM_ADDR_WIDTH        = 11;
-parameter COMPLETE_PULSE_WIDTH  = 20;
-
 module twpm_top (
     input  wire         clk_i,
     input  wire         rstn_i,
@@ -24,6 +14,16 @@ module twpm_top (
     input  wire         spi_dat_i,
     output wire         spi_flash_cs_o
 );
+
+parameter STATUS_REG_ADDRESS    = 17'h00000;
+parameter OP_TYPE_REG_ADDRESS   = 17'h00004;
+parameter LOCALITY_REG_ADDRESS  = 17'h00008;
+parameter BUF_SIZE_REG_ADDRESS  = 17'h0000C;
+parameter COMPLETE_REG_ADDRESS  = 17'h00040;
+parameter FPGA_RAM_BASE_ADDRESS = 17'h00800;
+parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
+parameter RAM_ADDR_WIDTH        = 11;
+parameter COMPLETE_PULSE_WIDTH  = 20;
 
 // Wishbone interface
 wire [ 31:0] wb_adr;    // address
