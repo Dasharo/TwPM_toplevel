@@ -1,4 +1,6 @@
 BOARD ?= orangecrab
+TOOLCHAIN ?= trellis
+
 
 SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
 TOP = twpm_top
@@ -33,6 +35,7 @@ $(BUILD_DIR):
 $(BUILD_DIR)/neorv32: $(BUILD_DIR)
 	@mkdir -p $@
 
+.PHONY: $(BUILD_DIR)/bootloader.vhd
 $(BUILD_DIR)/bootloader.vhd:
 	@$(MAKE) -C neorv32/sw/bootloader bl_image USER_FLAGS="$(NEORV32_BOOTLOADER_ARGS)"
 	@cp neorv32/sw/bootloader/neorv32_bootloader_image.vhd $@
