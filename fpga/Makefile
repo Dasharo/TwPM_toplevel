@@ -16,6 +16,8 @@ ifeq ($(BOARD),orangecrab)
 NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops
 # Offset for firmware in SPI flash
 NEORV32_BOOTLOADER_ARGS += -DSPI_BOOT_BASE_ADDR=0x80000
+# Load firmware into D-MEM
+NEORV32_BOOTLOADER_ARGS += -DEXE_BASE_ADDR=0x800000000
 
 # Disable unused features to reduce space.
 NEORV32_BOOTLOADER_ARGS =  -DSTATUS_LED_EN=0

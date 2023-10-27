@@ -53,11 +53,11 @@ begin
     CPU_EXTENSION_RISCV_Zicntr   => true,        -- implement base counters?
     CPU_EXTENSION_RISCV_Zifencei => true,        -- implement instruction stream sync? Required by ON_CHIP_DEBUGGER_EN
     -- Internal Instruction memory (IMEM) --
-    MEM_INT_IMEM_EN              => true,        -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              => false,       -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => 64*1024,     -- size of processor-internal instruction memory in bytes
     -- Internal Data memory (DMEM) --
-    MEM_INT_DMEM_EN              => false,       -- implement processor-internal data memory
-    MEM_INT_DMEM_SIZE            => 8*1024,      -- size of processor-internal data memory in bytes
+    MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory
+    MEM_INT_DMEM_SIZE            => 64*1024,     -- size of processor-internal data memory in bytes
     -- Processor peripherals --
     IO_MTIME_EN                  => true,        -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,        -- implement primary universal asynchronous receiver/transmitter (UART0)?
