@@ -20,8 +20,11 @@ NEORV32_BOOTLOADER_ARGS += -DSPI_BOOT_BASE_ADDR=0x80000
 NEORV32_BOOTLOADER_ARGS += -DEXE_BASE_ADDR=0x800000000
 
 # Disable unused features to reduce space.
-NEORV32_BOOTLOADER_ARGS +=  -DSTATUS_LED_EN=0
+NEORV32_BOOTLOADER_ARGS += -DSTATUS_LED_EN=0
 NEORV32_BOOTLOADER_ARGS += -DXIP_EN=0
+
+# Silence warnings about logic loops in TRNG module, loops are where randomness comes from
+YOSYS_ARGS=-w "found logic loop in module .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
 endif
 
 all: $(BUILD_DIR)/twpm.dfu
@@ -53,7 +56,7 @@ $(BUILD_DIR)/build.ys $(BUILD_DIR)/twpm.json $(BUILD_DIR)/twpm_synth.v: $(SRC) $
 	@echo "synth_ecp5 -top $(TOP)" >> $(BUILD_DIR)/build.ys
 	@echo "write_verilog $(BUILD_DIR)/twpm_synth.v" >> $(BUILD_DIR)/build.ys
 	@echo "write_json $(BUILD_DIR)/twpm.json" >> $(BUILD_DIR)/build.ys
-	@yosys $(BUILD_DIR)/build.ys |& tee $(BUILD_DIR)/yosys.log
+	@yosys $(YOSYS_ARGS) $(BUILD_DIR)/build.ys |& tee $(BUILD_DIR)/yosys.log
 
 $(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json
 	@nextpnr-ecp5 $(NEXTPNR_ARGS) |& tee $(BUILD_DIR)/nextpnr.log
