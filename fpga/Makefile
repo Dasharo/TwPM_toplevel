@@ -3,6 +3,7 @@ TOOLCHAIN ?= trellis
 
 
 SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+SRC += ddr3_controller/src_v/ddr3_dfi_seq.v ddr3_controller/src_v/ddr3_core.v ddr3_controller/src_v/phy/ecp5/ddr3_dfi_phy.v ddr3_wb.v ddr3_controller/examples/ecpix_ecp5/ecp5pll.sv
 TOP = twpm_top
 NEORV32_DIR = neorv32
 NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd

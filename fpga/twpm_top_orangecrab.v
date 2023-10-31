@@ -22,7 +22,22 @@ module twpm_top (
     // SPI interface
     output wire         spi_dat_o,
     input  wire         spi_dat_i,
-    output wire         spi_flash_cs_o
+    output wire         spi_flash_cs_o,
+    // DDR3 interface
+    output wire [15:0]  ddram_a,
+    output wire [2:0]   ddram_ba,
+    output wire         ddram_ras_n,
+    output wire         ddram_cas_n,
+    output wire         ddram_we_n,
+    output wire [1:0]   ddram_dm,
+    inout  wire [15:0]  ddram_dq,
+    inout  wire [1:0]   ddram_dqs_p,
+    output wire         ddram_clk_p,
+    output wire         ddram_cke,
+    output wire         ddram_odt,
+    output wire         led_r,
+    output wire         led_g,
+    output wire         led_b
 );
 
 // Wishbone interface
@@ -79,6 +94,11 @@ wire          WBs_ACK_nxt;
 wire    [7:0] spi_csn;
 wire          spi_clk_o;
 reg     [7:0] complete_pulse_counter = 0;
+
+wire wb_stb_ddr3 = (wb_adr[31:28] === 4'h9) & wb_stb;
+wire wb_ack_ddr3;
+wire wb_err_ddr3;
+wire [31:0] wb_dat_ddr3;
 
 neorv32_verilog_wrapper cpu (
     .clk_i(clk_i),
@@ -161,34 +181,40 @@ assign RAM_CLK =      exec ? wb_clk           : ~LCLK;
 // WB acknowledge signal
 assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
 
-assign wb_err = 0;
+assign wb_err = wb_err_ddr3;
 
 always @(posedge wb_clk or negedge rstn_i) begin
   if (~rstn_i) begin
     wb_ack                  <= 1'b0;
     complete_pulse_counter  <= 1'b0;
-  end else begin
+  end else if (wb_adr[31:28] === 4'hF) begin
     wb_ack <= WBs_ACK_nxt;
     if (wb_adr[16:2] === COMPLETE_REG_ADDRESS[16:2] && complete_pulse_counter === 8'h0
         && wb_cyc === 1'b1 && wb_stb === 1'b1 && wb_we  === 1'b1 && wb_ack === 1'b0)
       complete_pulse_counter <= COMPLETE_PULSE_WIDTH;
-    else
+    else if (complete_pulse_counter !== 8'h0)
       complete_pulse_counter <= complete_pulse_counter - 1;
+  end else if (wb_adr[31:28] === 4'h9) begin
+    wb_ack <= wb_ack_ddr3 & ~wb_ack;
   end
 end
 
 // Define the how to read from each IP
 always @(wb_adr or op_type or locality or buf_len or RAM_RD) begin
-  if (wb_adr[16:RAM_ADDR_WIDTH] === FPGA_RAM_BASE_ADDRESS[16:RAM_ADDR_WIDTH])
-    wb_dat_rd <= RAM_RD;
-  else
-    case (wb_adr[16:2])
-      STATUS_REG_ADDRESS[16:2]:   wb_dat_rd <= {29'h0000000, complete, abort, exec};
-      OP_TYPE_REG_ADDRESS[16:2]:  wb_dat_rd <= {28'h0000000, op_type};
-      LOCALITY_REG_ADDRESS[16:2]: wb_dat_rd <= {28'h0000000, locality};
-      BUF_SIZE_REG_ADDRESS[16:2]: wb_dat_rd <= {{(32-RAM_ADDR_WIDTH){1'b0}}, buf_len};
-      default:                    wb_dat_rd <= DEFAULT_READ_VALUE;
-    endcase
+  if (wb_adr[31:28] === 4'hF) begin
+    if (wb_adr[16:RAM_ADDR_WIDTH] === FPGA_RAM_BASE_ADDRESS[16:RAM_ADDR_WIDTH])
+      wb_dat_rd <= RAM_RD;
+    else
+      case (wb_adr[16:2])
+        STATUS_REG_ADDRESS[16:2]:   wb_dat_rd <= {29'h0000000, complete, abort, exec};
+        OP_TYPE_REG_ADDRESS[16:2]:  wb_dat_rd <= {28'h0000000, op_type};
+        LOCALITY_REG_ADDRESS[16:2]: wb_dat_rd <= {28'h0000000, locality};
+        BUF_SIZE_REG_ADDRESS[16:2]: wb_dat_rd <= {{(32-RAM_ADDR_WIDTH){1'b0}}, buf_len};
+        default:                    wb_dat_rd <= DEFAULT_READ_VALUE;
+      endcase
+  end else if (wb_adr[31:28] === 4'h9) begin
+    wb_dat_rd <= wb_dat_ddr3;
+  end
 end
 
 lpc_periph lpc_periph_inst (
@@ -244,5 +270,40 @@ r512x32_512x32 RAM_INST (
   .Clk(RAM_CLK),
   .WEN(RAM_byte_sel)
 );
+
+ddr3_wb DDR3_INST (
+  .clk_i(clk_i),
+  .rst_i(rstn_i),
+  // WISHBONE Inputs
+  .wb_we_i(wb_we),
+  .wb_adr_i(wb_adr),
+  .wb_stb_i(wb_stb_ddr3),
+  .wb_dat_i(wb_dat_wr),
+  .wb_sel_i(wb_sel),
+  .wb_cyc_i(wb_cyc),
+  // Outputs
+  .wb_ack_o(wb_ack_ddr3),
+  .wb_err_o(wb_err_ddr3),
+  .wb_dat_o(wb_dat_ddr3),
+
+  // DDR3 lines
+  .ddram_a(ddram_a[14:0]),
+  .ddram_ba(ddram_ba),
+  .ddram_ras_n(ddram_ras_n),
+  .ddram_cas_n(ddram_cas_n),
+  .ddram_we_n(ddram_we_n),
+  .ddram_dm(ddram_dm),
+  .ddram_dq(ddram_dq),
+  .ddram_dqs_p(ddram_dqs_p),
+  .ddram_clk_p(ddram_clk_p),
+  .ddram_cke(ddram_cke),
+  .ddram_odt(ddram_odt)
+);
+
+assign ddram_a[15] = 0;
+
+assign led_r = 1'b1;
+assign led_g = 1'b1;
+assign led_b = 1'b1;
 
 endmodule
