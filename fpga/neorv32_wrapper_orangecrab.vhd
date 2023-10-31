@@ -44,7 +44,7 @@ begin
 
   generic map (
     -- General --
-    CLOCK_FREQUENCY              => 48_000_000,  -- clock frequency of clk_i in Hz
+    CLOCK_FREQUENCY              => 50_400_000,  -- clock frequency of clk_i in Hz
     ON_CHIP_DEBUGGER_EN          => true,        -- enable JTAG support
     INT_BOOTLOADER_EN            => true,        -- boot configuration: boot explicit bootloader
     -- RISC-V CPU Extensions --

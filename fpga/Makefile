@@ -4,6 +4,9 @@ BUILD_DIR ?= build
 
 
 SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+ifeq ($(BOARD),orangecrab)
+SRC += orangecrab_litedram/litedram_core.v
+endif
 TOP = twpm_top
 NEORV32_DIR = neorv32
 NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd
@@ -15,7 +18,8 @@ LPF_FILE = $(BOARD).lpf
 NEORV32_BOOTLOADER_ARGS += -DAUTO_BOOT_TIMEOUT=3
 
 ifeq ($(BOARD),orangecrab)
-NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops
+# 50.4 MHz is actual frequency PLL produces when asked for 50 MHz on 48 MHz input.
+NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops --freq 50.4
 LPF_FILE = orangecrab.lpf
 
 # Offset for firmware in SPI flash
@@ -27,7 +31,7 @@ NEORV32_BOOTLOADER_ARGS += -DEXE_BASE_ADDR=0x800000000
 NEORV32_BOOTLOADER_ARGS += -DSTATUS_LED_EN=0
 NEORV32_BOOTLOADER_ARGS += -DXIP_EN=0
 
-# Silence warnings about logic loops in TRNG module, loops are where randomness comes from
+# Silence warnings about logic loops in TRNG module, loops are where randomness comes from.
 YOSYS_ARGS=-w "found logic loop in module .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
 endif
 
