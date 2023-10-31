@@ -15,111 +15,33 @@ $ cd TwPM_toplevel
 $ git submodule update --init --checkout
 ```
 
-## Docker image
+## Build environment
 
-All components are expected to be build within Docker container. If you haven't
-got Docker installed yet, follow [official installation instructions](https://docs.docker.com/engine/install/)
-and [post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/).
+All components are expected to be build within Nix shell. If you haven't got
+Nix installed yet, follow [official installation instructions](https://nixos.org/download#nix-install-linux).
 
-### Preparing to use Docker image
+## Starting Nix shell
 
-TwPM Docker image is created from [twpm-sdk repository](https://github.com/Dasharo/twpm-sdk).
-Before it can be used to flash FPGA image, some steps must be done on host
-system. Without those steps host's services would get in the way of programmer's
-application running in the container. Execute the following:
+Shell can be started by typing:
 
 ```shell
-$ id=$(docker create ghcr.io/dasharo/twpm-sdk@sha256:ca99beadbc692e921762fdbe478d79bdfad3afd3db8d3e4084041bd51caaf6af)
-$ sudo docker cp \
-    $id:/home/qorc-sdk/qorc-sdk/TinyFPGA-Programmer-Application/71-QuickFeather.rules \
-    /etc/udev/rules.d/
-$ docker container rm $id
-$ sudo udevadm control --reload-rules
-$ sudo systemctl restart ModemManager.service
+nix develop
 ```
 
-This is one-time operation, it isn't required for later use. First of the
-instructions above will automatically download the image.
-
-### Starting Docker container
-
-Before container is started, EOS S3 board has to be in programming mode. This
-mode is **not** the same as debug mode, so bootstrap jumpers (J2 and J3 on the
-[cheatsheet](https://cdn.sparkfun.com/assets/learn_tutorials/1/7/9/1/QuickLogic_Thing_Plus_EOS_S3_v1a.pdf))
-have to be kept open. In order to enter programming mode:
-
-* plug the EOS S3 to the PC through USB cable
-* press `RST` button once, blue LED will begin to blink a dozen times or so
-* while the LED is still blinking, press `USR` button
-  * it has debouncing logic to it, you may have to keep it pressed for few
-    hundreds milliseconds
-  * after that, green LED will be lit for about a second, after which it will
-    begin to blink
-* confirm that a new ACM device is created (usually `/dev/ttyACM0`, you can
-  check `dmesg` output if in doubt)
-
-The container can be started from `TwPM_toplevel` with:
+Nix will automatically download all packages and launch shell. Packages from
+Host OS will still be available. If you want to start a clean environment you
+can do:
 
 ```shell
-$ docker run --rm -it -v $PWD:/home/qorc-sdk/workspace \
-    --device=/dev/ttyACM0:/dev/ttyS_QORC ghcr.io/dasharo/twpm-sdk@sha256:ca99beadbc692e921762fdbe478d79bdfad3afd3db8d3e4084041bd51caaf6af
+nix-shell --pure $(nix build --no-link --json .#devShells.x86_64-linux.default | jq -r '.[].drvPath')
 ```
 
-Change `ttyACM0` to proper device name, in case there is more than one `ttyACM`
-in your system. `ttyS_QORC` is used to have constant name for use by Makefile.
-It must start with `ttyS` or one of the other standard names, otherwise pySerial
-used by some of the tools can't find it.
-
-This will enable `qorc-sdk` environment and enter shell in the container:
-
-```
-=========================
-qorc-sdk envsetup 1.5.1
-=========================
-
-
-executing envsetup.sh from:
-/home/qorc-sdk/qorc-sdk
-
-[1] check (minimal) qorc-sdk submodules
-    ok.
-
-[2] check arm gcc toolchain
-    initializing arm toolchain.
-    ok.
-
-[3] check fpga toolchain
-    initializing fpga toolchain.
-    ok.
-
-[4] check flash programmer
-    initializing flash programmer.
-    ok.
-
-[5] check openocd
-    ok.
-
-[6] check jlink
-    ok.
-
-
-qorc-sdk build env initialized.
-
-
-(base) qorc-sdk@2fb0c54fd594:~$
-```
-
-If you get `error gathering device information while adding custom device`, most
-likely EOS S3 isn't in programming mode. Repeat steps listed earlier and try
-again.
-
-All of the following steps assume that we are in this state - inside the Docker
-container with `qorc-sdk` environment enabled, in container's home directory.
+Please note that all commands executed from Nix shell are running on host.
 
 ## Building - easy
 
 > Here will be description of how to build whole project with one command, when
-it will be ready.
+> it will be ready.
 
 ## Building - advanced
 
@@ -140,26 +62,18 @@ can follow [the easy path](#building---easy).
 To just build:
 
 ```shell
-$ cd workspace/fpga
+$ cd fpga
 $ make
 ```
 
-This will execute all steps up to and including generation of bitstream. This
-process takes few minutes, most of that time is consumed by `symbiflow_route`.
-It may appear to be stuck, as this process doesn't output any lines on terminal.
-It also almost doesn't access disk at all so there will be no HDD LED activity,
-but it takes a lot of CPU time.
+This will execute all steps up to and including generation of bitstream.
 
 To build and flash:
 
 ```shell
-$ cd workspace/fpga
-$ make flash
+$ cd fpga
+$ dfu-util -D build/twpm.dfu
 ```
-
-Note that this just saves the bitstream in the flash. It is up to MCU code to
-load it and release FPGA from reset, as well as configure I/O ports for being
-used by FPGA, so for some changes flashing just the FGPA part won't be enough.
 
 ## Funding
 
