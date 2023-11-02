@@ -10,7 +10,7 @@ parameter COMPLETE_PULSE_WIDTH  = 20;
 
 module twpm_top (
     input  wire         clk_i,
-    input  wire         rstn_i,
+    output wire         rstn_i,
     input  wire         uart_rxd_i,
     output wire         uart_txd_o,
     // LPC interface
@@ -37,7 +37,8 @@ module twpm_top (
     output wire         ddram_odt,
     output wire         led_r,
     output wire         led_g,
-    output wire         led_b
+    output wire         led_b,
+    input  wire         usr_btn
 );
 
 // Wishbone interface
@@ -305,5 +306,13 @@ assign ddram_a[15] = 0;
 assign led_r = 1'b1;
 assign led_g = 1'b1;
 assign led_b = 1'b1;
+
+// Reset logic on button press.
+// this will enter the bootloader
+reg reset_sr = 1'b1;
+always @(posedge clk_i) begin
+    reset_sr <= {usr_btn};
+end
+assign rstn_i = reset_sr;
 
 endmodule

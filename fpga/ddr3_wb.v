@@ -3,9 +3,9 @@ module ddr3_wb
 // Params
 //-----------------------------------------------------------------
 #(
-     parameter DDR_MHZ          = 24
-    ,parameter DDR_WRITE_LATENCY = 6
-    ,parameter DDR_READ_LATENCY = 6
+     parameter DDR_MHZ          = 48
+    ,parameter DDR_WRITE_LATENCY = 3
+    ,parameter DDR_READ_LATENCY = 5         // 5 possibly works with TPHY_RDLAT=4, DDR_MHZ=12, PLL=48MHz
 )
 //-----------------------------------------------------------------
 // Ports
@@ -73,8 +73,8 @@ wire [3:0] clk_pll_w;
 ecp5pll
 #(
    .in_hz(48000000)
-  ,.out0_hz(24000000)
-  ,.out1_hz(24000000)
+  ,.out0_hz(48000000)
+  ,.out1_hz(48000000)
   ,.out1_deg(90)
 )
 u_pll
@@ -108,10 +108,10 @@ else
 //-----------------------------------------------------------------
 // Glue logic between WISHBONE and DDR Core
 //-----------------------------------------------------------------
-wire [31:0]  ram_addr_w       = {4'b0, wb_adr_i[27:4], 4'b0};
+wire [31:0]  ram_addr_w       = {4'b0, wb_adr_i[27:0]};
 wire         ram_rd_w         = wb_cyc_i & wb_stb_i & ~wb_we_i;
 wire [15:0]  ram_wr_w         = ~{16{wb_cyc_i & wb_stb_i & wb_we_i}}; // {12'b1, {4{wb_cyc_i & wb_stb_i & wb_we_i}} & ~wb_sel_i};
-wire [127:0] ram_write_data_w = {128'h55112233445566778899aabbccddeeff}; //, wb_dat_i};
+wire [127:0] ram_write_data_w = {128'h00112233445566778899aabbccddeeff}; //, wb_dat_i};
 
 wire [127:0]  ram_read_data_w;
 wire          ram_ack_w;
@@ -119,13 +119,13 @@ wire          ram_error_w;
 
 assign wb_dat_o = ram_read_data_w[31:0];
 assign wb_err_o = ram_error_w;
-assign wb_ack_o = ram_ack_w; // (ram_rd_w | (ram_wr_w[3:0] !== 4'hF)) & ram_ack_w;
+//assign wb_ack_o = ram_ack_w; // (ram_rd_w | (ram_wr_w[3:0] !== 4'hF)) & ram_ack_w;
 
-//reg ack_q;
-//always @(posedge clk_i) begin
-//  ack_q <= (ram_rd_w | (ram_wr_w[3:0] !== 4'hF)) & ram_ack_w;
-//end
-//assign wb_ack_o = ack_q;
+reg ack_q;
+always @(posedge clk_i) begin
+  ack_q <= ram_ack_w; // (ram_rd_w | (ram_wr_w[3:0] !== 4'hF)) & ram_ack_w;
+end
+assign wb_ack_o = ack_q;
 
 //-----------------------------------------------------------------
 // DDR Core + PHY
@@ -177,8 +177,14 @@ u_core
 
 ddr3_dfi_phy
 #(
-     .DQ_IN_DELAY_INIT("DELAY0")
-    ,.TPHY_RDLAT(0)
+//    .DQ_IN_DELAY_INIT("DELAY0"),
+    .TPHY_RDLAT(4)  // 4 possibly works
+// good = 0x00100010 with read synchronization
+// 2 - rarely good, but happens
+// 3 - never? good
+// 4 - always good
+// 5 - never? good
+// 6 - usually good, sometimes not
 )
 u_phy
 (

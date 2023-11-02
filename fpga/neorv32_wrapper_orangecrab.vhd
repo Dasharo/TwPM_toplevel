@@ -71,7 +71,7 @@ begin
     MEM_EXT_PIPE_MODE            => false,       -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
     MEM_EXT_BIG_ENDIAN           => false,       -- byte order: true=big-endian, false=little-endian
     MEM_EXT_ASYNC_RX             => true,        -- use register buffer for RX data when false
-    MEM_EXT_ASYNC_TX             => true         -- use register buffer for TX data when false
+    MEM_EXT_ASYNC_TX             => false         -- use register buffer for TX data when false
   )
   port map (
     -- Global control --
