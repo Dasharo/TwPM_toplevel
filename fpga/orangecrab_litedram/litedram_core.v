@@ -19,6 +19,12 @@
 //   such line is repeated as many times as there are signals on the left side.
 //   This causes warnings (multiple conflicting drivers) if signal on the right
 //   side is inverted.
+// - Removed unused negative ports of clock and DQS. These are handled by
+//   hardware macros and they weren't even mentioned in this file, other than
+//   as a litedram_core port.
+// - Removed unused control WISHBONE bus signals: BTE and CTI. They are not used
+//   in WISHBONE Classic, and even though they were assigned to few levels of
+//   other wires, those wires were not used anywhere.
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -33,12 +39,10 @@ module litedram_core (
     output wire    [2:0] ddram_ba,
     output wire          ddram_cas_n,
     output wire          ddram_cke,
-    input  wire          ddram_clk_n,
     output wire          ddram_clk_p,
     output wire          ddram_cs_n,
     output wire    [1:0] ddram_dm,
     input  wire   [15:0] ddram_dq,
-    input  wire    [1:0] ddram_dqs_n,
     input  wire    [1:0] ddram_dqs_p,
     output wire          ddram_odt,
     output wire          ddram_ras_n,
@@ -61,8 +65,6 @@ module litedram_core (
     output wire          user_rst,
     output wire          wb_ctrl_ack,
     input  wire   [29:0] wb_ctrl_adr,
-    input  wire    [1:0] wb_ctrl_bte,
-    input  wire    [2:0] wb_ctrl_cti,
     input  wire          wb_ctrl_cyc,
     output wire   [31:0] wb_ctrl_dat_r,
     input  wire   [31:0] wb_ctrl_dat_w,
@@ -1795,8 +1797,6 @@ reg     [1:0] litedramcore_wishbone2csr_next_state = 2'd0;
 reg     [1:0] litedramcore_wishbone2csr_state = 2'd0;
 reg           litedramcore_wishbone_ack = 1'd0;
 wire   [29:0] litedramcore_wishbone_adr;
-wire    [1:0] litedramcore_wishbone_bte;
-wire    [2:0] litedramcore_wishbone_cti;
 wire          litedramcore_wishbone_cyc;
 reg    [31:0] litedramcore_wishbone_dat_r = 32'd0;
 wire   [31:0] litedramcore_wishbone_dat_w;
@@ -2086,8 +2086,6 @@ reg           t_array_muxed5 = 1'd0;
 reg           user_enable = 1'd0;
 wire          wb_bus_ack;
 wire   [29:0] wb_bus_adr;
-wire    [1:0] wb_bus_bte;
-wire    [2:0] wb_bus_cti;
 wire          wb_bus_cyc;
 wire   [31:0] wb_bus_dat_r;
 wire   [31:0] wb_bus_dat_w;
@@ -2121,8 +2119,6 @@ assign wb_bus_cyc = wb_ctrl_cyc;
 assign wb_bus_stb = wb_ctrl_stb;
 assign wb_ctrl_ack = wb_bus_ack;
 assign wb_bus_we = wb_ctrl_we;
-assign wb_bus_cti = wb_ctrl_cti;
-assign wb_bus_bte = wb_ctrl_bte;
 assign wb_ctrl_err = wb_bus_err;
 assign user_clk = sys_clk;
 assign user_rst = sys_rst;
@@ -2143,8 +2139,6 @@ assign litedramcore_wishbone_cyc = wb_bus_cyc;
 assign litedramcore_wishbone_stb = wb_bus_stb;
 assign wb_bus_ack = litedramcore_wishbone_ack;
 assign litedramcore_wishbone_we = wb_bus_we;
-assign litedramcore_wishbone_cti = wb_bus_cti;
-assign litedramcore_wishbone_bte = wb_bus_bte;
 assign wb_bus_err = litedramcore_wishbone_err;
 assign por_clk = clk;
 assign crg_por_done = (crg_por_count == 1'd0);
