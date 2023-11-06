@@ -1,0 +1,35 @@
+# To generate litedram_core.v from this file install LiteX according to
+# https://github.com/enjoy-digital/litex#quick-start-guide (second step is
+# enough) and execute `litedram_gen orangecrab.yml`. Version of LiteX used for
+# generating Verilog file is listed at the top of created file.
+#
+# Note that there were manual changes done on top of resultant file, both to
+# reduce number of warnings and to make interface simpler by not exposing ports
+# for unused signals. For a list of those changes check comment on top of
+# litedram_core.v and/or git history.
+
+{
+    # General ------------------------------------------------------------------
+    "device":  "LFE5U-25F-8MG285C",    # FPGA device.
+    "cpu":     "None",                 # CPU type (ex vexriscv, serv, None)
+    "memtype": "DDR3",                 # DRAM type
+
+    # PHY ----------------------------------------------------------------------
+    "sdram_module":    "MT41K64M16",  # SDRAM modules of the board or SO-DIMM
+    "sdram_module_nb": 2,             # Number of byte groups
+    "sdram_rank_nb":   1,             # Number of ranks
+    "sdram_phy":       "ECP5DDRPHY",  # Type of FPGA PHY
+
+    # Frequency ----------------------------------------------------------------
+    "input_clk_freq":   48e6,  # Input clock frequency
+    "sys_clk_freq":     50e6,  # System clock frequency (DDR_clk = 4 x sys_clk)
+    "init_clk_freq":    25e6,  # Init clock frequency
+
+    # User Ports ---------------------------------------------------------------
+    "user_ports": {
+        "wishbone" : {
+            "type": "wishbone",
+            "data_width": 32,
+        },
+    },
+}
