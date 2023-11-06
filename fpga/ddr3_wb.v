@@ -4,7 +4,7 @@ module ddr3_wb
 //-----------------------------------------------------------------
 #(
      parameter DDR_MHZ          = 48
-    ,parameter DDR_WRITE_LATENCY = 3
+    ,parameter DDR_WRITE_LATENCY = 6
     ,parameter DDR_READ_LATENCY = 5         // 5 possibly works with TPHY_RDLAT=4, DDR_MHZ=12, PLL=48MHz
 )
 //-----------------------------------------------------------------
@@ -138,7 +138,7 @@ ddr3_core
 )
 u_core
 (
-     .clk_i(clk_w)
+     .clk_i(clk_ddr_w)
     ,.rst_i(rst_q)
 
     ,.inport_wr_i(ram_wr_w)
