@@ -12,6 +12,15 @@
 // Date       : 2023-11-06 17:52:25
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
+// List of manual changes:
+// - Removed duplicated `assign` lines. It seems that LiteX has problems with
+//   cases when a signal is assigned to multiple wires like `assign {a, b} = c`,
+//   such line is repeated as many times as there are signals on the left side.
+//   This causes warnings (multiple conflicting drivers) if signal on the right
+//   side is inverted.
+//------------------------------------------------------------------------------
+
 `timescale 1ns / 1ps
 
 //------------------------------------------------------------------------------
@@ -3620,9 +3629,6 @@ always @(*) begin
 end
 assign litedramcore_bankmachine0_syncfifo0_din = {litedramcore_bankmachine0_fifo_in_last, litedramcore_bankmachine0_fifo_in_first, litedramcore_bankmachine0_fifo_in_payload_addr, litedramcore_bankmachine0_fifo_in_payload_we};
 assign {litedramcore_bankmachine0_fifo_out_last, litedramcore_bankmachine0_fifo_out_first, litedramcore_bankmachine0_fifo_out_payload_addr, litedramcore_bankmachine0_fifo_out_payload_we} = litedramcore_bankmachine0_syncfifo0_dout;
-assign {litedramcore_bankmachine0_fifo_out_last, litedramcore_bankmachine0_fifo_out_first, litedramcore_bankmachine0_fifo_out_payload_addr, litedramcore_bankmachine0_fifo_out_payload_we} = litedramcore_bankmachine0_syncfifo0_dout;
-assign {litedramcore_bankmachine0_fifo_out_last, litedramcore_bankmachine0_fifo_out_first, litedramcore_bankmachine0_fifo_out_payload_addr, litedramcore_bankmachine0_fifo_out_payload_we} = litedramcore_bankmachine0_syncfifo0_dout;
-assign {litedramcore_bankmachine0_fifo_out_last, litedramcore_bankmachine0_fifo_out_first, litedramcore_bankmachine0_fifo_out_payload_addr, litedramcore_bankmachine0_fifo_out_payload_we} = litedramcore_bankmachine0_syncfifo0_dout;
 assign litedramcore_bankmachine0_sink_ready = litedramcore_bankmachine0_syncfifo0_writable;
 assign litedramcore_bankmachine0_syncfifo0_we = litedramcore_bankmachine0_sink_valid;
 assign litedramcore_bankmachine0_fifo_in_first = litedramcore_bankmachine0_sink_first;
@@ -4132,9 +4138,6 @@ always @(*) begin
     end
 end
 assign litedramcore_bankmachine1_syncfifo1_din = {litedramcore_bankmachine1_fifo_in_last, litedramcore_bankmachine1_fifo_in_first, litedramcore_bankmachine1_fifo_in_payload_addr, litedramcore_bankmachine1_fifo_in_payload_we};
-assign {litedramcore_bankmachine1_fifo_out_last, litedramcore_bankmachine1_fifo_out_first, litedramcore_bankmachine1_fifo_out_payload_addr, litedramcore_bankmachine1_fifo_out_payload_we} = litedramcore_bankmachine1_syncfifo1_dout;
-assign {litedramcore_bankmachine1_fifo_out_last, litedramcore_bankmachine1_fifo_out_first, litedramcore_bankmachine1_fifo_out_payload_addr, litedramcore_bankmachine1_fifo_out_payload_we} = litedramcore_bankmachine1_syncfifo1_dout;
-assign {litedramcore_bankmachine1_fifo_out_last, litedramcore_bankmachine1_fifo_out_first, litedramcore_bankmachine1_fifo_out_payload_addr, litedramcore_bankmachine1_fifo_out_payload_we} = litedramcore_bankmachine1_syncfifo1_dout;
 assign {litedramcore_bankmachine1_fifo_out_last, litedramcore_bankmachine1_fifo_out_first, litedramcore_bankmachine1_fifo_out_payload_addr, litedramcore_bankmachine1_fifo_out_payload_we} = litedramcore_bankmachine1_syncfifo1_dout;
 assign litedramcore_bankmachine1_sink_ready = litedramcore_bankmachine1_syncfifo1_writable;
 assign litedramcore_bankmachine1_syncfifo1_we = litedramcore_bankmachine1_sink_valid;
@@ -4646,9 +4649,6 @@ always @(*) begin
 end
 assign litedramcore_bankmachine2_syncfifo2_din = {litedramcore_bankmachine2_fifo_in_last, litedramcore_bankmachine2_fifo_in_first, litedramcore_bankmachine2_fifo_in_payload_addr, litedramcore_bankmachine2_fifo_in_payload_we};
 assign {litedramcore_bankmachine2_fifo_out_last, litedramcore_bankmachine2_fifo_out_first, litedramcore_bankmachine2_fifo_out_payload_addr, litedramcore_bankmachine2_fifo_out_payload_we} = litedramcore_bankmachine2_syncfifo2_dout;
-assign {litedramcore_bankmachine2_fifo_out_last, litedramcore_bankmachine2_fifo_out_first, litedramcore_bankmachine2_fifo_out_payload_addr, litedramcore_bankmachine2_fifo_out_payload_we} = litedramcore_bankmachine2_syncfifo2_dout;
-assign {litedramcore_bankmachine2_fifo_out_last, litedramcore_bankmachine2_fifo_out_first, litedramcore_bankmachine2_fifo_out_payload_addr, litedramcore_bankmachine2_fifo_out_payload_we} = litedramcore_bankmachine2_syncfifo2_dout;
-assign {litedramcore_bankmachine2_fifo_out_last, litedramcore_bankmachine2_fifo_out_first, litedramcore_bankmachine2_fifo_out_payload_addr, litedramcore_bankmachine2_fifo_out_payload_we} = litedramcore_bankmachine2_syncfifo2_dout;
 assign litedramcore_bankmachine2_sink_ready = litedramcore_bankmachine2_syncfifo2_writable;
 assign litedramcore_bankmachine2_syncfifo2_we = litedramcore_bankmachine2_sink_valid;
 assign litedramcore_bankmachine2_fifo_in_first = litedramcore_bankmachine2_sink_first;
@@ -5158,9 +5158,6 @@ always @(*) begin
     end
 end
 assign litedramcore_bankmachine3_syncfifo3_din = {litedramcore_bankmachine3_fifo_in_last, litedramcore_bankmachine3_fifo_in_first, litedramcore_bankmachine3_fifo_in_payload_addr, litedramcore_bankmachine3_fifo_in_payload_we};
-assign {litedramcore_bankmachine3_fifo_out_last, litedramcore_bankmachine3_fifo_out_first, litedramcore_bankmachine3_fifo_out_payload_addr, litedramcore_bankmachine3_fifo_out_payload_we} = litedramcore_bankmachine3_syncfifo3_dout;
-assign {litedramcore_bankmachine3_fifo_out_last, litedramcore_bankmachine3_fifo_out_first, litedramcore_bankmachine3_fifo_out_payload_addr, litedramcore_bankmachine3_fifo_out_payload_we} = litedramcore_bankmachine3_syncfifo3_dout;
-assign {litedramcore_bankmachine3_fifo_out_last, litedramcore_bankmachine3_fifo_out_first, litedramcore_bankmachine3_fifo_out_payload_addr, litedramcore_bankmachine3_fifo_out_payload_we} = litedramcore_bankmachine3_syncfifo3_dout;
 assign {litedramcore_bankmachine3_fifo_out_last, litedramcore_bankmachine3_fifo_out_first, litedramcore_bankmachine3_fifo_out_payload_addr, litedramcore_bankmachine3_fifo_out_payload_we} = litedramcore_bankmachine3_syncfifo3_dout;
 assign litedramcore_bankmachine3_sink_ready = litedramcore_bankmachine3_syncfifo3_writable;
 assign litedramcore_bankmachine3_syncfifo3_we = litedramcore_bankmachine3_sink_valid;
@@ -5672,9 +5669,6 @@ always @(*) begin
 end
 assign litedramcore_bankmachine4_syncfifo4_din = {litedramcore_bankmachine4_fifo_in_last, litedramcore_bankmachine4_fifo_in_first, litedramcore_bankmachine4_fifo_in_payload_addr, litedramcore_bankmachine4_fifo_in_payload_we};
 assign {litedramcore_bankmachine4_fifo_out_last, litedramcore_bankmachine4_fifo_out_first, litedramcore_bankmachine4_fifo_out_payload_addr, litedramcore_bankmachine4_fifo_out_payload_we} = litedramcore_bankmachine4_syncfifo4_dout;
-assign {litedramcore_bankmachine4_fifo_out_last, litedramcore_bankmachine4_fifo_out_first, litedramcore_bankmachine4_fifo_out_payload_addr, litedramcore_bankmachine4_fifo_out_payload_we} = litedramcore_bankmachine4_syncfifo4_dout;
-assign {litedramcore_bankmachine4_fifo_out_last, litedramcore_bankmachine4_fifo_out_first, litedramcore_bankmachine4_fifo_out_payload_addr, litedramcore_bankmachine4_fifo_out_payload_we} = litedramcore_bankmachine4_syncfifo4_dout;
-assign {litedramcore_bankmachine4_fifo_out_last, litedramcore_bankmachine4_fifo_out_first, litedramcore_bankmachine4_fifo_out_payload_addr, litedramcore_bankmachine4_fifo_out_payload_we} = litedramcore_bankmachine4_syncfifo4_dout;
 assign litedramcore_bankmachine4_sink_ready = litedramcore_bankmachine4_syncfifo4_writable;
 assign litedramcore_bankmachine4_syncfifo4_we = litedramcore_bankmachine4_sink_valid;
 assign litedramcore_bankmachine4_fifo_in_first = litedramcore_bankmachine4_sink_first;
@@ -6184,9 +6178,6 @@ always @(*) begin
     end
 end
 assign litedramcore_bankmachine5_syncfifo5_din = {litedramcore_bankmachine5_fifo_in_last, litedramcore_bankmachine5_fifo_in_first, litedramcore_bankmachine5_fifo_in_payload_addr, litedramcore_bankmachine5_fifo_in_payload_we};
-assign {litedramcore_bankmachine5_fifo_out_last, litedramcore_bankmachine5_fifo_out_first, litedramcore_bankmachine5_fifo_out_payload_addr, litedramcore_bankmachine5_fifo_out_payload_we} = litedramcore_bankmachine5_syncfifo5_dout;
-assign {litedramcore_bankmachine5_fifo_out_last, litedramcore_bankmachine5_fifo_out_first, litedramcore_bankmachine5_fifo_out_payload_addr, litedramcore_bankmachine5_fifo_out_payload_we} = litedramcore_bankmachine5_syncfifo5_dout;
-assign {litedramcore_bankmachine5_fifo_out_last, litedramcore_bankmachine5_fifo_out_first, litedramcore_bankmachine5_fifo_out_payload_addr, litedramcore_bankmachine5_fifo_out_payload_we} = litedramcore_bankmachine5_syncfifo5_dout;
 assign {litedramcore_bankmachine5_fifo_out_last, litedramcore_bankmachine5_fifo_out_first, litedramcore_bankmachine5_fifo_out_payload_addr, litedramcore_bankmachine5_fifo_out_payload_we} = litedramcore_bankmachine5_syncfifo5_dout;
 assign litedramcore_bankmachine5_sink_ready = litedramcore_bankmachine5_syncfifo5_writable;
 assign litedramcore_bankmachine5_syncfifo5_we = litedramcore_bankmachine5_sink_valid;
@@ -6698,9 +6689,6 @@ always @(*) begin
 end
 assign litedramcore_bankmachine6_syncfifo6_din = {litedramcore_bankmachine6_fifo_in_last, litedramcore_bankmachine6_fifo_in_first, litedramcore_bankmachine6_fifo_in_payload_addr, litedramcore_bankmachine6_fifo_in_payload_we};
 assign {litedramcore_bankmachine6_fifo_out_last, litedramcore_bankmachine6_fifo_out_first, litedramcore_bankmachine6_fifo_out_payload_addr, litedramcore_bankmachine6_fifo_out_payload_we} = litedramcore_bankmachine6_syncfifo6_dout;
-assign {litedramcore_bankmachine6_fifo_out_last, litedramcore_bankmachine6_fifo_out_first, litedramcore_bankmachine6_fifo_out_payload_addr, litedramcore_bankmachine6_fifo_out_payload_we} = litedramcore_bankmachine6_syncfifo6_dout;
-assign {litedramcore_bankmachine6_fifo_out_last, litedramcore_bankmachine6_fifo_out_first, litedramcore_bankmachine6_fifo_out_payload_addr, litedramcore_bankmachine6_fifo_out_payload_we} = litedramcore_bankmachine6_syncfifo6_dout;
-assign {litedramcore_bankmachine6_fifo_out_last, litedramcore_bankmachine6_fifo_out_first, litedramcore_bankmachine6_fifo_out_payload_addr, litedramcore_bankmachine6_fifo_out_payload_we} = litedramcore_bankmachine6_syncfifo6_dout;
 assign litedramcore_bankmachine6_sink_ready = litedramcore_bankmachine6_syncfifo6_writable;
 assign litedramcore_bankmachine6_syncfifo6_we = litedramcore_bankmachine6_sink_valid;
 assign litedramcore_bankmachine6_fifo_in_first = litedramcore_bankmachine6_sink_first;
@@ -7211,9 +7199,6 @@ always @(*) begin
 end
 assign litedramcore_bankmachine7_syncfifo7_din = {litedramcore_bankmachine7_fifo_in_last, litedramcore_bankmachine7_fifo_in_first, litedramcore_bankmachine7_fifo_in_payload_addr, litedramcore_bankmachine7_fifo_in_payload_we};
 assign {litedramcore_bankmachine7_fifo_out_last, litedramcore_bankmachine7_fifo_out_first, litedramcore_bankmachine7_fifo_out_payload_addr, litedramcore_bankmachine7_fifo_out_payload_we} = litedramcore_bankmachine7_syncfifo7_dout;
-assign {litedramcore_bankmachine7_fifo_out_last, litedramcore_bankmachine7_fifo_out_first, litedramcore_bankmachine7_fifo_out_payload_addr, litedramcore_bankmachine7_fifo_out_payload_we} = litedramcore_bankmachine7_syncfifo7_dout;
-assign {litedramcore_bankmachine7_fifo_out_last, litedramcore_bankmachine7_fifo_out_first, litedramcore_bankmachine7_fifo_out_payload_addr, litedramcore_bankmachine7_fifo_out_payload_we} = litedramcore_bankmachine7_syncfifo7_dout;
-assign {litedramcore_bankmachine7_fifo_out_last, litedramcore_bankmachine7_fifo_out_first, litedramcore_bankmachine7_fifo_out_payload_addr, litedramcore_bankmachine7_fifo_out_payload_we} = litedramcore_bankmachine7_syncfifo7_dout;
 assign litedramcore_bankmachine7_sink_ready = litedramcore_bankmachine7_syncfifo7_writable;
 assign litedramcore_bankmachine7_syncfifo7_we = litedramcore_bankmachine7_sink_valid;
 assign litedramcore_bankmachine7_fifo_in_first = litedramcore_bankmachine7_sink_first;
@@ -7710,8 +7695,6 @@ assign litedramcore_bankmachine7_refresh_req = litedramcore_cmd_valid;
 assign litedramcore_go_to_refresh = (((((((litedramcore_bankmachine0_refresh_gnt & litedramcore_bankmachine1_refresh_gnt) & litedramcore_bankmachine2_refresh_gnt) & litedramcore_bankmachine3_refresh_gnt) & litedramcore_bankmachine4_refresh_gnt) & litedramcore_bankmachine5_refresh_gnt) & litedramcore_bankmachine6_refresh_gnt) & litedramcore_bankmachine7_refresh_gnt);
 assign litedramcore_interface_rdata = {litedramcore_dfi_p1_rddata, litedramcore_dfi_p0_rddata};
 assign {litedramcore_dfi_p1_wrdata, litedramcore_dfi_p0_wrdata} = litedramcore_interface_wdata;
-assign {litedramcore_dfi_p1_wrdata, litedramcore_dfi_p0_wrdata} = litedramcore_interface_wdata;
-assign {litedramcore_dfi_p1_wrdata_mask, litedramcore_dfi_p0_wrdata_mask} = (~litedramcore_interface_wdata_we);
 assign {litedramcore_dfi_p1_wrdata_mask, litedramcore_dfi_p0_wrdata_mask} = (~litedramcore_interface_wdata_we);
 always @(*) begin
     litedramcore_choose_cmd_valids <= 8'd0;
@@ -8835,8 +8818,6 @@ always @(*) begin
 end
 assign litedramnativeportconverter_rdata_fifo_syncfifo_din = {litedramnativeportconverter_rdata_fifo_fifo_in_last, litedramnativeportconverter_rdata_fifo_fifo_in_first, litedramnativeportconverter_rdata_fifo_fifo_in_payload_data};
 assign {litedramnativeportconverter_rdata_fifo_fifo_out_last, litedramnativeportconverter_rdata_fifo_fifo_out_first, litedramnativeportconverter_rdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_rdata_fifo_syncfifo_dout;
-assign {litedramnativeportconverter_rdata_fifo_fifo_out_last, litedramnativeportconverter_rdata_fifo_fifo_out_first, litedramnativeportconverter_rdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_rdata_fifo_syncfifo_dout;
-assign {litedramnativeportconverter_rdata_fifo_fifo_out_last, litedramnativeportconverter_rdata_fifo_fifo_out_first, litedramnativeportconverter_rdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_rdata_fifo_syncfifo_dout;
 assign litedramnativeportconverter_rdata_fifo_sink_ready = litedramnativeportconverter_rdata_fifo_syncfifo_writable;
 assign litedramnativeportconverter_rdata_fifo_syncfifo_we = litedramnativeportconverter_rdata_fifo_sink_valid;
 assign litedramnativeportconverter_rdata_fifo_fifo_in_first = litedramnativeportconverter_rdata_fifo_sink_first;
@@ -8939,9 +8920,6 @@ assign litedramnativeportconverter_wdata_converter_converter_sink_ready = ((~lit
 assign litedramnativeportconverter_wdata_converter_converter_source_valid = litedramnativeportconverter_wdata_converter_converter_strobe_all;
 assign litedramnativeportconverter_wdata_converter_converter_load_part = (litedramnativeportconverter_wdata_converter_converter_sink_valid & litedramnativeportconverter_wdata_converter_converter_sink_ready);
 assign litedramnativeportconverter_wdata_fifo_syncfifo_din = {litedramnativeportconverter_wdata_fifo_fifo_in_last, litedramnativeportconverter_wdata_fifo_fifo_in_first, litedramnativeportconverter_wdata_fifo_fifo_in_payload_we, litedramnativeportconverter_wdata_fifo_fifo_in_payload_data};
-assign {litedramnativeportconverter_wdata_fifo_fifo_out_last, litedramnativeportconverter_wdata_fifo_fifo_out_first, litedramnativeportconverter_wdata_fifo_fifo_out_payload_we, litedramnativeportconverter_wdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_wdata_fifo_syncfifo_dout;
-assign {litedramnativeportconverter_wdata_fifo_fifo_out_last, litedramnativeportconverter_wdata_fifo_fifo_out_first, litedramnativeportconverter_wdata_fifo_fifo_out_payload_we, litedramnativeportconverter_wdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_wdata_fifo_syncfifo_dout;
-assign {litedramnativeportconverter_wdata_fifo_fifo_out_last, litedramnativeportconverter_wdata_fifo_fifo_out_first, litedramnativeportconverter_wdata_fifo_fifo_out_payload_we, litedramnativeportconverter_wdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_wdata_fifo_syncfifo_dout;
 assign {litedramnativeportconverter_wdata_fifo_fifo_out_last, litedramnativeportconverter_wdata_fifo_fifo_out_first, litedramnativeportconverter_wdata_fifo_fifo_out_payload_we, litedramnativeportconverter_wdata_fifo_fifo_out_payload_data} = litedramnativeportconverter_wdata_fifo_syncfifo_dout;
 assign litedramnativeportconverter_wdata_fifo_sink_ready = litedramnativeportconverter_wdata_fifo_syncfifo_writable;
 assign litedramnativeportconverter_wdata_fifo_syncfifo_we = litedramnativeportconverter_wdata_fifo_sink_valid;
