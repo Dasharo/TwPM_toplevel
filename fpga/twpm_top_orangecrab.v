@@ -51,9 +51,9 @@ module twpm_top (
 // |  code (XIP from flash)               |
 // +--------------------------------------+ 0xE0000000
 // |  unused                              |
-// +--------------------------------------+ 0x88000000 (temporarily 0x98000000)
+// +--------------------------------------+ 0x88000000
 // |  RAM                                 |
-// +--------------------------------------+ 0x80000000 (temporarily 0x90000000)
+// +--------------------------------------+ 0x80000000
 // |  unused                              |
 // +--------------------------------------+ 0
 
@@ -69,7 +69,7 @@ parameter TPM_REG_LOCALITY      = 16'h0008;
 parameter TPM_REG_BUF_SIZE      = 16'h000C;
 parameter TPM_REG_COMPLETE      = 16'h0040;
 parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
-parameter RAM_BASE_ADDRESS      = 32'h90000000;  // FIXME after crt0 initializes RAM
+parameter RAM_BASE_ADDRESS      = 32'h80000000;
 parameter RAM_ADDR_WIDTH        = 27;
 
 parameter COMPLETE_PULSE_WIDTH  = 20;
