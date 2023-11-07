@@ -51,7 +51,6 @@ begin
     CPU_EXTENSION_RISCV_C        => true,        -- implement compressed extension?
     CPU_EXTENSION_RISCV_M        => true,        -- implement mul/div extension?
     CPU_EXTENSION_RISCV_Zicntr   => true,        -- implement base counters?
-    CPU_EXTENSION_RISCV_Zifencei => true,        -- implement instruction stream sync? Required by ON_CHIP_DEBUGGER_EN
     -- Internal Instruction memory (IMEM) --
     MEM_INT_IMEM_EN              => false,       -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => 64*1024,     -- size of processor-internal instruction memory in bytes
