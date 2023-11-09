@@ -14,6 +14,7 @@ NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(B
 NEORV32_SRC = $(filter-out %neorv32_bootloader_image.vhd, $(wildcard $(NEORV32_DIR)/rtl/core/*.vhd) $(wildcard $(NEORV32_DIR)/rtl/core/mem/*.vhd))
 LPF_FILE = $(BOARD).lpf
 
+NEORV32_BOOTLOADER = neorv32/sw/bootloader/neorv32_bootloader_image.vhd
 
 NEORV32_BOOTLOADER_ARGS += -DAUTO_BOOT_TIMEOUT=3
 
@@ -39,7 +40,7 @@ all: $(BUILD_DIR)/twpm.dfu
 
 clean:
 	@rm -rf $(BUILD_DIR)
-	@make -C neorv32/sw/bootloader clean
+	@$(MAKE) -C neorv32/sw/bootloader clean
 	@find neorv32/sw -name '*.o' -exec rm '{}' \;
 
 $(BUILD_DIR):
@@ -48,14 +49,13 @@ $(BUILD_DIR):
 $(BUILD_DIR)/neorv32: $(BUILD_DIR)
 	@mkdir -p $@
 
-.PHONY: $(BUILD_DIR)/bootloader.vhd
-$(BUILD_DIR)/bootloader.vhd:
+$(NEORV32_BOOTLOADER): force
 	@$(MAKE) -C neorv32/sw/bootloader bl_image USER_FLAGS="$(NEORV32_BOOTLOADER_ARGS)"
-	@cp neorv32/sw/bootloader/neorv32_bootloader_image.vhd $@
+force: ;
 
 ifeq ($(TOOLCHAIN),trellis)
-$(BUILD_DIR)/neorv32.v: $(BUILD_DIR)/neorv32 $(NEORV32_SRC) $(BUILD_DIR)/bootloader.vhd $(NEORV32_WRAPPER)
-	@ghdl -i --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild $(NEORV32_SRC) $(NEORV32_WRAPPER) $(BUILD_DIR)/bootloader.vhd
+$(BUILD_DIR)/neorv32.v: $(BUILD_DIR)/neorv32 $(NEORV32_SRC) $(NEORV32_BOOTLOADER) $(NEORV32_WRAPPER)
+	@ghdl -i --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild $(NEORV32_SRC) $(NEORV32_WRAPPER) $(NEORV32_BOOTLOADER)
 	@ghdl -m --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 neorv32_verilog_wrapper
 	@ghdl synth --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild --out=verilog neorv32_verilog_wrapper > $@
 
@@ -73,13 +73,13 @@ $(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json $(LPF_FILE)
 $(BUILD_DIR)/twpm.bit: $(BUILD_DIR)/nextpnr.config
 	@ecppack  --bootaddr 0   --compress $< --svf $(BUILD_DIR)/twpm.svf --bit $@
 else ifeq ($(TOOLCHAIN),diamond)
-$(BUILD_DIR)/build.tcl: $(BUILD_DIR) $(NEORV32_SRC) $(NEORV32_WRAPPER) $(BUILD_DIR)/bootloader.vhd
+$(BUILD_DIR)/build.tcl: $(BUILD_DIR) $(NEORV32_SRC) $(NEORV32_WRAPPER) $(NEORV32_BOOTLOADER)
 	@echo "prj_project new -name twpm -impl $(BOARD) -dev LFE5U-25F-8MG285C -synthesis synplify" > $@
 	@for file in $(SRC); do \
 		echo "prj_src add -work twpm $$(readlink -f $$file)" >> $@; done
 	@for file in $(NEORV32_SRC); do \
 		echo "prj_src add -work neorv32 $$(readlink -f $$file)" >> $@; done
-	@echo "prj_src add -work neorv32 $$(readlink -f $(BUILD_DIR)/bootloader.vhd)" >> $@
+	@echo "prj_src add -work neorv32 $$(readlink -f $(NEORV32_BOOTLOADER)" >> $@
 	@echo "prj_src add -work twpm $$(readlink -f $(NEORV32_WRAPPER))" >> $@
 	@echo "prj_impl option top $(TOP)" >> $@
 # Save project file so that it can be opened using Diamond's GUI
