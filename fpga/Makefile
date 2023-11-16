@@ -60,7 +60,7 @@ $(BUILD_DIR)/build.ys $(BUILD_DIR)/twpm.json $(BUILD_DIR)/twpm_synth.v: $(SRC) $
 	@echo "write_json $(BUILD_DIR)/twpm.json" >> $(BUILD_DIR)/build.ys
 	@yosys $(BUILD_DIR)/build.ys |& tee $(BUILD_DIR)/yosys.log
 
-$(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json
+$(BUILD_DIR)/nextpnr.config: $(BUILD_DIR)/twpm.json $(LPF_FILE)
 	@nextpnr-ecp5 $(NEXTPNR_ARGS) |& tee $(BUILD_DIR)/nextpnr.log
 
 $(BUILD_DIR)/twpm.bit: $(BUILD_DIR)/nextpnr.config
