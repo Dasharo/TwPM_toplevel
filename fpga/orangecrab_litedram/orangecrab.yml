@@ -19,6 +19,7 @@
     "sdram_module_nb": 2,             # Number of byte groups
     "sdram_rank_nb":   1,             # Number of ranks
     "sdram_phy":       "ECP5DDRPHY",  # Type of FPGA PHY
+    "dm_swap":          true,
 
     # Frequency ----------------------------------------------------------------
     "input_clk_freq":   48e6,  # Input clock frequency
