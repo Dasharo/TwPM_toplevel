@@ -1,6 +1,6 @@
 module twpm_top (
     input  wire         clk_i,
-    output wire         rstn_i,
+    input  wire         rstn_i,
     // UART
     input  wire         uart_rxd_i,
     output wire         uart_txd_o,
@@ -379,13 +379,5 @@ litedram_core litedram (
 assign ddram_a[15:13] = 0;
 assign led_r = 1'b1;
 assign led_g = 1'b1;
-
-// Reset logic on button press. This will enter the bootloader.
-// TODO: remove when no longer needed
-reg reset_sr = 1'b1;
-always @(posedge clk_i) begin
-    reset_sr <= {usr_btn};
-end
-assign rstn_i = reset_sr;
 
 endmodule
