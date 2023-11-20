@@ -79,7 +79,7 @@ $(BUILD_DIR)/build.tcl: $(BUILD_DIR) $(NEORV32_SRC) $(NEORV32_WRAPPER) $(NEORV32
 		echo "prj_src add -work twpm $$(readlink -f $$file)" >> $@; done
 	@for file in $(NEORV32_SRC); do \
 		echo "prj_src add -work neorv32 $$(readlink -f $$file)" >> $@; done
-	@echo "prj_src add -work neorv32 $$(readlink -f $(NEORV32_BOOTLOADER)" >> $@
+	@echo "prj_src add -work neorv32 $$(readlink -f $(NEORV32_BOOTLOADER))" >> $@
 	@echo "prj_src add -work twpm $$(readlink -f $(NEORV32_WRAPPER))" >> $@
 	@echo "prj_impl option top $(TOP)" >> $@
 # Save project file so that it can be opened using Diamond's GUI
