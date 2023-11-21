@@ -7,3 +7,6 @@
 [submodule "fpga/neorv32"]
 	path = fpga/neorv32
 	url = git@github.com:stnolting/neorv32.git
+[submodule "fpga/ddr3_controller"]
+	path = fpga/ddr3_controller
+	url = https://github.com/ultraembedded/core_ddr3_controller.git
