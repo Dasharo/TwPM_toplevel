@@ -32,7 +32,10 @@ entity neorv32_verilog_wrapper is
     spi_clk_o   : out std_ulogic; -- serial clock output
     spi_dat_o   : out std_ulogic; -- serial data output
     spi_dat_i   : in  std_ulogic; -- serial data input
-    spi_csn_o   : out std_ulogic_vector(07 downto 0) -- 8-bit dedicated chip select output (low-active)
+    spi_csn_o   : out std_ulogic_vector(07 downto 0); -- 8-bit dedicated chip select output (low-active)
+    -- GPIO --
+    gpio_o      : out std_ulogic_vector(63 downto 0);
+    gpio_i      : in std_ulogic_vector(63 downto 0)
   );
 end entity;
 
@@ -71,7 +74,9 @@ begin
     MEM_EXT_PIPE_MODE            => false,       -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
     MEM_EXT_BIG_ENDIAN           => false,       -- byte order: true=big-endian, false=little-endian
     MEM_EXT_ASYNC_RX             => false,       -- use register buffer for RX data when false
-    MEM_EXT_ASYNC_TX             => false        -- use register buffer for TX data when false
+    MEM_EXT_ASYNC_TX             => false,       -- use register buffer for TX data when false
+    -- GPIO --
+    IO_GPIO_NUM                  => 3            -- use GPIO for controlling LEDs
   )
   port map (
     -- Global control --
@@ -101,7 +106,10 @@ begin
     spi_clk_o   => spi_clk_o,   -- serial clock output
     spi_dat_o   => spi_dat_o,   -- serial data output
     spi_dat_i   => spi_dat_i,   -- serial data input
-    spi_csn_o   => spi_csn_o    -- 8-bit dedicated chip select output (low-active)
+    spi_csn_o   => spi_csn_o,   -- 8-bit dedicated chip select output (low-active)
+    -- GPIO --
+    gpio_o      => gpio_o,      -- gpio_o[2:0] controls LEDs
+    gpio_i      => gpio_i       -- currently unused
   );
 
 end architecture;

@@ -128,6 +128,8 @@ wire          WBs_ACK_nxt;
 wire    [7:0] spi_csn;
 wire          spi_clk_o;
 reg     [7:0] complete_pulse_counter = 0;
+wire   [63:0] gpio;
+wire          pll_locked;
 
 // Helper signals
 wire          hits_ctrl    = (wb_adr[31:LITEDRAM_ADDR_WIDTH] === LITEDRAM_BASE_ADDRESS[31:LITEDRAM_ADDR_WIDTH]);
@@ -173,7 +175,8 @@ neorv32_verilog_wrapper cpu (
     .spi_clk_o(spi_clk_o),
     .spi_dat_o(spi_dat_o),
     .spi_dat_i(spi_dat_i),
-    .spi_csn_o(spi_csn)
+    .spi_csn_o(spi_csn),
+    .gpio_o(gpio)
 );
 
 // SPI flash interface
@@ -352,7 +355,7 @@ litedram_core litedram (
     // Output status signals
     .init_done(),         // Controlled by SW, same as CSR_BASE+0
     .init_error(),        // Controlled by SW, same as CSR_BASE+4
-    .pll_locked(led_b),   // Active high indicates PLL lock, LED is active low (i.e. LED off -> good)
+    .pll_locked(pll_locked), // Active high indicates PLL lock
     // RAM data WISHBONE interface
     .user_port_wishbone_ack(wb_ack_ddr3),
     .user_port_wishbone_adr(wb_adr[RAM_ADDR_WIDTH-1:2]),
@@ -377,7 +380,10 @@ litedram_core litedram (
 
 // Hardwire unused outputs
 assign ddram_a[15:13] = 0;
-assign led_r = 1'b1;
-assign led_g = 1'b1;
+// LEDs are active-low. Neorv32 by default sets all GPIOs to low so we negate
+// GPIO signal to keep LEDs off until explicitly enabled.
+assign led_r = ~gpio[1];
+assign led_g = ~gpio[0];
+assign led_b = pll_locked & ~gpio[2];
 
 endmodule
