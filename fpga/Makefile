@@ -25,8 +25,13 @@ LPF_FILE = orangecrab.lpf
 
 # Offset for firmware in SPI flash
 NEORV32_BOOTLOADER_ARGS += -DSPI_BOOT_BASE_ADDR=0x80000
-# Load firmware into D-MEM
-NEORV32_BOOTLOADER_ARGS += -DEXE_BASE_ADDR=0x800000000
+# Load firmware at the start of DRAM.
+NEORV32_BOOTLOADER_ARGS += -DEXE_BASE_ADDR=0x80000000
+
+# Re-map BootROM memory to upper 1 MiB of RAM so that we can load Zephyr at
+# start of DRAM.
+NEORV32_BOOTLOADER_ARGS += -Wl,--defsym,__neorv32_ram_base=0x87f00000 \
+			   -Wl,--defsym,__neorv32_ram_size=0x100000
 
 # Disable unused features to reduce space.
 NEORV32_BOOTLOADER_ARGS += -DSTATUS_LED_EN=0
