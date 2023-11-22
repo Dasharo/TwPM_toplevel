@@ -16,7 +16,7 @@ LPF_FILE = $(BOARD).lpf
 
 NEORV32_BOOTLOADER = neorv32/sw/bootloader/neorv32_bootloader_image.vhd
 
-NEORV32_BOOTLOADER_ARGS += -DAUTO_BOOT_TIMEOUT=3
+NEORV32_BOOTLOADER_ARGS += -DAUTO_BOOT_TIMEOUT=3 -DUART_BAUD=115200
 
 ifeq ($(BOARD),orangecrab)
 # 50.4 MHz is actual frequency PLL produces when asked for 50 MHz on 48 MHz input.
