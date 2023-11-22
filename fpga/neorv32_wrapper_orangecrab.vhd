@@ -48,6 +48,7 @@ begin
     ON_CHIP_DEBUGGER_EN          => true,        -- enable JTAG support
     INT_BOOTLOADER_EN            => true,        -- boot configuration: boot explicit bootloader
     -- RISC-V CPU Extensions --
+    CPU_EXTENSION_RISCV_A        => true,        -- implement atomic memory operations extension?
     CPU_EXTENSION_RISCV_C        => true,        -- implement compressed extension?
     CPU_EXTENSION_RISCV_M        => true,        -- implement mul/div extension?
     CPU_EXTENSION_RISCV_Zicntr   => true,        -- implement base counters?
