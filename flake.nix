@@ -121,6 +121,7 @@
             mkdir /tmp &>/dev/null || true
 
             export TWPM_ZEPHYR_CMAKE_PATH=${zephyrSdk}/cmake
+            export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
             exec bash -i
           '';
         in nix2container.buildImage {
