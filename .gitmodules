@@ -7,3 +7,6 @@
 [submodule "fpga/neorv32"]
 	path = fpga/neorv32
 	url = https://github.com/Dasharo/neorv32.git
+[submodule "firmware/twpm-firmware"]
+	path = firmware/twpm-firmware
+	url = https://github.com/Dasharo/twpm-firmware
