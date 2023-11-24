@@ -46,6 +46,7 @@ all: $(BUILD_DIR)/twpm.dfu
 clean:
 	@rm -rf $(BUILD_DIR)
 	@$(MAKE) -C neorv32/sw/bootloader clean
+	@rm -f neorv32/sw/image_gen/image_gen
 	@find neorv32/sw -name '*.o' -exec rm '{}' \;
 
 $(BUILD_DIR):
