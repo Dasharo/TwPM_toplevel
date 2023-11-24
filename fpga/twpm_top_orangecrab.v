@@ -176,7 +176,8 @@ neorv32_verilog_wrapper cpu (
     .spi_dat_o(spi_dat_o),
     .spi_dat_i(spi_dat_i),
     .spi_csn_o(spi_csn),
-    .gpio_o(gpio)
+    .gpio_o(gpio),
+    .gpio_i(64'b0)
 );
 
 // SPI flash interface
