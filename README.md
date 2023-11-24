@@ -36,12 +36,45 @@ can do:
 nix-shell --pure $(nix build --no-link --json .#devShells.x86_64-linux.default | jq -r '.[].drvPath')
 ```
 
-Please note that all commands executed from Nix shell are running on host.
+This environment is still running on your host. If you want clean and isolated
+environment you can use Docker or Podman to create isolated environment:
+
+```shell
+nix run .#sdk.copyToDockerDaemon
+```
+
+or for Podman:
+
+```shell
+nix run .#sdk.copyToPodman
+```
+
+Both commands will print name of container:
+
+```
+Copy to Docker daemon image twpm-sdk:40hahn4y8k477rhn006fx524463vkaag
+Getting image source signatures
+Copying blob 3250b1004e0f done
+Copying config 004a96a585 done
+Writing manifest to image destination
+```
+
+To run container do:
+
+```shell
+docker run --rm -it --mount type=tmpfs,destination=/tmp \
+    -v $PWD:/work -w /work -u $(id -u):$(id -g) \
+    twpm-sdk:40hahn4y8k477rhn006fx524463vkaag
+```
 
 ## Building - easy
 
-> Here will be description of how to build whole project with one command, when
-> it will be ready.
+To build everything at once start TwPM SDK environment as described in the
+section above and type:
+
+```
+make
+```
 
 ## Building - advanced
 
@@ -53,26 +86,151 @@ Note that if you already have built whole project earlier, `make` should be able
 to detect which components have changed and rebuild only those. In that case you
 can follow [the easy path](#building---easy).
 
-### MCU
+## MCU
 
 > TBD: description of building and hacking TPM stack and platform glue code.
 
-### FPGA
+### Setting up UDev
 
-To just build:
+If you want to flash device without `sudo` add this to
+`/etc/udev/rules.d/90-orangecrab.rules`
 
-```shell
-$ cd fpga
-$ make
+```
+ACTION=="add|change", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="5af0", OWNER="<enter_your_user_name_here>"
 ```
 
-This will execute all steps up to and including generation of bitstream.
+> Remember to replace `<enter_your_user_name_here>` with your username.
 
-To build and flash:
+After creating `.rules` file type
 
 ```shell
-$ cd fpga
-$ dfu-util -D build/twpm.dfu
+udevadm control --reload-rules
+```
+
+for changes to take effect.
+
+### Programmming FPGA bitstream
+
+To flash firmware enter bootloader mode on OrangeCrab by connecting USB while
+holding on-board button pressed.
+
+Then type:
+
+```shell
+$ dfu-util -D build/fpga/twpm.dfu
+```
+
+### Connecting UART
+
+UART is accessible on following pins
+
+| Pin | Function |
+| --- | -------- |
+| GND | Ground   |
+| 0   | TX       |
+| 1   | RX       |
+
+UART is configured to run at *115200n8* (115200 baud rate, 8 data bits, 1 stop
+bit, parity off, flow control off).
+
+To connect do
+
+```shell
+minicom -D /dev/ttyUSB0 -b 115200
+```
+
+> Make sure you have UART configured properly: while in Minicom press *Ctrl+A O*,
+> go to *Serial Port Setup* menu, make sure that *Flow Control* is disabled,
+> and make sure data bits, stop bits and parity is configured properly.
+
+### Uploading TwPM firmware trough UART
+
+> Currently firmware must be uploaded through UART as there is no support for
+> booting from SPI yet.
+
+Connect UART as described in the section above. Make sure you have programmed
+the bitstream already.
+
+After powering-on the board you will greated by NEORV32 bootloader:
+
+```
+<< NEORV32 Bootloader >>
+
+BLDV: Nov 24 2023
+HWV:  0x01090007
+CLK:  0x03010b00
+MISA: 0x40801105
+XISA: 0x00000c83
+SOC:  0x80878003
+IMEM: 0x00010000
+DMEM: 0x00010000
+
+Autoboot in 3s. Press any key to abort.
+Aborted.
+
+Available CMDs:
+ h: Help
+ r: Restart
+ u: Upload
+ s: Store to flash
+ l: Load from flash
+ e: Execute
+CMD:>
+```
+
+Press immediately any key to interrupt autoboot process, then press *u* to enter
+upload mode.
+
+From another terminal type:
+
+```shell
+dd if=build/firmware/zephyr_with_header.bin of=/dev/ttyUSB0
+```
+
+> `/dev/ttyUSB0` is the same UART on which Minicom is running and this command
+> *must* be executed while Minicom is running.
+
+When update is complete press *e* to boot. After few seconds you should be
+greated by TwPM firmware.
+
+That's how full boot log looks like:
+
+```
+<< NEORV32 Bootloader >>
+
+BLDV: Nov 24 2023
+HWV:  0x01090007
+CLK:  0x03010b00
+MISA: 0x40801105
+XISA: 0x00000c83
+SOC:  0x80878003
+IMEM: 0x00010000
+DMEM: 0x00010000
+
+Autoboot in 3s. Press any key to abort.
+Aborted.
+
+Available CMDs:
+ h: Help
+ r: Restart
+ u: Upload
+ s: Store to flash
+ l: Load from flash
+ e: Execute
+CMD:> u
+Awaiting neorv32_exe.bin... OK
+CMD:> e
+Booting from 0x80000000...
+
+*** Booting Zephyr OS build 71194e41ac04 ***
+[00:00:00.005,000] <inf> main: Starting TwPM on orangecrab
+[00:00:00.006,000] <wrn> nv: TwPM was built with CONFIG_TWPM_NV_EMULATE. Changes are NOT persistent!
+[00:00:02.904,000] <inf> nv: NV commit
+[00:00:02.905,000] <inf> init: TPM manufacture OK
+[00:00:04.599,000] <inf> nv: NV commit
+[00:00:04.601,000] <inf> test: TPM command result: {TPM_RC_SUCCESS}
+[00:00:04.723,000] <inf> nv: NV commit
+[00:00:04.734,000] <inf> test: HASH: 12f411d0eebfb9c4d81df9f1cb10e22e9841a91428ea7f00969fa7f29db0f7fa
 ```
 
 ## Funding
