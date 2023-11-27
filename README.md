@@ -67,6 +67,33 @@ docker run --rm -it --mount type=tmpfs,destination=/tmp \
     twpm-sdk:40hahn4y8k477rhn006fx524463vkaag
 ```
 
+> If you to want to flash device from container you must start it in privileged
+> mode and give access to USB:
+> ```shell
+> docker run --privileged -v /dev/bus/usb:/dev/bus/usb --rm -it \
+>   --mount type=tmpfs,destination=/tmp -v $PWD:/work -w /work \
+>   -u $(id -u):$(id -g) twpm-sdk:40hahn4y8k477rhn006fx524463vkaag
+> ```
+
+## Setting up UDev
+
+If you want to flash device without `sudo` add this to
+`/etc/udev/rules.d/90-orangecrab.rules`
+
+```
+ACTION=="add|change", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="5af0", OWNER="<enter_your_user_name_here>"
+```
+
+> Remember to replace `<enter_your_user_name_here>` with your username.
+
+After creating `.rules` file type
+
+```shell
+udevadm control --reload-rules
+```
+
+for changes to take effect.
+
 ## Building - easy
 
 To build everything at once start TwPM SDK environment as described in the
@@ -86,28 +113,9 @@ Note that if you already have built whole project earlier, `make` should be able
 to detect which components have changed and rebuild only those. In that case you
 can follow [the easy path](#building---easy).
 
-## MCU
+### MCU
 
 > TBD: description of building and hacking TPM stack and platform glue code.
-
-### Setting up UDev
-
-If you want to flash device without `sudo` add this to
-`/etc/udev/rules.d/90-orangecrab.rules`
-
-```
-ACTION=="add|change", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="5af0", OWNER="<enter_your_user_name_here>"
-```
-
-> Remember to replace `<enter_your_user_name_here>` with your username.
-
-After creating `.rules` file type
-
-```shell
-udevadm control --reload-rules
-```
-
-for changes to take effect.
 
 ### Programmming FPGA bitstream
 
