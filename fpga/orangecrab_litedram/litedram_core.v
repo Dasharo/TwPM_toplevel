@@ -25,6 +25,8 @@
 // - Removed unused control WISHBONE bus signals: BTE and CTI. They are not used
 //   in WISHBONE Classic, and even though they were assigned to few levels of
 //   other wires, those wires were not used anywhere.
+// - Grouped ports by their functions instead of alphabetical order. Groups are
+//   named in comments in format expected by symbolator.
 //------------------------------------------------------------------------------
 
 `timescale 1ns / 1ps
@@ -34,7 +36,12 @@
 //------------------------------------------------------------------------------
 
 module litedram_core (
+    //# {{Global control}}
     input  wire          clk,
+    input  wire          rst,
+    output wire          user_clk,
+    output wire          user_rst,
+    //# {{DDR3 RAM signals}}
     output wire   [12:0] ddram_a,
     output wire    [2:0] ddram_ba,
     output wire          ddram_cas_n,
@@ -48,11 +55,11 @@ module litedram_core (
     output wire          ddram_ras_n,
     output wire          ddram_reset_n,
     output wire          ddram_we_n,
+    //# {{Output status signals}}
     output wire          init_done,
     output wire          init_error,
     output wire          pll_locked,
-    input  wire          rst,
-    output wire          user_clk,
+    //# {{RAM data WISHBONE interface}}
     output wire          user_port_wishbone_ack,
     input  wire   [24:0] user_port_wishbone_adr,
     input  wire          user_port_wishbone_cyc,
@@ -62,7 +69,7 @@ module litedram_core (
     input  wire    [3:0] user_port_wishbone_sel,
     input  wire          user_port_wishbone_stb,
     input  wire          user_port_wishbone_we,
-    output wire          user_rst,
+    //# {{Controller WISHBONE interface}}
     output wire          wb_ctrl_ack,
     input  wire   [29:0] wb_ctrl_adr,
     input  wire          wb_ctrl_cyc,
