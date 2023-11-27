@@ -1,39 +1,10 @@
-module twpm_top (
-    input  wire         clk_i,
-    input  wire         rstn_i,
-    // UART
-    input  wire         uart_rxd_i,
-    output wire         uart_txd_o,
-    // LPC interface
-    input  wire         LCLK,
-    input  wire         LRESET,
-    input  wire         LFRAME,
-    inout  wire [  3:0] LAD,
-    inout  wire         SERIRQ,
-    // SPI interface
-    output wire         spi_dat_o,
-    input  wire         spi_dat_i,
-    output wire         spi_flash_cs_o,
-    // DDR3 interface
-    output wire [15:0]  ddram_a,
-    output wire [2:0]   ddram_ba,
-    output wire         ddram_ras_n,
-    output wire         ddram_cas_n,
-    output wire         ddram_we_n,
-    output wire [1:0]   ddram_dm,
-    inout  wire [15:0]  ddram_dq,
-    inout  wire [1:0]   ddram_dqs_p,
-    output wire         ddram_clk_p,
-    output wire         ddram_cke,
-    output wire         ddram_odt,
-    output wire         ddram_cs_n,
-    output wire         ddram_reset_n,
-    // Misc
-    output wire         led_r,
-    output wire         led_g,
-    output wire         led_b,
-    input  wire         usr_btn
-);
+module twpm_top (clk_i, rstn_i, uart_rxd_i, uart_txd_o,
+                 LCLK, LRESET, LFRAME, LAD, SERIRQ,
+                 spi_dat_o, spi_dat_i, spi_flash_cs_o,
+                 ddram_a, ddram_ba, ddram_ras_n, ddram_cas_n,
+                 ddram_we_n, ddram_dm, ddram_dq, ddram_dqs_p,
+                 ddram_clk_p, ddram_cke, ddram_odt, ddram_cs_n, ddram_reset_n,
+                 led_r, led_g, led_b);
 
 // Memory map:
 //
@@ -68,11 +39,47 @@ parameter TPM_REG_OP_TYPE       = 16'h0004;
 parameter TPM_REG_LOCALITY      = 16'h0008;
 parameter TPM_REG_BUF_SIZE      = 16'h000C;
 parameter TPM_REG_COMPLETE      = 16'h0040;
-parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
 parameter RAM_BASE_ADDRESS      = 32'h80000000;
 parameter RAM_ADDR_WIDTH        = 27;
 
+parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
+
 parameter COMPLETE_PULSE_WIDTH  = 20;
+
+//# {{Global control}}
+input  wire         clk_i;
+input  wire         rstn_i;
+//# {{UART}}
+input  wire         uart_rxd_i;
+output wire         uart_txd_o;
+//# {{LPC interface}}
+input  wire         LCLK;
+input  wire         LRESET;
+input  wire         LFRAME;
+inout  wire [  3:0] LAD;
+inout  wire         SERIRQ;
+//# {{SPI interface}}
+output wire         spi_dat_o;
+input  wire         spi_dat_i;
+output wire         spi_flash_cs_o;
+//# {{DDR3 interface}}
+output wire [15:0]  ddram_a;
+output wire [2:0]   ddram_ba;
+output wire         ddram_ras_n;
+output wire         ddram_cas_n;
+output wire         ddram_we_n;
+output wire [1:0]   ddram_dm;
+inout  wire [15:0]  ddram_dq;
+inout  wire [1:0]   ddram_dqs_p;
+output wire         ddram_clk_p;
+output wire         ddram_cke;
+output wire         ddram_odt;
+output wire         ddram_cs_n;
+output wire         ddram_reset_n;
+//# {{Misc}}
+output wire         led_r;
+output wire         led_g;
+output wire         led_b;
 
 // Wishbone interface
 wire [ 31:0] wb_adr;    // address
