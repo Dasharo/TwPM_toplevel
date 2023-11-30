@@ -3,6 +3,44 @@
     nixpkgs.url = "github:NixOS/nixpkgs";
     nix2container.url = "github:nlewo/nix2container";
     nix2container.inputs.nixpkgs.follows = "nixpkgs";
+    litex = {
+      url = "github:enjoy-digital/litex/2023.08";
+      flake = false;
+    };
+    migen = {
+      url = "github:m-labs/migen/0.9.2";
+      flake = false;
+    };
+    valentyusb = {
+      url = "github:litex-hub/valentyusb/hw_cdc_eptri";
+      flake = false;
+    };
+    litedram = {
+      url = "github:enjoy-digital/litedram/2023.08";
+      flake = false;
+    };
+    litex-boards = {
+      url = "github:litex-hub/litex-boards";
+      flake = false;
+    };
+    pythondata-cpu-vexriscv = {
+      url = "https://github.com/litex-hub/pythondata-cpu-vexriscv";
+      flake = false;
+      type = "git";
+      submodules = true;
+    };
+    pythondata-software-picolibc = {
+      url = "https://github.com/litex-hub/pythondata-software-picolibc";
+      flake = false;
+      type = "git";
+      submodules = true;
+    };
+    pythondata-software-compiler_rt = {
+      url = "https://github.com/litex-hub/pythondata-software-compiler_rt";
+      type = "git";
+      flake = false;
+      submodules = true;
+    };
   };
   outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -82,10 +120,88 @@
             done
           '';
         };
-        pythonWithPackages = pkgs.python311.withPackages (ps: with ps; [
+        inherit (pkgs.python310Packages) buildPythonPackage;
+        litex = buildPythonPackage rec {
+          pname = "litex";
+          version = inputs.litex.shortRev;
+          src = inputs.litex;
+          doCheck = false;
+          postPatch = ''
+            substituteInPlace litex/soc/software/common.mak \
+              --replace "PYTHON ?= python3" "PYTHON ?= \$(NIX_LITEX_PYTHON_PATH)"
+          '';
+          propagatedBuildInputs = [
+            (buildPythonPackage {
+              pname = "migen";
+              version = inputs.migen.shortRev;
+              src = inputs.migen;
+              doCheck = false;
+              propagatedBuildInputs = with pkgs.python310Packages; [
+                colorama
+              ];
+            })
+          ];
+        };
+        litex-boards = buildPythonPackage rec {
+          pname = "litex-boards";
+          version = inputs.litex-boards.shortRev;
+          src = inputs.litex-boards;
+          doCheck = false;
+          propagatedBuildInputs = [ litex ];
+        };
+        valentyusb = buildPythonPackage {
+          pname = "valentyusb";
+          version = inputs.valentyusb.shortRev;
+          src = inputs.valentyusb;
+          doCheck = false;
+          propagatedBuildInputs = [
+            litex
+          ];
+        };
+        litedram = buildPythonPackage {
+          pname = "litedram";
+          version = inputs.litedram.shortRev;
+          src = inputs.litedram;
+          doCheck = false;
+          propagatedBuildInputs = [
+            litex
+          ];
+        };
+        pythondata-cpu-vexriscv = buildPythonPackage {
+          pname = "pythondata-cpu-vexriscv";
+          version = inputs.pythondata-cpu-vexriscv.shortRev;
+          src = inputs.pythondata-cpu-vexriscv;
+          doCheck = false;
+          propagatedBuildInputs = [
+            litex
+          ];
+        };
+        pythondata-software-picolibc = buildPythonPackage {
+          pname = "pythondata-software-picolibc";
+          version = inputs.pythondata-software-picolibc.shortRev;
+          src = inputs.pythondata-software-picolibc;
+          doCheck = false;
+          propagatedBuildInputs = [
+            litex
+          ];
+        };
+        pythondata-software-compiler_rt = buildPythonPackage {
+          pname = "pythondata-software-compiler_rt";
+          version = inputs.pythondata-software-compiler_rt.shortRev;
+          src = inputs.pythondata-software-compiler_rt;
+          doCheck = false;
+          propagatedBuildInputs = [
+            litex
+          ];
+        };
+        pythonWithPackages = pkgs.python310.withPackages (ps: with ps; [
           (west.overridePythonAttrs (super: {
             propagatedBuildInputs = super.propagatedBuildInputs ++ [ pyelftools ];
           }))
+          litex litex-boards litedram
+          valentyusb
+          pythondata-cpu-vexriscv pythondata-software-picolibc pythondata-software-compiler_rt
+          meson
         ]);
         packages = with pkgs; [
           yosys
@@ -103,6 +219,7 @@
           shellHook = ''
             export PS1="(TwPM) $PS1"
             export TWPM_ZEPHYR_CMAKE_PATH=${zephyrSdk}/cmake
+            export NIX_LITEX_PYTHON_PATH=${pythonWithPackages}/bin/python3
           '';
         };
         packages.sdk = let
