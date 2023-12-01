@@ -10,6 +10,8 @@
 module top_tb ();
 
 parameter TPM_RAM_ADDR_WIDTH    = 11;
+parameter FREQ_MHZ = 33.3;
+parameter CLOCK_HALF_CYCLE = 0.5/(FREQ_MHZ * 1e6) * 1e9;
 
 //# {{LPC interface}}
 reg         LCLK;
@@ -268,7 +270,7 @@ r512x32_512x32 RAM_INST (
 
   initial begin
     LCLK = 1'b1;
-    forever #20 LCLK = ~LCLK;
+    forever #(CLOCK_HALF_CYCLE) LCLK = ~LCLK;
   end
 
   initial begin
@@ -281,7 +283,7 @@ r512x32_512x32 RAM_INST (
     #40 LRESET   = 0;
     #250 LRESET  = 1;
 
-    for (addr_iter = 0; addr_iter < 16'h0080; addr_iter = addr_iter + 1) begin
+    for (addr_iter = 0; addr_iter < 16'h0020; addr_iter = addr_iter + 1) begin
       tpm_read (addr_iter, data);
       $display("0x%4h = 0x%2h", addr_iter, data);
     end
