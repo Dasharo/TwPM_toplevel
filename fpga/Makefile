@@ -21,6 +21,8 @@ NEORV32_BOOTLOADER_ARGS += -DAUTO_BOOT_TIMEOUT=3 -DUART_BAUD=115200
 ifeq ($(BOARD),orangecrab)
 # 50.4 MHz is actual frequency PLL produces when asked for 50 MHz on 48 MHz input.
 NEXTPNR_ARGS += --25k --lpf orangecrab.lpf --package CSFBGA285 --ignore-loops --freq 50.4
+NEXTPNR_ARGS += -v --placed-svg $(BUILD_DIR)/placed.svg --routed-svg $(BUILD_DIR)/routed.svg
+NEXTPNR_ARGS += --report $(BUILD_DIR)/report.json --detailed-timing-report
 LPF_FILE = orangecrab.lpf
 
 # Offset for firmware in SPI flash
@@ -39,6 +41,7 @@ NEORV32_BOOTLOADER_ARGS += -DXIP_EN=0
 
 # Silence warnings about logic loops in TRNG module, loops are where randomness comes from.
 YOSYS_ARGS=-w "found logic loop in module .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
+YOSYS_ARGS+=-w "logic loop in mux tree .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
 endif
 
 all: $(BUILD_DIR)/twpm.dfu
