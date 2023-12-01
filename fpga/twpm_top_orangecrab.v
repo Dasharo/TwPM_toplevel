@@ -114,20 +114,8 @@ wire          exec;
 wire          abort;
 wire          complete;
 
-// RAM lines - final
-wire    [8:0] RAM_A;
-wire   [31:0] RAM_WD;
-wire   [31:0] RAM_RD;
-wire          RAM_CLK;
-wire    [3:0] RAM_byte_sel;
-
-// RAM lines - DP
-wire    [8:0] DP_RAM_A;
-wire   [31:0] DP_RAM_WD;
-wire    [3:0] DP_RAM_byte_sel;
-
 // RAM lines - WB
-wire    [8:0] WB_RAM_A;
+wire   [31:0] WB_RAM_RD;
 wire    [3:0] WB_RAM_byte_sel;
 
 // Misc
@@ -202,44 +190,12 @@ assign wb_clk = clk_50mhz;
 
 assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
 
-// RAM DP lines assignments
-assign DP_RAM_A =         DP_addr[TPM_RAM_ADDR_WIDTH-1:2];    // 32b words
-// TODO: check if endianness needs changing in below assignments
-assign DP_RAM_WD =        DP_addr[1:0] === 2'b00 ? {24'h000000, DP_data_wr} :
-                          DP_addr[1:0] === 2'b01 ? {16'h0000, DP_data_wr, 8'h00} :
-                          DP_addr[1:0] === 2'b10 ? {8'h00, DP_data_wr, 16'h0000} :
-                          DP_addr[1:0] === 2'b11 ? {DP_data_wr, 24'h000000} :
-                          32'h00000000;
+// WB acknowledge signal
+assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
 
-assign DP_data_rd =       DP_addr[1:0] === 2'b00 ? RAM_RD[ 7: 0] :
-                          DP_addr[1:0] === 2'b01 ? RAM_RD[15: 8] :
-                          DP_addr[1:0] === 2'b10 ? RAM_RD[23:16] :
-                          DP_addr[1:0] === 2'b11 ? RAM_RD[31:24] :
-                          8'hFF;
-
-assign DP_RAM_byte_sel =  DP_wr_en     === 1'b0  ? 4'b0000 :
-                          DP_addr[1:0] === 2'b00 ? 4'b0001 :
-                          DP_addr[1:0] === 2'b01 ? 4'b0010 :
-                          DP_addr[1:0] === 2'b10 ? 4'b0100 :
-                          DP_addr[1:0] === 2'b11 ? 4'b1000 :
-                          4'b0000;
-
-// RAM WB lines assignments
-assign WB_RAM_A =         wb_adr[TPM_RAM_ADDR_WIDTH-1:2];    // 32b words
 assign WB_RAM_byte_sel =  (hits_tpm_ram && wb_cyc === 1'b1 && wb_stb === 1'b1
                            && wb_we  === 1'b1 && wb_ack === 1'b0) ?
                           wb_sel : 4'b0000;
-
-// Combined RAM signals
-assign RAM_A =        exec ? WB_RAM_A         : DP_RAM_A;
-assign RAM_WD =       exec ? wb_dat_wr        : DP_RAM_WD;
-assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
-// This is sketchy, may produce spurious edges and not give enough time for signals to stabilize.
-// It depends on RAM_byte_sel being zeroed on exec changes.
-assign RAM_CLK =      exec ? wb_clk           : ~LCLK;
-
-// WB acknowledge signal
-assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
 
 always @(negedge wb_clk or negedge rstn_i) begin
   if (~rstn_i) begin
@@ -271,7 +227,7 @@ end
 // Define the how to read from each IP
 always @(*) begin
   if (hits_tpm_ram) begin
-    wb_dat_rd <= RAM_RD;
+    wb_dat_rd <= WB_RAM_RD;
   end else if (hits_regs) begin
       case (wb_adr[15:2])
         TPM_REG_STATUS[15:2]:   wb_dat_rd <= {29'h0000000, complete, abort, exec};
@@ -332,13 +288,17 @@ regs_module regs_module_inst (
   .RAM_wr(DP_wr_en)
 );
 
-// TODO: parameterize address width
-r512x32_512x32 RAM_INST (
-  .A(RAM_A),
-  .RD(RAM_RD),
-  .WD(RAM_WD),
-  .Clk(RAM_CLK),
-  .WEN(RAM_byte_sel)
+r512x32_2048x8 RAM_INST (
+  .ADDR_A(wb_adr[TPM_RAM_ADDR_WIDTH-1:2]),
+  .RD_A(WB_RAM_RD),
+  .WD_A(wb_dat_wr),
+  .Clk_A(wb_clk),
+  .WEN_A(WB_RAM_byte_sel),
+  .ADDR_B(DP_addr),
+  .RD_B(DP_data_rd),
+  .WD_B(DP_data_wr),
+  .Clk_B(~LCLK),
+  .WEN_B(DP_wr_en)
 );
 
 litedram_core litedram (
