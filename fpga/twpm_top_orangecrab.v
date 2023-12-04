@@ -4,7 +4,7 @@ module twpm_top (clk_i, rstn_i, uart_rxd_i, uart_txd_o,
                  ddram_a, ddram_ba, ddram_ras_n, ddram_cas_n,
                  ddram_we_n, ddram_dm, ddram_dq, ddram_dqs_p,
                  ddram_clk_p, ddram_cke, ddram_odt, ddram_cs_n, ddram_reset_n,
-                 led_r, led_g, led_b);
+                 led_r, led_g, led_b, usb_d_p, usb_d_n, usb_pullup);
 
 // Memory map:
 //
@@ -69,8 +69,8 @@ output wire         ddram_ras_n;
 output wire         ddram_cas_n;
 output wire         ddram_we_n;
 output wire [1:0]   ddram_dm;
-input  wire [15:0]  ddram_dq;
-input  wire [1:0]   ddram_dqs_p;
+inout  wire [15:0]  ddram_dq;
+inout  wire [1:0]   ddram_dqs_p;
 output wire         ddram_clk_p;
 output wire         ddram_cke;
 output wire         ddram_odt;
@@ -80,6 +80,10 @@ output wire         ddram_reset_n;
 output wire         led_r;
 output wire         led_g;
 output wire         led_b;
+//# {{USB}}
+inout  wire         usb_d_p;
+inout  wire         usb_d_n;
+output wire         usb_pullup;
 
 // Wishbone interface
 wire [ 31:0] wb_adr;    // address
@@ -140,8 +144,8 @@ wire          pll_locked;
 
 // Helper signals
 wire          hits_ctrl    = (wb_adr[31:LITEDRAM_ADDR_WIDTH] === LITEDRAM_BASE_ADDRESS[31:LITEDRAM_ADDR_WIDTH]);
-wire          hits_tpm_ram = (wb_adr[31:TPM_RAM_ADDR_WIDTH]  === TPM_RAM_BASE_ADDRESS[31:TPM_RAM_ADDR_WIDTH]);
-wire          hits_regs    = (wb_adr[31:TPM_REGS_ADDR_WIDTH] === TPM_REGS_BASE_ADDRESS[31:TPM_REGS_ADDR_WIDTH]);
+/*wire          hits_tpm_ram = (wb_adr[31:TPM_RAM_ADDR_WIDTH]  === TPM_RAM_BASE_ADDRESS[31:TPM_RAM_ADDR_WIDTH]);
+wire          hits_regs    = (wb_adr[31:TPM_REGS_ADDR_WIDTH] === TPM_REGS_BASE_ADDRESS[31:TPM_REGS_ADDR_WIDTH]);*/
 wire          hits_ram     = (wb_adr[31:RAM_ADDR_WIDTH]      === RAM_BASE_ADDRESS[31:RAM_ADDR_WIDTH]);
 
 wire          wb_stb_ddr3 = hits_ram & wb_stb;
@@ -200,7 +204,7 @@ USRMCLK spi_flash_clk (
 // Wishbone and CPU use the same clock.
 assign wb_clk = clk_50mhz;
 
-assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
+/*assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
 
 // RAM DP lines assignments
 assign DP_RAM_A =         DP_addr[TPM_RAM_ADDR_WIDTH-1:2];    // 32b words
@@ -239,9 +243,9 @@ assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
 assign RAM_CLK =      exec ? wb_clk           : ~LCLK;
 
 // WB acknowledge signal
-assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
+assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);*/
 
-always @(negedge wb_clk or negedge rstn_i) begin
+/*always @(negedge wb_clk or negedge rstn_i) begin
   if (~rstn_i) begin
     wb_ack                  <= 1'b0;
     wb_err                  <= 1'b0;
@@ -266,10 +270,10 @@ always @(negedge wb_clk or negedge rstn_i) begin
       wb_err <= 1'b0;
     end
   end
-end
+end*/
 
 // Define the how to read from each IP
-always @(*) begin
+/*always @(*) begin
   if (hits_tpm_ram) begin
     wb_dat_rd <= RAM_RD;
   end else if (hits_regs) begin
@@ -285,7 +289,7 @@ always @(*) begin
   end else if (hits_ctrl) begin
     wb_dat_rd <= wb_dat_ctrl;
   end
-end
+end*/
 
 lpc_periph lpc_periph_inst (
   // LPC Interface
@@ -294,19 +298,12 @@ lpc_periph lpc_periph_inst (
   .lframe_i(LFRAME),
   .lad_bus(LAD),
   .serirq(SERIRQ),
-  // Data provider interface
-  .lpc_data_i(data_dp2lpc),
-  .lpc_data_o(data_lpc2dp),
-  .lpc_addr_o(lpc_addr),
-  .lpc_data_wr(lpc_data_wr),
-  .lpc_wr_done(lpc_wr_done),
-  .lpc_data_rd(lpc_data_rd),
-  .lpc_data_req(lpc_data_req),
-  .irq_num(irq_num),
-  .interrupt(interrupt)
+  .current_fsm_state(lpc_state)
 );
 
-regs_module regs_module_inst (
+// assign lpc_state = {LCLK, LCLK, LCLK, LCLK, LCLK};
+
+/*regs_module regs_module_inst (
   // Signals to/from LPC module
   .clk_i(LCLK),
   .data_i(data_lpc2dp),
@@ -339,7 +336,7 @@ r512x32_512x32 RAM_INST (
   .WD(RAM_WD),
   .Clk(RAM_CLK),
   .WEN(RAM_byte_sel)
-);
+);*/
 
 litedram_core litedram (
     .clk(clk_i),          // Input clock from oscillator (48 MHz)
@@ -386,12 +383,40 @@ litedram_core litedram (
     .wb_ctrl_we(wb_we_crtl)
 );
 
+wire lpc_is_idle;
+assign lpc_is_idle = lpc_state == 5'h0;
+
+reg lpc_not_idle = 0;
+always @(posedge clk_i) begin
+  if (lpc_state == 5'h02)
+    lpc_not_idle = 1;
+end
+
 // Hardwire unused outputs
 assign ddram_a[15:13] = 0;
 // LEDs are active-low. Neorv32 by default sets all GPIOs to low so we negate
 // GPIO signal to keep LEDs off until explicitly enabled.
-assign led_r = ~gpio[1];
-assign led_g = ~gpio[0];
+assign led_r = ~lpc_is_idle & ~gpio[1];
+assign led_g = ~lpc_not_idle & ~gpio[0];
 assign led_b = pll_locked & ~gpio[2];
+
+debug_core debug_core_inst (
+  .clk_48mhz(clk_i),
+  .clk_sys(clk_50mhz),
+  .rst(nrst_i),
+  .usb_d_n(usb_d_n),
+  .usb_d_p(usb_d_p),
+  .usb_pullup(usb_pullup),
+  .wb_ctrl_ack(),
+  .wb_ctrl_adr(30'h0),
+  .wb_ctrl_bte(2'h0),
+  .wb_ctrl_cti(3'h0),
+  .wb_ctrl_cyc(0),
+  .wb_ctrl_dat_r(),
+  .wb_ctrl_dat_w(32'h0),
+  .wb_ctrl_err(),
+  .wb_ctrl_sel(4'h0),
+  .wb_ctrl_we(1'h0)
+);
 
 endmodule

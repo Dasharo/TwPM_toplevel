@@ -1,7 +1,6 @@
 module lpc_top (
-    //input  wire         clk_48m,
-    //input  wire         rstn_i,
-    input  wire         clk_i,
+    input  wire         clk_48m,
+    input  wire         lclk_i,
     input  wire         lreset,
     input  wire         lframe_i,
     inout  wire [  3:0] lad_bus,
@@ -13,14 +12,18 @@ module lpc_top (
 
 `include "lpc_defines.v"
 
-reg  [ 4:0] fsm_state = `LPC_ST_IDLE;
+wire clk_400mhz;
+
+pll_400mhz pll_400mhz_inst (.CLKI(clk_48m), .CLKOP(clk_400mhz));
+
+/*reg  [ 4:0] fsm_state = `LPC_ST_IDLE;
 wire [ 4:0] fsm_next_state;
 wire [ 3:0] next_lad_state;
 wire        next_drive_lad;
 reg  [ 3:0] r_lad_state;
 reg         r_drive_lad;
 
-/*reg         heartbeat = 0;
+reg         heartbeat = 0;
 reg [ 26:0] heartbeat_div = 0;
 reg [  3:0] tpm_cycle_detected = 0;
 
@@ -48,7 +51,7 @@ always @* begin
         led_g = ~heartbeat;
     else
         led_g = 1;
-end*/
+end
 
 assign fsm_next_state = fsm_state == `LPC_ST_IDLE && lframe_i == 0 && lad_bus == `LPC_START ? `LPC_ST_START
                       : fsm_state == `LPC_ST_START && lframe_i == 1 && lad_bus == `LPC_IO_READ ? `LPC_ST_ADDR_RD_CLK1
@@ -87,6 +90,6 @@ assign next_drive_lad = fsm_state == `LPC_ST_SYNC_RD ? 1
                       : 0;
 
 assign lad_bus = r_drive_lad ? r_lad_state : 4'bzzzz;
-//assign lad_bus = r_drive_lad ? 4'b0000 : 4'bzzzz;
+//assign lad_bus = r_drive_lad ? 4'b0000 : 4'bzzzz;*/
 
 endmodule

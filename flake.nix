@@ -203,6 +203,69 @@
           pythondata-cpu-vexriscv pythondata-software-picolibc pythondata-software-compiler_rt
           meson
         ]);
+        diamond = pkgs.stdenv.mkDerivation rec {
+          pname = "diamond";
+          version = "3.13";
+
+          src = builtins.fetchurl {
+            url = "https://files.latticesemi.com/Diamond/3.13/diamond_3_13-base-56-2-x86_64-linux.rpm";
+            sha256 = "1li9yvgd3zamijb8l7jaq663qxn5vamr95y1b5ig342nxvd8g9yg";
+          };
+
+          nativeBuildInputs = with pkgs; [ rpmextract patchelf ];
+          outputs = [ "unwrapped" "out" ];
+
+          unpackPhase = ''
+            mkdir $unwrapped
+            cd $unwrapped
+            rpmextract $src
+            mv usr/local/diamond/${version} diamond
+            rm -rf usr
+
+            cd $unwrapped/diamond/bin
+            tar xf bin.tar.gz && rm bin.tar.gz
+
+            cd $unwrapped/diamond/cae_library
+            tar xf cae_library.tar.gz && rm cae_library.tar.gz
+
+            cd $unwrapped/diamond/data
+            tar xf data.tar.gz && rm data.tar.gz
+
+            cd $unwrapped/diamond/embedded_source
+            tar xf embedded_source.tar.gz && rm embedded_source.tar.gz
+
+            cd $unwrapped/diamond/examples
+            tar xf examples.tar.gz && rm examples.tar.gz
+
+            cd $unwrapped/diamond/ispfpga
+            tar xf ispfpga.tar.gz && rm ispfpga.tar.gz
+
+            cd $unwrapped/diamond/modeltech
+            tar xf modeltech.tar.gz && rm modeltech.tar.gz
+
+            cd $unwrapped/diamond/synpbase
+            tar xf synpbase.tar.gz && rm synpbase.tar.gz
+
+            cd $unwrapped/diamond/tcltk
+            tar xf tcltk.tar.gz && rm tcltk.tar.gz
+          '';
+
+          installPhase = ''
+            for file in $(find $unwrapped); do
+              if file $file | grep -qE 'ELF.*executable.*interpreter'; then
+                patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" \
+                  $file
+              fi
+            done
+
+            mkdir $out
+            cd $out
+
+            mkdir bin
+            ln -s $unwrapped/diamond/bin/lin64/diamond bin/diamond
+            ln -s $unwrapped/diamond/bin/lin64/diamondc bin/diamondc
+          '';
+        };
         packages = with pkgs; [
           yosys
           nextpnr
@@ -212,6 +275,7 @@
           cmake gnumake
           zephyrSdk pythonWithPackages ninja
           git
+          diamond
         ];
       in {
         devShells.default = pkgs.mkShellNoCC {

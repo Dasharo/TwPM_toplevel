@@ -247,3 +247,28 @@ IOBUF PORT "led_b" IO_TYPE=LVCMOS33;
 ###############################################################################
 LOCATE COMP "usr_btn" SITE "J17";
 IOBUF PORT "usr_btn" IO_TYPE=SSTL135_I;
+
+LOCATE COMP "lpc_state[0]" SITE "L4"; # A0
+IOBUF PORT "lpc_state[0]" IO_TYPE=LVCMOS33 DRIVE=16 SLEWRATE=FAST;
+
+LOCATE COMP "lpc_state[1]" SITE "N3"; # A1
+IOBUF PORT "lpc_state[1]" IO_TYPE=LVCMOS33 DRIVE=16 SLEWRATE=FAST;
+
+LOCATE COMP "lpc_state[2]" SITE "N4"; # A2
+IOBUF PORT "lpc_state[2]" IO_TYPE=LVCMOS33 DRIVE=16 SLEWRATE=FAST;
+
+LOCATE COMP "lpc_state[3]" SITE "H4"; # A3
+IOBUF PORT "lpc_state[3]" IO_TYPE=LVCMOS33 DRIVE=16 SLEWRATE=FAST;
+
+LOCATE COMP "lpc_state[4]" SITE "G4"; # A4
+IOBUF PORT "lpc_state[4]" IO_TYPE=LVCMOS33 DRIVE=16 SLEWRATE=FAST;
+
+
+
+# USB
+LOCATE COMP "usb_d_p" SITE "N1";
+IOBUF PORT "usb_d_p" IO_TYPE=LVCMOS33;
+LOCATE COMP "usb_d_n" SITE "M2";
+IOBUF PORT "usb_d_n" IO_TYPE=LVCMOS33;
+LOCATE COMP "usb_pullup" SITE "N2";
+IOBUF PORT "usb_pullup" IO_TYPE=LVCMOS33;

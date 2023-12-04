@@ -3,7 +3,7 @@ TOOLCHAIN ?= trellis
 BUILD_DIR ?= build
 
 
-SRC = lpc_test.v
+SRC = lpc_test.v pll_400mhz.v
 TOP = lpc_top
 LPF_FILE = $(BOARD).lpf
 
