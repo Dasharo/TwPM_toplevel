@@ -212,7 +212,7 @@
             sha256 = "1li9yvgd3zamijb8l7jaq663qxn5vamr95y1b5ig342nxvd8g9yg";
           };
 
-          nativeBuildInputs = with pkgs; [ rpmextract patchelf ];
+          nativeBuildInputs = with pkgs; [ rpmextract patchelf makeWrapper ];
           outputs = [ "unwrapped" "out" ];
 
           unpackPhase = ''
@@ -262,8 +262,19 @@
             cd $out
 
             mkdir bin
-            ln -s $unwrapped/diamond/bin/lin64/diamond bin/diamond
-            ln -s $unwrapped/diamond/bin/lin64/diamondc bin/diamondc
+            for file in {diamond,diamondc}; do
+              makeWrapper "$unwrapped/diamond/bin/lin64/$file" "$out/bin/$file" \
+                    --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (with pkgs; [
+                        glibc
+                        glib
+                        zlib
+                        freetype fontconfig.lib
+                        xorg.libX11 xorg.libSM xorg.libICE xorg.libXext xorg.libXrender xorg.libXt xorg.libXcomposite
+                        libuuid libkrb5 libglvnd libxml2
+                        gst_all_1.gstreamer gst_all_1.gst-plugins-base
+                        sqlite graphite2
+                      ])}"
+            done
           '';
         };
         packages = with pkgs; [
@@ -276,6 +287,7 @@
           zephyrSdk pythonWithPackages ninja
           git
           diamond
+          valgrind gdb strace ltrace
         ];
       in {
         devShells.default = pkgs.mkShellNoCC {
