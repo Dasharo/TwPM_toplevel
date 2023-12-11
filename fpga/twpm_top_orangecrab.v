@@ -294,11 +294,21 @@ end*/
 lpc_periph lpc_periph_inst (
   // LPC Interface
   .clk_i(LCLK),
-  .nrst_i(LRESET),
+  .nrst_i(1'b1),
   .lframe_i(LFRAME),
   .lad_bus(LAD),
   .serirq(SERIRQ),
-  .current_fsm_state(lpc_state)
+  // Data provider interface
+  .lpc_data_i(8'h6C),
+  .lpc_data_o(data_lpc2dp),
+  .lpc_addr_o(lpc_addr),
+  .lpc_data_wr(lpc_data_wr),
+  .lpc_wr_done(lpc_wr_done),
+  .lpc_data_rd(1'b1),
+  .lpc_data_req(lpc_data_req),
+  .irq_num(irq_num),
+  .interrupt(interrupt)
+
 );
 
 // assign lpc_state = {LCLK, LCLK, LCLK, LCLK, LCLK};
@@ -383,40 +393,12 @@ litedram_core litedram (
     .wb_ctrl_we(wb_we_crtl)
 );
 
-wire lpc_is_idle;
-assign lpc_is_idle = lpc_state == 5'h0;
-
-reg lpc_not_idle = 0;
-always @(posedge clk_i) begin
-  if (lpc_state == 5'h02)
-    lpc_not_idle = 1;
-end
-
 // Hardwire unused outputs
 assign ddram_a[15:13] = 0;
 // LEDs are active-low. Neorv32 by default sets all GPIOs to low so we negate
 // GPIO signal to keep LEDs off until explicitly enabled.
-assign led_r = ~lpc_is_idle & ~gpio[1];
-assign led_g = ~lpc_not_idle & ~gpio[0];
+assign led_r = ~gpio[1];
+assign led_g = ~gpio[0];
 assign led_b = pll_locked & ~gpio[2];
-
-debug_core debug_core_inst (
-  .clk_48mhz(clk_i),
-  .clk_sys(clk_50mhz),
-  .rst(nrst_i),
-  .usb_d_n(usb_d_n),
-  .usb_d_p(usb_d_p),
-  .usb_pullup(usb_pullup),
-  .wb_ctrl_ack(),
-  .wb_ctrl_adr(30'h0),
-  .wb_ctrl_bte(2'h0),
-  .wb_ctrl_cti(3'h0),
-  .wb_ctrl_cyc(0),
-  .wb_ctrl_dat_r(),
-  .wb_ctrl_dat_w(32'h0),
-  .wb_ctrl_err(),
-  .wb_ctrl_sel(4'h0),
-  .wb_ctrl_we(1'h0)
-);
 
 endmodule
