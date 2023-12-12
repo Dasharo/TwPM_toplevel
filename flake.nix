@@ -37,6 +37,7 @@
       imports = [
         ./nix/container.nix
         ./nix/litex.nix
+        ./nix/diamond.nix
       ];
       # Prebuilt Risc-V toolchain is available only for x86_64
       systems = [ "x86_64-linux" ];
