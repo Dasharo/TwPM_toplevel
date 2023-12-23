@@ -38,7 +38,7 @@ NEORV32_BOOTLOADER_ARGS += -DSTATUS_LED_EN=0
 NEORV32_BOOTLOADER_ARGS += -DXIP_EN=0
 
 # Silence warnings about logic loops in TRNG module, loops are where randomness comes from.
-YOSYS_ARGS=-w "found logic loop in module .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
+YOSYS_ARGS=-w "logic loop in .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
 endif
 
 all: $(BUILD_DIR)/twpm.dfu
