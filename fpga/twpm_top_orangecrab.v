@@ -227,9 +227,7 @@ assign DP_RAM_byte_sel =  DP_wr_en     === 1'b0  ? 4'b0000 :
 
 // RAM WB lines assignments
 assign WB_RAM_A =         wb_adr[TPM_RAM_ADDR_WIDTH-1:2];    // 32b words
-assign WB_RAM_byte_sel =  (hits_tpm_ram && wb_cyc === 1'b1 && wb_stb === 1'b1
-                           && wb_we  === 1'b1 && wb_ack === 1'b0) ?
-                          wb_sel : 4'b0000;
+assign WB_RAM_byte_sel =  (hits_tpm_ram && wb_we  === 1'b1) ? wb_sel : 4'b0000;
 
 // Combined RAM signals
 assign RAM_A =        exec ? WB_RAM_A         : DP_RAM_A;
@@ -237,7 +235,7 @@ assign RAM_WD =       exec ? wb_dat_wr        : DP_RAM_WD;
 assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
 // This is sketchy, may produce spurious edges and not give enough time for signals to stabilize.
 // It depends on RAM_byte_sel being zeroed on exec changes.
-assign RAM_CLK =      exec ? wb_clk           : ~LCLK;
+assign RAM_CLK =      exec ? ~wb_clk          : ~LCLK;
 
 // WB acknowledge signal
 assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
