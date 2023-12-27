@@ -35,7 +35,8 @@ entity neorv32_verilog_wrapper is
     spi_csn_o   : out std_ulogic_vector(07 downto 0); -- 8-bit dedicated chip select output (low-active)
     -- GPIO --
     gpio_o      : out std_ulogic_vector(63 downto 0);
-    gpio_i      : in std_ulogic_vector(63 downto 0)
+    gpio_i      : in  std_ulogic_vector(63 downto 0);
+    mext_irq_i  : in  std_ulogic  -- machine external interrupt
   );
 end entity;
 
@@ -109,7 +110,8 @@ begin
     spi_csn_o   => spi_csn_o,   -- 8-bit dedicated chip select output (low-active)
     -- GPIO --
     gpio_o      => gpio_o,      -- gpio_o[2:0] controls LEDs
-    gpio_i      => gpio_i       -- currently unused
+    gpio_i      => gpio_i,      -- currently unused
+    mext_irq_i  => mext_irq_i   -- machine external interrupt
   );
 
 end architecture;
