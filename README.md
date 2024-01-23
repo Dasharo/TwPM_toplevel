@@ -43,6 +43,17 @@ environment you can use Docker or Podman to create isolated environment:
 nix run .#sdk.copyToDockerDaemon
 ```
 
+> Note: [skopeo](https://github.com/containers/skopeo) (the tool that is used
+> internally for copying image to Docker) does not work with Docker newer than
+> 25.0.0 due to [#2202](https://github.com/containers/skopeo/issues/2202). Until
+> this is solved, you can use the following workaround:
+>
+> ```shell
+> nix run .#sdk.copyTo -- docker-archive:sdk.tar:twpm-sdk:latest
+> docker load < sdk.tar
+> rm sdk.tar
+> ```
+
 or for Podman:
 
 ```shell
