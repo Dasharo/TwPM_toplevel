@@ -252,6 +252,42 @@ Booting from 0x80000000...
 [00:00:04.734,000] <inf> test: HASH: 12f411d0eebfb9c4d81df9f1cb10e22e9841a91428ea7f00969fa7f29db0f7fa
 ```
 
+### Building with Lattice Diamond
+
+> Diamond has been used only for development purposes and is not tested as
+> widely as Trellis toolchain.
+
+Lattice Diamond is a proprietary synthesis tool, the tool is available for free,
+however it requires account registration to obtain license. TwPM FPGA design can
+be synthesized using Diamond by doing:
+
+```shell
+make FPGA_TOOLCHAIN=diamond
+```
+
+Diamond is available through Nix as part of TwPM SDK extension, to launch shell
+with Diamond installed type:
+
+```shell
+nix develop .#with-diamond
+```
+
+When using Docker/Podman type:
+
+```shell
+nix run .#sdk-diamond.copyToDockerDaemon
+```
+
+Diamond will check MAC address of NIC so you need to run with `--network=host`
+for license to work. When inside shell set `LM_LICENSE_FILE` environment
+variable.
+
+Diamond GUI can be launched using
+
+```
+nix run .#diamond
+```
+
 ## Funding
 
 This project was partially funded through the
