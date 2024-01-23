@@ -13,6 +13,17 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// To re-generate you can use LiteX packaged into TwPM SDK:
+// nix run .#litedram_gen -- orangecrab.yml
+//
+// Or when using nix develop
+// nix develop .#with-litex
+//
+// Docker/Podman:
+// nix run .#sdk-litex.copyToDockerDaemon
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 // List of manual changes:
 // - Removed duplicated `assign` lines. It seems that LiteX has problems with
 //   cases when a signal is assigned to multiple wires like `assign {a, b} = c`,
