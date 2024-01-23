@@ -38,6 +38,7 @@
         ./nix/container.nix
         ./nix/litex.nix
         ./nix/diamond.nix
+        ./nix/devshell.nix
       ];
       # Prebuilt Risc-V toolchain is available only for x86_64
       systems = [ "x86_64-linux" ];
@@ -68,11 +69,6 @@
               propagatedBuildInputs = super.propagatedBuildInputs ++ [ ps.pyelftools ];
             }))
           ]);
-        };
-        devShells.default = pkgs.mkShellNoCC {
-          shellHook = ''
-            source ${sdk-base}
-          '';
         };
       };
     };
