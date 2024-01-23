@@ -5,7 +5,11 @@ BUILD_DIR ?= build
 
 SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
 ifeq ($(BOARD),orangecrab)
+ifeq ($(TOOLCHAIN),trellis)
 SRC += orangecrab_litedram/litedram_core.v
+else ifeq ($(TOOLCHAIN),diamond)
+SRC += orangecrab_litedram/litedram_core_diamond.v
+endif
 endif
 TOP = twpm_top
 NEORV32_DIR = neorv32

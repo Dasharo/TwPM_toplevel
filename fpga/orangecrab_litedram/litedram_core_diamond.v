@@ -8,8 +8,8 @@
 //
 // Filename   : litedram_core.v
 // Device     : LFE5U-25F-8MG285C
-// LiteX sha1 : 4353135f
-// Date       : 2023-11-06 17:52:25
+// LiteX sha1 : --------
+// Date       : 2024-01-23 18:25:02
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -89,6 +89,20 @@ module litedram_core (
 reg           aborted = 1'd0;
 reg           aborted_litedramwishbone2native_next_value = 1'd0;
 reg           aborted_litedramwishbone2native_next_value_ce = 1'd0;
+reg     [2:0] array_muxed0 = 3'd0;
+reg    [12:0] array_muxed1 = 13'd0;
+reg           array_muxed10 = 1'd0;
+reg           array_muxed11 = 1'd0;
+reg           array_muxed12 = 1'd0;
+reg           array_muxed13 = 1'd0;
+reg           array_muxed2 = 1'd0;
+reg           array_muxed3 = 1'd0;
+reg           array_muxed4 = 1'd0;
+reg           array_muxed5 = 1'd0;
+reg           array_muxed6 = 1'd0;
+reg     [2:0] array_muxed7 = 3'd0;
+reg    [12:0] array_muxed8 = 13'd0;
+reg           array_muxed9 = 1'd0;
 wire          crg_clkin;
 wire          crg_clkout0;
 wire          crg_clkout1;
@@ -260,6 +274,7 @@ reg           ddrphy_burstdet_d1 = 1'd0;
 reg           ddrphy_burstdet_seen_re = 1'd0;
 reg     [1:0] ddrphy_burstdet_seen_status = 2'd0;
 wire          ddrphy_burstdet_seen_we;
+reg     [6:0] ddrphy_counter = 7'd0;
 wire    [1:0] ddrphy_datavalid;
 wire          ddrphy_delay0;
 wire          ddrphy_delay1;
@@ -532,7 +547,6 @@ wire          ddrphy_reset0;
 reg           ddrphy_reset1 = 1'd0;
 wire          ddrphy_stop0;
 reg           ddrphy_stop1 = 1'd0;
-reg     [6:0] ddrphy_trigger = 7'd0;
 reg           ddrphy_update = 1'd0;
 reg           ddrphy_wrdata_en_tappeddelayline0 = 1'd0;
 reg           ddrphy_wrdata_en_tappeddelayline1 = 1'd0;
@@ -654,12 +668,15 @@ wire          litedramcore_bankmachine0_syncfifo0_readable;
 wire          litedramcore_bankmachine0_syncfifo0_we;
 wire          litedramcore_bankmachine0_syncfifo0_writable;
 reg     [1:0] litedramcore_bankmachine0_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine0_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine0_trascon_valid;
 reg     [1:0] litedramcore_bankmachine0_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine0_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine0_trccon_valid;
 reg     [2:0] litedramcore_bankmachine0_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine0_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine0_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine0_wrport_adr = 3'd0;
@@ -750,12 +767,15 @@ wire          litedramcore_bankmachine1_syncfifo1_readable;
 wire          litedramcore_bankmachine1_syncfifo1_we;
 wire          litedramcore_bankmachine1_syncfifo1_writable;
 reg     [1:0] litedramcore_bankmachine1_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine1_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine1_trascon_valid;
 reg     [1:0] litedramcore_bankmachine1_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine1_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine1_trccon_valid;
 reg     [2:0] litedramcore_bankmachine1_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine1_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine1_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine1_wrport_adr = 3'd0;
@@ -846,12 +866,15 @@ wire          litedramcore_bankmachine2_syncfifo2_readable;
 wire          litedramcore_bankmachine2_syncfifo2_we;
 wire          litedramcore_bankmachine2_syncfifo2_writable;
 reg     [1:0] litedramcore_bankmachine2_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine2_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine2_trascon_valid;
 reg     [1:0] litedramcore_bankmachine2_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine2_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine2_trccon_valid;
 reg     [2:0] litedramcore_bankmachine2_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine2_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine2_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine2_wrport_adr = 3'd0;
@@ -942,12 +965,15 @@ wire          litedramcore_bankmachine3_syncfifo3_readable;
 wire          litedramcore_bankmachine3_syncfifo3_we;
 wire          litedramcore_bankmachine3_syncfifo3_writable;
 reg     [1:0] litedramcore_bankmachine3_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine3_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine3_trascon_valid;
 reg     [1:0] litedramcore_bankmachine3_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine3_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine3_trccon_valid;
 reg     [2:0] litedramcore_bankmachine3_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine3_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine3_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine3_wrport_adr = 3'd0;
@@ -1038,12 +1064,15 @@ wire          litedramcore_bankmachine4_syncfifo4_readable;
 wire          litedramcore_bankmachine4_syncfifo4_we;
 wire          litedramcore_bankmachine4_syncfifo4_writable;
 reg     [1:0] litedramcore_bankmachine4_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine4_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine4_trascon_valid;
 reg     [1:0] litedramcore_bankmachine4_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine4_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine4_trccon_valid;
 reg     [2:0] litedramcore_bankmachine4_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine4_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine4_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine4_wrport_adr = 3'd0;
@@ -1134,12 +1163,15 @@ wire          litedramcore_bankmachine5_syncfifo5_readable;
 wire          litedramcore_bankmachine5_syncfifo5_we;
 wire          litedramcore_bankmachine5_syncfifo5_writable;
 reg     [1:0] litedramcore_bankmachine5_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine5_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine5_trascon_valid;
 reg     [1:0] litedramcore_bankmachine5_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine5_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine5_trccon_valid;
 reg     [2:0] litedramcore_bankmachine5_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine5_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine5_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine5_wrport_adr = 3'd0;
@@ -1230,12 +1262,15 @@ wire          litedramcore_bankmachine6_syncfifo6_readable;
 wire          litedramcore_bankmachine6_syncfifo6_we;
 wire          litedramcore_bankmachine6_syncfifo6_writable;
 reg     [1:0] litedramcore_bankmachine6_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine6_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine6_trascon_valid;
 reg     [1:0] litedramcore_bankmachine6_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine6_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine6_trccon_valid;
 reg     [2:0] litedramcore_bankmachine6_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine6_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine6_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine6_wrport_adr = 3'd0;
@@ -1326,12 +1361,15 @@ wire          litedramcore_bankmachine7_syncfifo7_readable;
 wire          litedramcore_bankmachine7_syncfifo7_we;
 wire          litedramcore_bankmachine7_syncfifo7_writable;
 reg     [1:0] litedramcore_bankmachine7_trascon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine7_trascon_ready = 1'd0;
 wire          litedramcore_bankmachine7_trascon_valid;
 reg     [1:0] litedramcore_bankmachine7_trccon_count = 2'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine7_trccon_ready = 1'd0;
 wire          litedramcore_bankmachine7_trccon_valid;
 reg     [2:0] litedramcore_bankmachine7_twtpcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_bankmachine7_twtpcon_ready = 1'd0;
 wire          litedramcore_bankmachine7_twtpcon_valid;
 reg     [2:0] litedramcore_bankmachine7_wrport_adr = 3'd0;
@@ -1390,9 +1428,9 @@ reg           litedramcore_csr_dfi_p0_act_n = 1'd1;
 wire   [12:0] litedramcore_csr_dfi_p0_address;
 wire    [2:0] litedramcore_csr_dfi_p0_bank;
 reg           litedramcore_csr_dfi_p0_cas_n = 1'd1;
-reg           litedramcore_csr_dfi_p0_cke = 1'd0;
+wire          litedramcore_csr_dfi_p0_cke;
 reg           litedramcore_csr_dfi_p0_cs_n = 1'd1;
-reg           litedramcore_csr_dfi_p0_odt = 1'd0;
+wire          litedramcore_csr_dfi_p0_odt;
 reg           litedramcore_csr_dfi_p0_ras_n = 1'd1;
 reg    [63:0] litedramcore_csr_dfi_p0_rddata = 64'd0;
 wire          litedramcore_csr_dfi_p0_rddata_en;
@@ -1406,9 +1444,9 @@ reg           litedramcore_csr_dfi_p1_act_n = 1'd1;
 wire   [12:0] litedramcore_csr_dfi_p1_address;
 wire    [2:0] litedramcore_csr_dfi_p1_bank;
 reg           litedramcore_csr_dfi_p1_cas_n = 1'd1;
-reg           litedramcore_csr_dfi_p1_cke = 1'd0;
+wire          litedramcore_csr_dfi_p1_cke;
 reg           litedramcore_csr_dfi_p1_cs_n = 1'd1;
-reg           litedramcore_csr_dfi_p1_odt = 1'd0;
+wire          litedramcore_csr_dfi_p1_odt;
 reg           litedramcore_csr_dfi_p1_ras_n = 1'd1;
 reg    [63:0] litedramcore_csr_dfi_p1_rddata = 64'd0;
 wire          litedramcore_csr_dfi_p1_rddata_en;
@@ -1717,11 +1755,11 @@ wire          litedramcore_read_available;
 wire          litedramcore_reset_n;
 wire          litedramcore_sel;
 reg           litedramcore_sequencer_count = 1'd0;
+reg     [6:0] litedramcore_sequencer_counter = 7'd0;
 wire          litedramcore_sequencer_done0;
 reg           litedramcore_sequencer_done1 = 1'd0;
 reg           litedramcore_sequencer_start0 = 1'd0;
 wire          litedramcore_sequencer_start1;
-reg     [6:0] litedramcore_sequencer_trigger = 7'd0;
 wire          litedramcore_slave_p0_act_n;
 wire   [12:0] litedramcore_slave_p0_address;
 wire    [2:0] litedramcore_slave_p0_bank;
@@ -1754,17 +1792,19 @@ wire          litedramcore_slave_p1_we_n;
 wire   [63:0] litedramcore_slave_p1_wrdata;
 wire          litedramcore_slave_p1_wrdata_en;
 wire    [7:0] litedramcore_slave_p1_wrdata_mask;
-reg     [1:0] litedramcore_steerer0 = 2'd0;
-reg     [1:0] litedramcore_steerer1 = 2'd0;
+reg           litedramcore_steerer0 = 1'd1;
+reg           litedramcore_steerer1 = 1'd1;
 reg           litedramcore_steerer2 = 1'd1;
 reg           litedramcore_steerer3 = 1'd1;
-reg           litedramcore_steerer4 = 1'd1;
-reg           litedramcore_steerer5 = 1'd1;
+reg     [1:0] litedramcore_steerer_sel0 = 2'd0;
+reg     [1:0] litedramcore_steerer_sel1 = 2'd0;
 reg     [3:0] litedramcore_storage = 4'd1;
 reg           litedramcore_tccdcon_count = 1'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_tccdcon_ready = 1'd0;
 wire          litedramcore_tccdcon_valid;
 wire    [1:0] litedramcore_tfawcon_count;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_tfawcon_ready = 1'd1;
 wire          litedramcore_tfawcon_valid;
 reg     [2:0] litedramcore_tfawcon_window = 3'd0;
@@ -1776,9 +1816,11 @@ wire          litedramcore_timer_done0;
 wire          litedramcore_timer_done1;
 wire          litedramcore_timer_wait;
 reg           litedramcore_trrdcon_count = 1'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_trrdcon_ready = 1'd0;
 wire          litedramcore_trrdcon_valid;
 reg     [2:0] litedramcore_twtrcon_count = 3'd0;
+(* syn_no_retiming = "true" *)
 reg           litedramcore_twtrcon_ready = 1'd0;
 wire          litedramcore_twtrcon_valid;
 wire          litedramcore_wants_refresh;
@@ -1798,9 +1840,9 @@ wire    [3:0] litedramcore_wishbone_sel;
 wire          litedramcore_wishbone_stb;
 wire          litedramcore_wishbone_we;
 wire          litedramcore_write_available;
+reg     [5:0] litedramcore_zqcs_executer_counter = 6'd0;
 reg           litedramcore_zqcs_executer_done = 1'd0;
 reg           litedramcore_zqcs_executer_start = 1'd0;
-reg     [5:0] litedramcore_zqcs_executer_trigger = 6'd0;
 wire   [25:0] litedramcore_zqcs_timer_count0;
 reg    [25:0] litedramcore_zqcs_timer_count1 = 26'd49999999;
 wire          litedramcore_zqcs_timer_done0;
@@ -1996,8 +2038,6 @@ wire   [37:0] litedramnativeportconverter_wdata_fifo_wrport_dat_w;
 wire          litedramnativeportconverter_wdata_fifo_wrport_we;
 wire          litedramnativeportconverter_wdata_finished;
 reg    [15:0] litedramnativeportconverter_wdata_sel = 16'd0;
-reg           multiregimpl0 = 1'd0;
-reg           multiregimpl1 = 1'd0;
 wire          new_port_cmd_last;
 wire   [24:0] new_port_cmd_payload_addr;
 wire          new_port_cmd_payload_we;
@@ -2029,67 +2069,57 @@ wire  [127:0] port_wdata_payload_data;
 wire   [15:0] port_wdata_payload_we;
 wire          port_wdata_ready;
 wire          port_wdata_valid;
-reg           rhs_self0 = 1'd0;
-reg    [12:0] rhs_self1 = 13'd0;
-reg           rhs_self10 = 1'd0;
-reg           rhs_self11 = 1'd0;
-reg    [19:0] rhs_self12 = 20'd0;
-reg           rhs_self13 = 1'd0;
-reg           rhs_self14 = 1'd0;
-reg    [19:0] rhs_self15 = 20'd0;
-reg           rhs_self16 = 1'd0;
-reg           rhs_self17 = 1'd0;
-reg    [19:0] rhs_self18 = 20'd0;
-reg           rhs_self19 = 1'd0;
-reg     [2:0] rhs_self2 = 3'd0;
-reg           rhs_self20 = 1'd0;
-reg    [19:0] rhs_self21 = 20'd0;
-reg           rhs_self22 = 1'd0;
-reg           rhs_self23 = 1'd0;
-reg    [19:0] rhs_self24 = 20'd0;
-reg           rhs_self25 = 1'd0;
-reg           rhs_self26 = 1'd0;
-reg    [19:0] rhs_self27 = 20'd0;
-reg           rhs_self28 = 1'd0;
-reg           rhs_self29 = 1'd0;
-reg           rhs_self3 = 1'd0;
-reg    [19:0] rhs_self30 = 20'd0;
-reg           rhs_self31 = 1'd0;
-reg           rhs_self32 = 1'd0;
-reg    [19:0] rhs_self33 = 20'd0;
-reg           rhs_self34 = 1'd0;
-reg           rhs_self35 = 1'd0;
-reg           rhs_self4 = 1'd0;
-reg           rhs_self5 = 1'd0;
-reg           rhs_self6 = 1'd0;
-reg    [12:0] rhs_self7 = 13'd0;
-reg     [2:0] rhs_self8 = 3'd0;
-reg           rhs_self9 = 1'd0;
-reg     [2:0] self0 = 3'd0;
-reg    [12:0] self1 = 13'd0;
-reg           self10 = 1'd0;
-reg           self11 = 1'd0;
-reg           self12 = 1'd0;
-reg           self13 = 1'd0;
-reg           self2 = 1'd0;
-reg           self3 = 1'd0;
-reg           self4 = 1'd0;
-reg           self5 = 1'd0;
-reg           self6 = 1'd0;
-reg     [2:0] self7 = 3'd0;
-reg    [12:0] self8 = 13'd0;
-reg           self9 = 1'd0;
+(* syn_no_retiming = "true" *)
+reg           regs0 = 1'd0;
+(* syn_no_retiming = "true" *)
+reg           regs1 = 1'd0;
+reg           rhs_array_muxed0 = 1'd0;
+reg    [12:0] rhs_array_muxed1 = 13'd0;
+reg           rhs_array_muxed10 = 1'd0;
+reg           rhs_array_muxed11 = 1'd0;
+reg    [19:0] rhs_array_muxed12 = 20'd0;
+reg           rhs_array_muxed13 = 1'd0;
+reg           rhs_array_muxed14 = 1'd0;
+reg    [19:0] rhs_array_muxed15 = 20'd0;
+reg           rhs_array_muxed16 = 1'd0;
+reg           rhs_array_muxed17 = 1'd0;
+reg    [19:0] rhs_array_muxed18 = 20'd0;
+reg           rhs_array_muxed19 = 1'd0;
+reg     [2:0] rhs_array_muxed2 = 3'd0;
+reg           rhs_array_muxed20 = 1'd0;
+reg    [19:0] rhs_array_muxed21 = 20'd0;
+reg           rhs_array_muxed22 = 1'd0;
+reg           rhs_array_muxed23 = 1'd0;
+reg    [19:0] rhs_array_muxed24 = 20'd0;
+reg           rhs_array_muxed25 = 1'd0;
+reg           rhs_array_muxed26 = 1'd0;
+reg    [19:0] rhs_array_muxed27 = 20'd0;
+reg           rhs_array_muxed28 = 1'd0;
+reg           rhs_array_muxed29 = 1'd0;
+reg           rhs_array_muxed3 = 1'd0;
+reg    [19:0] rhs_array_muxed30 = 20'd0;
+reg           rhs_array_muxed31 = 1'd0;
+reg           rhs_array_muxed32 = 1'd0;
+reg    [19:0] rhs_array_muxed33 = 20'd0;
+reg           rhs_array_muxed34 = 1'd0;
+reg           rhs_array_muxed35 = 1'd0;
+reg           rhs_array_muxed4 = 1'd0;
+reg           rhs_array_muxed5 = 1'd0;
+reg           rhs_array_muxed6 = 1'd0;
+reg    [12:0] rhs_array_muxed7 = 13'd0;
+reg     [2:0] rhs_array_muxed8 = 3'd0;
+reg           rhs_array_muxed9 = 1'd0;
 wire          sys2x_clk;
 wire          sys2x_i_clk;
 wire          sys2x_rst;
 wire          sys_clk;
 wire          sys_rst;
-reg           t_self0 = 1'd0;
-reg           t_self1 = 1'd0;
-reg           t_self2 = 1'd0;
-reg           t_self3 = 1'd0;
-reg           t_self4 = 1'd0;
-reg           t_self5 = 1'd0;
+reg           t_array_muxed0 = 1'd0;
+reg           t_array_muxed1 = 1'd0;
+reg           t_array_muxed2 = 1'd0;
+reg           t_array_muxed3 = 1'd0;
+reg           t_array_muxed4 = 1'd0;
+reg           t_array_muxed5 = 1'd0;
 reg           user_enable = 1'd0;
 wire          wb_bus_ack;
 wire   [29:0] wb_bus_adr;
@@ -3302,22 +3332,10 @@ always @(*) begin
         litedramcore_master_p0_rddata_en <= litedramcore_csr_dfi_p0_rddata_en;
     end
 end
-always @(*) begin
-    litedramcore_csr_dfi_p0_cke <= 1'd0;
-    litedramcore_csr_dfi_p0_cke <= litedramcore_cke;
-end
-always @(*) begin
-    litedramcore_csr_dfi_p1_cke <= 1'd0;
-    litedramcore_csr_dfi_p1_cke <= litedramcore_cke;
-end
-always @(*) begin
-    litedramcore_csr_dfi_p0_odt <= 1'd0;
-    litedramcore_csr_dfi_p0_odt <= litedramcore_odt;
-end
-always @(*) begin
-    litedramcore_csr_dfi_p1_odt <= 1'd0;
-    litedramcore_csr_dfi_p1_odt <= litedramcore_odt;
-end
+assign litedramcore_csr_dfi_p0_cke = litedramcore_cke;
+assign litedramcore_csr_dfi_p1_cke = litedramcore_cke;
+assign litedramcore_csr_dfi_p0_odt = litedramcore_odt;
+assign litedramcore_csr_dfi_p1_odt = litedramcore_odt;
 assign litedramcore_csr_dfi_p0_reset_n = litedramcore_reset_n;
 assign litedramcore_csr_dfi_p1_reset_n = litedramcore_reset_n;
 always @(*) begin
@@ -6043,28 +6061,6 @@ always @(*) begin
     endcase
 end
 always @(*) begin
-    litedramcore_bankmachine4_row_open <= 1'd0;
-    case (litedramcore_litedramcore_bankmachine4_state)
-        1'd1: begin
-        end
-        2'd2: begin
-        end
-        2'd3: begin
-            if (litedramcore_bankmachine4_trccon_ready) begin
-                litedramcore_bankmachine4_row_open <= 1'd1;
-            end
-        end
-        3'd4: begin
-        end
-        3'd5: begin
-        end
-        3'd6: begin
-        end
-        default: begin
-        end
-    endcase
-end
-always @(*) begin
     litedramcore_bankmachine4_cmd_valid <= 1'd0;
     case (litedramcore_litedramcore_bankmachine4_state)
         1'd1: begin
@@ -6114,6 +6110,28 @@ always @(*) begin
         end
         3'd4: begin
             litedramcore_bankmachine4_row_close <= 1'd1;
+        end
+        3'd5: begin
+        end
+        3'd6: begin
+        end
+        default: begin
+        end
+    endcase
+end
+always @(*) begin
+    litedramcore_bankmachine4_row_open <= 1'd0;
+    case (litedramcore_litedramcore_bankmachine4_state)
+        1'd1: begin
+        end
+        2'd2: begin
+        end
+        2'd3: begin
+            if (litedramcore_bankmachine4_trccon_ready) begin
+                litedramcore_bankmachine4_row_open <= 1'd1;
+            end
+        end
+        3'd4: begin
         end
         3'd5: begin
         end
@@ -7709,28 +7727,28 @@ always @(*) begin
     litedramcore_choose_cmd_valids[7] <= (litedramcore_bankmachine7_cmd_valid & (((litedramcore_bankmachine7_cmd_payload_is_cmd & litedramcore_choose_cmd_want_cmds) & ((~((litedramcore_bankmachine7_cmd_payload_ras & (~litedramcore_bankmachine7_cmd_payload_cas)) & (~litedramcore_bankmachine7_cmd_payload_we))) | litedramcore_choose_cmd_want_activates)) | ((litedramcore_bankmachine7_cmd_payload_is_read == litedramcore_choose_cmd_want_reads) & (litedramcore_bankmachine7_cmd_payload_is_write == litedramcore_choose_cmd_want_writes))));
 end
 assign litedramcore_choose_cmd_request = litedramcore_choose_cmd_valids;
-assign litedramcore_choose_cmd_cmd_valid = rhs_self0;
-assign litedramcore_choose_cmd_cmd_payload_a = rhs_self1;
-assign litedramcore_choose_cmd_cmd_payload_ba = rhs_self2;
-assign litedramcore_choose_cmd_cmd_payload_is_read = rhs_self3;
-assign litedramcore_choose_cmd_cmd_payload_is_write = rhs_self4;
-assign litedramcore_choose_cmd_cmd_payload_is_cmd = rhs_self5;
+assign litedramcore_choose_cmd_cmd_valid = rhs_array_muxed0;
+assign litedramcore_choose_cmd_cmd_payload_a = rhs_array_muxed1;
+assign litedramcore_choose_cmd_cmd_payload_ba = rhs_array_muxed2;
+assign litedramcore_choose_cmd_cmd_payload_is_read = rhs_array_muxed3;
+assign litedramcore_choose_cmd_cmd_payload_is_write = rhs_array_muxed4;
+assign litedramcore_choose_cmd_cmd_payload_is_cmd = rhs_array_muxed5;
 always @(*) begin
     litedramcore_choose_cmd_cmd_payload_cas <= 1'd0;
     if (litedramcore_choose_cmd_cmd_valid) begin
-        litedramcore_choose_cmd_cmd_payload_cas <= t_self0;
+        litedramcore_choose_cmd_cmd_payload_cas <= t_array_muxed0;
     end
 end
 always @(*) begin
     litedramcore_choose_cmd_cmd_payload_ras <= 1'd0;
     if (litedramcore_choose_cmd_cmd_valid) begin
-        litedramcore_choose_cmd_cmd_payload_ras <= t_self1;
+        litedramcore_choose_cmd_cmd_payload_ras <= t_array_muxed1;
     end
 end
 always @(*) begin
     litedramcore_choose_cmd_cmd_payload_we <= 1'd0;
     if (litedramcore_choose_cmd_cmd_valid) begin
-        litedramcore_choose_cmd_cmd_payload_we <= t_self2;
+        litedramcore_choose_cmd_cmd_payload_we <= t_array_muxed2;
     end
 end
 always @(*) begin
@@ -7818,37 +7836,37 @@ always @(*) begin
     litedramcore_choose_req_valids[7] <= (litedramcore_bankmachine7_cmd_valid & (((litedramcore_bankmachine7_cmd_payload_is_cmd & litedramcore_choose_req_want_cmds) & ((~((litedramcore_bankmachine7_cmd_payload_ras & (~litedramcore_bankmachine7_cmd_payload_cas)) & (~litedramcore_bankmachine7_cmd_payload_we))) | litedramcore_choose_req_want_activates)) | ((litedramcore_bankmachine7_cmd_payload_is_read == litedramcore_choose_req_want_reads) & (litedramcore_bankmachine7_cmd_payload_is_write == litedramcore_choose_req_want_writes))));
 end
 assign litedramcore_choose_req_request = litedramcore_choose_req_valids;
-assign litedramcore_choose_req_cmd_valid = rhs_self6;
-assign litedramcore_choose_req_cmd_payload_a = rhs_self7;
-assign litedramcore_choose_req_cmd_payload_ba = rhs_self8;
-assign litedramcore_choose_req_cmd_payload_is_read = rhs_self9;
-assign litedramcore_choose_req_cmd_payload_is_write = rhs_self10;
-assign litedramcore_choose_req_cmd_payload_is_cmd = rhs_self11;
+assign litedramcore_choose_req_cmd_valid = rhs_array_muxed6;
+assign litedramcore_choose_req_cmd_payload_a = rhs_array_muxed7;
+assign litedramcore_choose_req_cmd_payload_ba = rhs_array_muxed8;
+assign litedramcore_choose_req_cmd_payload_is_read = rhs_array_muxed9;
+assign litedramcore_choose_req_cmd_payload_is_write = rhs_array_muxed10;
+assign litedramcore_choose_req_cmd_payload_is_cmd = rhs_array_muxed11;
 always @(*) begin
     litedramcore_choose_req_cmd_payload_cas <= 1'd0;
     if (litedramcore_choose_req_cmd_valid) begin
-        litedramcore_choose_req_cmd_payload_cas <= t_self3;
+        litedramcore_choose_req_cmd_payload_cas <= t_array_muxed3;
     end
 end
 always @(*) begin
     litedramcore_choose_req_cmd_payload_ras <= 1'd0;
     if (litedramcore_choose_req_cmd_valid) begin
-        litedramcore_choose_req_cmd_payload_ras <= t_self4;
+        litedramcore_choose_req_cmd_payload_ras <= t_array_muxed4;
     end
 end
 always @(*) begin
     litedramcore_choose_req_cmd_payload_we <= 1'd0;
     if (litedramcore_choose_req_cmd_valid) begin
-        litedramcore_choose_req_cmd_payload_we <= t_self5;
+        litedramcore_choose_req_cmd_payload_we <= t_array_muxed5;
     end
 end
 assign litedramcore_choose_req_ce = (litedramcore_choose_req_cmd_ready | (~litedramcore_choose_req_cmd_valid));
 assign litedramcore_dfi_p0_reset_n = 1'd1;
-assign litedramcore_dfi_p0_cke = {1{litedramcore_steerer2}};
-assign litedramcore_dfi_p0_odt = {1{litedramcore_steerer3}};
+assign litedramcore_dfi_p0_cke = {1{litedramcore_steerer0}};
+assign litedramcore_dfi_p0_odt = {1{litedramcore_steerer1}};
 assign litedramcore_dfi_p1_reset_n = 1'd1;
-assign litedramcore_dfi_p1_cke = {1{litedramcore_steerer4}};
-assign litedramcore_dfi_p1_odt = {1{litedramcore_steerer5}};
+assign litedramcore_dfi_p1_cke = {1{litedramcore_steerer2}};
+assign litedramcore_dfi_p1_odt = {1{litedramcore_steerer3}};
 assign litedramcore_tfawcon_count = ((litedramcore_tfawcon_window[0] + litedramcore_tfawcon_window[1]) + litedramcore_tfawcon_window[2]);
 always @(*) begin
     litedramcore_litedramcore_multiplexer_next_state <= 4'd0;
@@ -7961,19 +7979,19 @@ always @(*) begin
     endcase
 end
 always @(*) begin
-    litedramcore_steerer0 <= 2'd0;
+    litedramcore_steerer_sel0 <= 2'd0;
     case (litedramcore_litedramcore_multiplexer_state)
         1'd1: begin
-            litedramcore_steerer0 <= 1'd0;
+            litedramcore_steerer_sel0 <= 1'd0;
             if (1'd0) begin
-                litedramcore_steerer0 <= 2'd2;
+                litedramcore_steerer_sel0 <= 2'd2;
             end
             if (1'd1) begin
-                litedramcore_steerer0 <= 1'd1;
+                litedramcore_steerer_sel0 <= 1'd1;
             end
         end
         2'd2: begin
-            litedramcore_steerer0 <= 2'd3;
+            litedramcore_steerer_sel0 <= 2'd3;
         end
         2'd3: begin
         end
@@ -8002,26 +8020,26 @@ always @(*) begin
         4'd15: begin
         end
         default: begin
-            litedramcore_steerer0 <= 1'd0;
+            litedramcore_steerer_sel0 <= 1'd0;
             if (1'd1) begin
-                litedramcore_steerer0 <= 2'd2;
+                litedramcore_steerer_sel0 <= 2'd2;
             end
             if (1'd0) begin
-                litedramcore_steerer0 <= 1'd1;
+                litedramcore_steerer_sel0 <= 1'd1;
             end
         end
     endcase
 end
 always @(*) begin
-    litedramcore_steerer1 <= 2'd0;
+    litedramcore_steerer_sel1 <= 2'd0;
     case (litedramcore_litedramcore_multiplexer_state)
         1'd1: begin
-            litedramcore_steerer1 <= 1'd0;
+            litedramcore_steerer_sel1 <= 1'd0;
             if (1'd1) begin
-                litedramcore_steerer1 <= 2'd2;
+                litedramcore_steerer_sel1 <= 2'd2;
             end
             if (1'd0) begin
-                litedramcore_steerer1 <= 1'd1;
+                litedramcore_steerer_sel1 <= 1'd1;
             end
         end
         2'd2: begin
@@ -8053,12 +8071,12 @@ always @(*) begin
         4'd15: begin
         end
         default: begin
-            litedramcore_steerer1 <= 1'd0;
+            litedramcore_steerer_sel1 <= 1'd0;
             if (1'd0) begin
-                litedramcore_steerer1 <= 2'd2;
+                litedramcore_steerer_sel1 <= 2'd2;
             end
             if (1'd1) begin
-                litedramcore_steerer1 <= 1'd1;
+                litedramcore_steerer_sel1 <= 1'd1;
             end
         end
     endcase
@@ -8354,44 +8372,44 @@ always @(*) begin
 end
 assign litedramcore_litedramcore_roundrobin0_request = {(((port_cmd_payload_addr[9:7] == 1'd0) & (~(((((((litedramcore_litedramcore_locked0 | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin0_ce = ((~litedramcore_interface_bank0_valid) & (~litedramcore_interface_bank0_lock));
-assign litedramcore_interface_bank0_addr = rhs_self12;
-assign litedramcore_interface_bank0_we = rhs_self13;
-assign litedramcore_interface_bank0_valid = rhs_self14;
+assign litedramcore_interface_bank0_addr = rhs_array_muxed12;
+assign litedramcore_interface_bank0_we = rhs_array_muxed13;
+assign litedramcore_interface_bank0_valid = rhs_array_muxed14;
 assign litedramcore_litedramcore_roundrobin1_request = {(((port_cmd_payload_addr[9:7] == 1'd1) & (~(((((((litedramcore_litedramcore_locked1 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin1_ce = ((~litedramcore_interface_bank1_valid) & (~litedramcore_interface_bank1_lock));
-assign litedramcore_interface_bank1_addr = rhs_self15;
-assign litedramcore_interface_bank1_we = rhs_self16;
-assign litedramcore_interface_bank1_valid = rhs_self17;
+assign litedramcore_interface_bank1_addr = rhs_array_muxed15;
+assign litedramcore_interface_bank1_we = rhs_array_muxed16;
+assign litedramcore_interface_bank1_valid = rhs_array_muxed17;
 assign litedramcore_litedramcore_roundrobin2_request = {(((port_cmd_payload_addr[9:7] == 2'd2) & (~(((((((litedramcore_litedramcore_locked2 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin2_ce = ((~litedramcore_interface_bank2_valid) & (~litedramcore_interface_bank2_lock));
-assign litedramcore_interface_bank2_addr = rhs_self18;
-assign litedramcore_interface_bank2_we = rhs_self19;
-assign litedramcore_interface_bank2_valid = rhs_self20;
+assign litedramcore_interface_bank2_addr = rhs_array_muxed18;
+assign litedramcore_interface_bank2_we = rhs_array_muxed19;
+assign litedramcore_interface_bank2_valid = rhs_array_muxed20;
 assign litedramcore_litedramcore_roundrobin3_request = {(((port_cmd_payload_addr[9:7] == 2'd3) & (~(((((((litedramcore_litedramcore_locked3 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin3_ce = ((~litedramcore_interface_bank3_valid) & (~litedramcore_interface_bank3_lock));
-assign litedramcore_interface_bank3_addr = rhs_self21;
-assign litedramcore_interface_bank3_we = rhs_self22;
-assign litedramcore_interface_bank3_valid = rhs_self23;
+assign litedramcore_interface_bank3_addr = rhs_array_muxed21;
+assign litedramcore_interface_bank3_we = rhs_array_muxed22;
+assign litedramcore_interface_bank3_valid = rhs_array_muxed23;
 assign litedramcore_litedramcore_roundrobin4_request = {(((port_cmd_payload_addr[9:7] == 3'd4) & (~(((((((litedramcore_litedramcore_locked4 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin4_ce = ((~litedramcore_interface_bank4_valid) & (~litedramcore_interface_bank4_lock));
-assign litedramcore_interface_bank4_addr = rhs_self24;
-assign litedramcore_interface_bank4_we = rhs_self25;
-assign litedramcore_interface_bank4_valid = rhs_self26;
+assign litedramcore_interface_bank4_addr = rhs_array_muxed24;
+assign litedramcore_interface_bank4_we = rhs_array_muxed25;
+assign litedramcore_interface_bank4_valid = rhs_array_muxed26;
 assign litedramcore_litedramcore_roundrobin5_request = {(((port_cmd_payload_addr[9:7] == 3'd5) & (~(((((((litedramcore_litedramcore_locked5 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin5_ce = ((~litedramcore_interface_bank5_valid) & (~litedramcore_interface_bank5_lock));
-assign litedramcore_interface_bank5_addr = rhs_self27;
-assign litedramcore_interface_bank5_we = rhs_self28;
-assign litedramcore_interface_bank5_valid = rhs_self29;
+assign litedramcore_interface_bank5_addr = rhs_array_muxed27;
+assign litedramcore_interface_bank5_we = rhs_array_muxed28;
+assign litedramcore_interface_bank5_valid = rhs_array_muxed29;
 assign litedramcore_litedramcore_roundrobin6_request = {(((port_cmd_payload_addr[9:7] == 3'd6) & (~(((((((litedramcore_litedramcore_locked6 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin6_ce = ((~litedramcore_interface_bank6_valid) & (~litedramcore_interface_bank6_lock));
-assign litedramcore_interface_bank6_addr = rhs_self30;
-assign litedramcore_interface_bank6_we = rhs_self31;
-assign litedramcore_interface_bank6_valid = rhs_self32;
+assign litedramcore_interface_bank6_addr = rhs_array_muxed30;
+assign litedramcore_interface_bank6_we = rhs_array_muxed31;
+assign litedramcore_interface_bank6_valid = rhs_array_muxed32;
 assign litedramcore_litedramcore_roundrobin7_request = {(((port_cmd_payload_addr[9:7] == 3'd7) & (~(((((((litedramcore_litedramcore_locked7 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))))) & port_cmd_valid)};
 assign litedramcore_litedramcore_roundrobin7_ce = ((~litedramcore_interface_bank7_valid) & (~litedramcore_interface_bank7_lock));
-assign litedramcore_interface_bank7_addr = rhs_self33;
-assign litedramcore_interface_bank7_we = rhs_self34;
-assign litedramcore_interface_bank7_valid = rhs_self35;
+assign litedramcore_interface_bank7_addr = rhs_array_muxed33;
+assign litedramcore_interface_bank7_we = rhs_array_muxed34;
+assign litedramcore_interface_bank7_valid = rhs_array_muxed35;
 assign port_cmd_ready = ((((((((1'd0 | (((litedramcore_litedramcore_roundrobin0_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 1'd0) & (~(((((((litedramcore_litedramcore_locked0 | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank0_ready)) | (((litedramcore_litedramcore_roundrobin1_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 1'd1) & (~(((((((litedramcore_litedramcore_locked1 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank1_ready)) | (((litedramcore_litedramcore_roundrobin2_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 2'd2) & (~(((((((litedramcore_litedramcore_locked2 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank2_ready)) | (((litedramcore_litedramcore_roundrobin3_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 2'd3) & (~(((((((litedramcore_litedramcore_locked3 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank3_ready)) | (((litedramcore_litedramcore_roundrobin4_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 3'd4) & (~(((((((litedramcore_litedramcore_locked4 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank4_ready)) | (((litedramcore_litedramcore_roundrobin5_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 3'd5) & (~(((((((litedramcore_litedramcore_locked5 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank5_ready)) | (((litedramcore_litedramcore_roundrobin6_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 3'd6) & (~(((((((litedramcore_litedramcore_locked6 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0)))))) & litedramcore_interface_bank6_ready)) | (((litedramcore_litedramcore_roundrobin7_grant == 1'd0) & ((port_cmd_payload_addr[9:7] == 3'd7) & (~(((((((litedramcore_litedramcore_locked7 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0)))))) & litedramcore_interface_bank7_ready));
 assign port_wdata_ready = litedramcore_litedramcore_new_master_wdata_ready3;
 assign port_rdata_valid = litedramcore_litedramcore_new_master_rdata_valid13;
@@ -9144,20 +9162,8 @@ always @(*) begin
         end
         default: begin
             if ((litedramcore_wishbone_cyc & litedramcore_wishbone_stb)) begin
-                litedramcore_adr_wishbone2csr_next_value1 <= litedramcore_wishbone_adr[29:0];
+                litedramcore_adr_wishbone2csr_next_value1 <= litedramcore_wishbone_adr;
             end
-        end
-    endcase
-end
-always @(*) begin
-    litedramcore_wishbone_dat_r <= 32'd0;
-    case (litedramcore_wishbone2csr_state)
-        1'd1: begin
-        end
-        2'd2: begin
-            litedramcore_wishbone_dat_r <= litedramcore_dat_r;
-        end
-        default: begin
         end
     endcase
 end
@@ -9173,6 +9179,18 @@ always @(*) begin
             if ((litedramcore_wishbone_cyc & litedramcore_wishbone_stb)) begin
                 litedramcore_adr_wishbone2csr_next_value_ce1 <= 1'd1;
             end
+        end
+    endcase
+end
+always @(*) begin
+    litedramcore_wishbone_dat_r <= 32'd0;
+    case (litedramcore_wishbone2csr_state)
+        1'd1: begin
+        end
+        2'd2: begin
+            litedramcore_wishbone_dat_r <= litedramcore_dat_r;
+        end
+        default: begin
         end
     endcase
 end
@@ -9234,15 +9252,15 @@ always @(*) begin
 end
 assign csrbank0_init_error0_r = interface0_bank_bus_dat_w[0];
 always @(*) begin
-    csrbank0_init_error0_we <= 1'd0;
-    if ((csrbank0_sel & (interface0_bank_bus_adr[8:0] == 1'd1))) begin
-        csrbank0_init_error0_we <= (~interface0_bank_bus_we);
-    end
-end
-always @(*) begin
     csrbank0_init_error0_re <= 1'd0;
     if ((csrbank0_sel & (interface0_bank_bus_adr[8:0] == 1'd1))) begin
         csrbank0_init_error0_re <= interface0_bank_bus_we;
+    end
+end
+always @(*) begin
+    csrbank0_init_error0_we <= 1'd0;
+    if ((csrbank0_sel & (interface0_bank_bus_adr[8:0] == 1'd1))) begin
+        csrbank0_init_error0_we <= (~interface0_bank_bus_we);
     end
 end
 assign csrbank0_init_done0_w = init_done_storage;
@@ -9250,15 +9268,15 @@ assign csrbank0_init_error0_w = init_error_storage;
 assign csrbank1_sel = (interface1_bank_bus_adr[13:9] == 1'd1);
 assign csrbank1_dly_sel0_r = interface1_bank_bus_dat_w[1:0];
 always @(*) begin
-    csrbank1_dly_sel0_we <= 1'd0;
-    if ((csrbank1_sel & (interface1_bank_bus_adr[8:0] == 1'd0))) begin
-        csrbank1_dly_sel0_we <= (~interface1_bank_bus_we);
-    end
-end
-always @(*) begin
     csrbank1_dly_sel0_re <= 1'd0;
     if ((csrbank1_sel & (interface1_bank_bus_adr[8:0] == 1'd0))) begin
         csrbank1_dly_sel0_re <= interface1_bank_bus_we;
+    end
+end
+always @(*) begin
+    csrbank1_dly_sel0_we <= 1'd0;
+    if ((csrbank1_sel & (interface1_bank_bus_adr[8:0] == 1'd0))) begin
+        csrbank1_dly_sel0_we <= (~interface1_bank_bus_we);
     end
 end
 assign ddrphy_rdly_dq_rst_r = interface1_bank_bus_dat_w[0];
@@ -9358,15 +9376,15 @@ always @(*) begin
 end
 assign csrbank2_dfii_pi0_command0_r = interface2_bank_bus_dat_w[7:0];
 always @(*) begin
-    csrbank2_dfii_pi0_command0_we <= 1'd0;
-    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 1'd1))) begin
-        csrbank2_dfii_pi0_command0_we <= (~interface2_bank_bus_we);
-    end
-end
-always @(*) begin
     csrbank2_dfii_pi0_command0_re <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 1'd1))) begin
         csrbank2_dfii_pi0_command0_re <= interface2_bank_bus_we;
+    end
+end
+always @(*) begin
+    csrbank2_dfii_pi0_command0_we <= 1'd0;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 1'd1))) begin
+        csrbank2_dfii_pi0_command0_we <= (~interface2_bank_bus_we);
     end
 end
 assign litedramcore_phaseinjector0_command_issue_r = interface2_bank_bus_dat_w[0];
@@ -9423,15 +9441,15 @@ always @(*) begin
 end
 assign csrbank2_dfii_pi0_wrdata0_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_dfii_pi0_wrdata0_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 3'd6))) begin
-        csrbank2_dfii_pi0_wrdata0_re <= interface2_bank_bus_we;
-    end
-end
-always @(*) begin
     csrbank2_dfii_pi0_wrdata0_we <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 3'd6))) begin
         csrbank2_dfii_pi0_wrdata0_we <= (~interface2_bank_bus_we);
+    end
+end
+always @(*) begin
+    csrbank2_dfii_pi0_wrdata0_re <= 1'd0;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 3'd6))) begin
+        csrbank2_dfii_pi0_wrdata0_re <= interface2_bank_bus_we;
     end
 end
 assign csrbank2_dfii_pi0_rddata1_r = interface2_bank_bus_dat_w[31:0];
@@ -9514,15 +9532,15 @@ always @(*) begin
 end
 assign csrbank2_dfii_pi1_wrdata1_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_dfii_pi1_wrdata1_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 4'd13))) begin
-        csrbank2_dfii_pi1_wrdata1_re <= interface2_bank_bus_we;
-    end
-end
-always @(*) begin
     csrbank2_dfii_pi1_wrdata1_we <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 4'd13))) begin
         csrbank2_dfii_pi1_wrdata1_we <= (~interface2_bank_bus_we);
+    end
+end
+always @(*) begin
+    csrbank2_dfii_pi1_wrdata1_re <= 1'd0;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 4'd13))) begin
+        csrbank2_dfii_pi1_wrdata1_re <= interface2_bank_bus_we;
     end
 end
 assign csrbank2_dfii_pi1_wrdata0_r = interface2_bank_bus_dat_w[31:0];
@@ -9553,15 +9571,15 @@ always @(*) begin
 end
 assign csrbank2_dfii_pi1_rddata0_r = interface2_bank_bus_dat_w[31:0];
 always @(*) begin
-    csrbank2_dfii_pi1_rddata0_re <= 1'd0;
-    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 5'd16))) begin
-        csrbank2_dfii_pi1_rddata0_re <= interface2_bank_bus_we;
-    end
-end
-always @(*) begin
     csrbank2_dfii_pi1_rddata0_we <= 1'd0;
     if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 5'd16))) begin
         csrbank2_dfii_pi1_rddata0_we <= (~interface2_bank_bus_we);
+    end
+end
+always @(*) begin
+    csrbank2_dfii_pi1_rddata0_re <= 1'd0;
+    if ((csrbank2_sel & (interface2_bank_bus_adr[8:0] == 5'd16))) begin
+        csrbank2_dfii_pi1_rddata0_re <= interface2_bank_bus_we;
     end
 end
 assign litedramcore_sel = litedramcore_storage[0];
@@ -9616,958 +9634,958 @@ assign interface1_bank_bus_dat_w = csr_interconnect_dat_w;
 assign interface2_bank_bus_dat_w = csr_interconnect_dat_w;
 assign csr_interconnect_dat_r = ((interface0_bank_bus_dat_r | interface1_bank_bus_dat_r) | interface2_bank_bus_dat_r);
 always @(*) begin
-    rhs_self0 <= 1'd0;
+    rhs_array_muxed0 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[0];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[0];
         end
         1'd1: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[1];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[1];
         end
         2'd2: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[2];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[2];
         end
         2'd3: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[3];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[3];
         end
         3'd4: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[4];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[4];
         end
         3'd5: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[5];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[5];
         end
         3'd6: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[6];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[6];
         end
         default: begin
-            rhs_self0 <= litedramcore_choose_cmd_valids[7];
+            rhs_array_muxed0 <= litedramcore_choose_cmd_valids[7];
         end
     endcase
 end
 always @(*) begin
-    rhs_self1 <= 13'd0;
+    rhs_array_muxed1 <= 13'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self1 <= litedramcore_bankmachine0_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine0_cmd_payload_a;
         end
         1'd1: begin
-            rhs_self1 <= litedramcore_bankmachine1_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine1_cmd_payload_a;
         end
         2'd2: begin
-            rhs_self1 <= litedramcore_bankmachine2_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine2_cmd_payload_a;
         end
         2'd3: begin
-            rhs_self1 <= litedramcore_bankmachine3_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine3_cmd_payload_a;
         end
         3'd4: begin
-            rhs_self1 <= litedramcore_bankmachine4_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine4_cmd_payload_a;
         end
         3'd5: begin
-            rhs_self1 <= litedramcore_bankmachine5_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine5_cmd_payload_a;
         end
         3'd6: begin
-            rhs_self1 <= litedramcore_bankmachine6_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine6_cmd_payload_a;
         end
         default: begin
-            rhs_self1 <= litedramcore_bankmachine7_cmd_payload_a;
+            rhs_array_muxed1 <= litedramcore_bankmachine7_cmd_payload_a;
         end
     endcase
 end
 always @(*) begin
-    rhs_self2 <= 3'd0;
+    rhs_array_muxed2 <= 3'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self2 <= litedramcore_bankmachine0_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine0_cmd_payload_ba;
         end
         1'd1: begin
-            rhs_self2 <= litedramcore_bankmachine1_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine1_cmd_payload_ba;
         end
         2'd2: begin
-            rhs_self2 <= litedramcore_bankmachine2_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine2_cmd_payload_ba;
         end
         2'd3: begin
-            rhs_self2 <= litedramcore_bankmachine3_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine3_cmd_payload_ba;
         end
         3'd4: begin
-            rhs_self2 <= litedramcore_bankmachine4_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine4_cmd_payload_ba;
         end
         3'd5: begin
-            rhs_self2 <= litedramcore_bankmachine5_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine5_cmd_payload_ba;
         end
         3'd6: begin
-            rhs_self2 <= litedramcore_bankmachine6_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine6_cmd_payload_ba;
         end
         default: begin
-            rhs_self2 <= litedramcore_bankmachine7_cmd_payload_ba;
+            rhs_array_muxed2 <= litedramcore_bankmachine7_cmd_payload_ba;
         end
     endcase
 end
 always @(*) begin
-    rhs_self3 <= 1'd0;
+    rhs_array_muxed3 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self3 <= litedramcore_bankmachine0_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine0_cmd_payload_is_read;
         end
         1'd1: begin
-            rhs_self3 <= litedramcore_bankmachine1_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine1_cmd_payload_is_read;
         end
         2'd2: begin
-            rhs_self3 <= litedramcore_bankmachine2_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine2_cmd_payload_is_read;
         end
         2'd3: begin
-            rhs_self3 <= litedramcore_bankmachine3_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine3_cmd_payload_is_read;
         end
         3'd4: begin
-            rhs_self3 <= litedramcore_bankmachine4_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine4_cmd_payload_is_read;
         end
         3'd5: begin
-            rhs_self3 <= litedramcore_bankmachine5_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine5_cmd_payload_is_read;
         end
         3'd6: begin
-            rhs_self3 <= litedramcore_bankmachine6_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine6_cmd_payload_is_read;
         end
         default: begin
-            rhs_self3 <= litedramcore_bankmachine7_cmd_payload_is_read;
+            rhs_array_muxed3 <= litedramcore_bankmachine7_cmd_payload_is_read;
         end
     endcase
 end
 always @(*) begin
-    rhs_self4 <= 1'd0;
+    rhs_array_muxed4 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self4 <= litedramcore_bankmachine0_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine0_cmd_payload_is_write;
         end
         1'd1: begin
-            rhs_self4 <= litedramcore_bankmachine1_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine1_cmd_payload_is_write;
         end
         2'd2: begin
-            rhs_self4 <= litedramcore_bankmachine2_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine2_cmd_payload_is_write;
         end
         2'd3: begin
-            rhs_self4 <= litedramcore_bankmachine3_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine3_cmd_payload_is_write;
         end
         3'd4: begin
-            rhs_self4 <= litedramcore_bankmachine4_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine4_cmd_payload_is_write;
         end
         3'd5: begin
-            rhs_self4 <= litedramcore_bankmachine5_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine5_cmd_payload_is_write;
         end
         3'd6: begin
-            rhs_self4 <= litedramcore_bankmachine6_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine6_cmd_payload_is_write;
         end
         default: begin
-            rhs_self4 <= litedramcore_bankmachine7_cmd_payload_is_write;
+            rhs_array_muxed4 <= litedramcore_bankmachine7_cmd_payload_is_write;
         end
     endcase
 end
 always @(*) begin
-    rhs_self5 <= 1'd0;
+    rhs_array_muxed5 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            rhs_self5 <= litedramcore_bankmachine0_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine0_cmd_payload_is_cmd;
         end
         1'd1: begin
-            rhs_self5 <= litedramcore_bankmachine1_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine1_cmd_payload_is_cmd;
         end
         2'd2: begin
-            rhs_self5 <= litedramcore_bankmachine2_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine2_cmd_payload_is_cmd;
         end
         2'd3: begin
-            rhs_self5 <= litedramcore_bankmachine3_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine3_cmd_payload_is_cmd;
         end
         3'd4: begin
-            rhs_self5 <= litedramcore_bankmachine4_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine4_cmd_payload_is_cmd;
         end
         3'd5: begin
-            rhs_self5 <= litedramcore_bankmachine5_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine5_cmd_payload_is_cmd;
         end
         3'd6: begin
-            rhs_self5 <= litedramcore_bankmachine6_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine6_cmd_payload_is_cmd;
         end
         default: begin
-            rhs_self5 <= litedramcore_bankmachine7_cmd_payload_is_cmd;
+            rhs_array_muxed5 <= litedramcore_bankmachine7_cmd_payload_is_cmd;
         end
     endcase
 end
 always @(*) begin
-    t_self0 <= 1'd0;
+    t_array_muxed0 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            t_self0 <= litedramcore_bankmachine0_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine0_cmd_payload_cas;
         end
         1'd1: begin
-            t_self0 <= litedramcore_bankmachine1_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine1_cmd_payload_cas;
         end
         2'd2: begin
-            t_self0 <= litedramcore_bankmachine2_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine2_cmd_payload_cas;
         end
         2'd3: begin
-            t_self0 <= litedramcore_bankmachine3_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine3_cmd_payload_cas;
         end
         3'd4: begin
-            t_self0 <= litedramcore_bankmachine4_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine4_cmd_payload_cas;
         end
         3'd5: begin
-            t_self0 <= litedramcore_bankmachine5_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine5_cmd_payload_cas;
         end
         3'd6: begin
-            t_self0 <= litedramcore_bankmachine6_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine6_cmd_payload_cas;
         end
         default: begin
-            t_self0 <= litedramcore_bankmachine7_cmd_payload_cas;
+            t_array_muxed0 <= litedramcore_bankmachine7_cmd_payload_cas;
         end
     endcase
 end
 always @(*) begin
-    t_self1 <= 1'd0;
+    t_array_muxed1 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            t_self1 <= litedramcore_bankmachine0_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine0_cmd_payload_ras;
         end
         1'd1: begin
-            t_self1 <= litedramcore_bankmachine1_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine1_cmd_payload_ras;
         end
         2'd2: begin
-            t_self1 <= litedramcore_bankmachine2_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine2_cmd_payload_ras;
         end
         2'd3: begin
-            t_self1 <= litedramcore_bankmachine3_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine3_cmd_payload_ras;
         end
         3'd4: begin
-            t_self1 <= litedramcore_bankmachine4_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine4_cmd_payload_ras;
         end
         3'd5: begin
-            t_self1 <= litedramcore_bankmachine5_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine5_cmd_payload_ras;
         end
         3'd6: begin
-            t_self1 <= litedramcore_bankmachine6_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine6_cmd_payload_ras;
         end
         default: begin
-            t_self1 <= litedramcore_bankmachine7_cmd_payload_ras;
+            t_array_muxed1 <= litedramcore_bankmachine7_cmd_payload_ras;
         end
     endcase
 end
 always @(*) begin
-    t_self2 <= 1'd0;
+    t_array_muxed2 <= 1'd0;
     case (litedramcore_choose_cmd_grant)
         1'd0: begin
-            t_self2 <= litedramcore_bankmachine0_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine0_cmd_payload_we;
         end
         1'd1: begin
-            t_self2 <= litedramcore_bankmachine1_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine1_cmd_payload_we;
         end
         2'd2: begin
-            t_self2 <= litedramcore_bankmachine2_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine2_cmd_payload_we;
         end
         2'd3: begin
-            t_self2 <= litedramcore_bankmachine3_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine3_cmd_payload_we;
         end
         3'd4: begin
-            t_self2 <= litedramcore_bankmachine4_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine4_cmd_payload_we;
         end
         3'd5: begin
-            t_self2 <= litedramcore_bankmachine5_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine5_cmd_payload_we;
         end
         3'd6: begin
-            t_self2 <= litedramcore_bankmachine6_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine6_cmd_payload_we;
         end
         default: begin
-            t_self2 <= litedramcore_bankmachine7_cmd_payload_we;
+            t_array_muxed2 <= litedramcore_bankmachine7_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self6 <= 1'd0;
+    rhs_array_muxed6 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self6 <= litedramcore_choose_req_valids[0];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[0];
         end
         1'd1: begin
-            rhs_self6 <= litedramcore_choose_req_valids[1];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[1];
         end
         2'd2: begin
-            rhs_self6 <= litedramcore_choose_req_valids[2];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[2];
         end
         2'd3: begin
-            rhs_self6 <= litedramcore_choose_req_valids[3];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[3];
         end
         3'd4: begin
-            rhs_self6 <= litedramcore_choose_req_valids[4];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[4];
         end
         3'd5: begin
-            rhs_self6 <= litedramcore_choose_req_valids[5];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[5];
         end
         3'd6: begin
-            rhs_self6 <= litedramcore_choose_req_valids[6];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[6];
         end
         default: begin
-            rhs_self6 <= litedramcore_choose_req_valids[7];
+            rhs_array_muxed6 <= litedramcore_choose_req_valids[7];
         end
     endcase
 end
 always @(*) begin
-    rhs_self7 <= 13'd0;
+    rhs_array_muxed7 <= 13'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self7 <= litedramcore_bankmachine0_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine0_cmd_payload_a;
         end
         1'd1: begin
-            rhs_self7 <= litedramcore_bankmachine1_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine1_cmd_payload_a;
         end
         2'd2: begin
-            rhs_self7 <= litedramcore_bankmachine2_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine2_cmd_payload_a;
         end
         2'd3: begin
-            rhs_self7 <= litedramcore_bankmachine3_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine3_cmd_payload_a;
         end
         3'd4: begin
-            rhs_self7 <= litedramcore_bankmachine4_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine4_cmd_payload_a;
         end
         3'd5: begin
-            rhs_self7 <= litedramcore_bankmachine5_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine5_cmd_payload_a;
         end
         3'd6: begin
-            rhs_self7 <= litedramcore_bankmachine6_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine6_cmd_payload_a;
         end
         default: begin
-            rhs_self7 <= litedramcore_bankmachine7_cmd_payload_a;
+            rhs_array_muxed7 <= litedramcore_bankmachine7_cmd_payload_a;
         end
     endcase
 end
 always @(*) begin
-    rhs_self8 <= 3'd0;
+    rhs_array_muxed8 <= 3'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self8 <= litedramcore_bankmachine0_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine0_cmd_payload_ba;
         end
         1'd1: begin
-            rhs_self8 <= litedramcore_bankmachine1_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine1_cmd_payload_ba;
         end
         2'd2: begin
-            rhs_self8 <= litedramcore_bankmachine2_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine2_cmd_payload_ba;
         end
         2'd3: begin
-            rhs_self8 <= litedramcore_bankmachine3_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine3_cmd_payload_ba;
         end
         3'd4: begin
-            rhs_self8 <= litedramcore_bankmachine4_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine4_cmd_payload_ba;
         end
         3'd5: begin
-            rhs_self8 <= litedramcore_bankmachine5_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine5_cmd_payload_ba;
         end
         3'd6: begin
-            rhs_self8 <= litedramcore_bankmachine6_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine6_cmd_payload_ba;
         end
         default: begin
-            rhs_self8 <= litedramcore_bankmachine7_cmd_payload_ba;
+            rhs_array_muxed8 <= litedramcore_bankmachine7_cmd_payload_ba;
         end
     endcase
 end
 always @(*) begin
-    rhs_self9 <= 1'd0;
+    rhs_array_muxed9 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self9 <= litedramcore_bankmachine0_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine0_cmd_payload_is_read;
         end
         1'd1: begin
-            rhs_self9 <= litedramcore_bankmachine1_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine1_cmd_payload_is_read;
         end
         2'd2: begin
-            rhs_self9 <= litedramcore_bankmachine2_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine2_cmd_payload_is_read;
         end
         2'd3: begin
-            rhs_self9 <= litedramcore_bankmachine3_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine3_cmd_payload_is_read;
         end
         3'd4: begin
-            rhs_self9 <= litedramcore_bankmachine4_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine4_cmd_payload_is_read;
         end
         3'd5: begin
-            rhs_self9 <= litedramcore_bankmachine5_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine5_cmd_payload_is_read;
         end
         3'd6: begin
-            rhs_self9 <= litedramcore_bankmachine6_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine6_cmd_payload_is_read;
         end
         default: begin
-            rhs_self9 <= litedramcore_bankmachine7_cmd_payload_is_read;
+            rhs_array_muxed9 <= litedramcore_bankmachine7_cmd_payload_is_read;
         end
     endcase
 end
 always @(*) begin
-    rhs_self10 <= 1'd0;
+    rhs_array_muxed10 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self10 <= litedramcore_bankmachine0_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine0_cmd_payload_is_write;
         end
         1'd1: begin
-            rhs_self10 <= litedramcore_bankmachine1_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine1_cmd_payload_is_write;
         end
         2'd2: begin
-            rhs_self10 <= litedramcore_bankmachine2_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine2_cmd_payload_is_write;
         end
         2'd3: begin
-            rhs_self10 <= litedramcore_bankmachine3_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine3_cmd_payload_is_write;
         end
         3'd4: begin
-            rhs_self10 <= litedramcore_bankmachine4_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine4_cmd_payload_is_write;
         end
         3'd5: begin
-            rhs_self10 <= litedramcore_bankmachine5_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine5_cmd_payload_is_write;
         end
         3'd6: begin
-            rhs_self10 <= litedramcore_bankmachine6_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine6_cmd_payload_is_write;
         end
         default: begin
-            rhs_self10 <= litedramcore_bankmachine7_cmd_payload_is_write;
+            rhs_array_muxed10 <= litedramcore_bankmachine7_cmd_payload_is_write;
         end
     endcase
 end
 always @(*) begin
-    rhs_self11 <= 1'd0;
+    rhs_array_muxed11 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            rhs_self11 <= litedramcore_bankmachine0_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine0_cmd_payload_is_cmd;
         end
         1'd1: begin
-            rhs_self11 <= litedramcore_bankmachine1_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine1_cmd_payload_is_cmd;
         end
         2'd2: begin
-            rhs_self11 <= litedramcore_bankmachine2_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine2_cmd_payload_is_cmd;
         end
         2'd3: begin
-            rhs_self11 <= litedramcore_bankmachine3_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine3_cmd_payload_is_cmd;
         end
         3'd4: begin
-            rhs_self11 <= litedramcore_bankmachine4_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine4_cmd_payload_is_cmd;
         end
         3'd5: begin
-            rhs_self11 <= litedramcore_bankmachine5_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine5_cmd_payload_is_cmd;
         end
         3'd6: begin
-            rhs_self11 <= litedramcore_bankmachine6_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine6_cmd_payload_is_cmd;
         end
         default: begin
-            rhs_self11 <= litedramcore_bankmachine7_cmd_payload_is_cmd;
+            rhs_array_muxed11 <= litedramcore_bankmachine7_cmd_payload_is_cmd;
         end
     endcase
 end
 always @(*) begin
-    t_self3 <= 1'd0;
+    t_array_muxed3 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            t_self3 <= litedramcore_bankmachine0_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine0_cmd_payload_cas;
         end
         1'd1: begin
-            t_self3 <= litedramcore_bankmachine1_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine1_cmd_payload_cas;
         end
         2'd2: begin
-            t_self3 <= litedramcore_bankmachine2_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine2_cmd_payload_cas;
         end
         2'd3: begin
-            t_self3 <= litedramcore_bankmachine3_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine3_cmd_payload_cas;
         end
         3'd4: begin
-            t_self3 <= litedramcore_bankmachine4_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine4_cmd_payload_cas;
         end
         3'd5: begin
-            t_self3 <= litedramcore_bankmachine5_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine5_cmd_payload_cas;
         end
         3'd6: begin
-            t_self3 <= litedramcore_bankmachine6_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine6_cmd_payload_cas;
         end
         default: begin
-            t_self3 <= litedramcore_bankmachine7_cmd_payload_cas;
+            t_array_muxed3 <= litedramcore_bankmachine7_cmd_payload_cas;
         end
     endcase
 end
 always @(*) begin
-    t_self4 <= 1'd0;
+    t_array_muxed4 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            t_self4 <= litedramcore_bankmachine0_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine0_cmd_payload_ras;
         end
         1'd1: begin
-            t_self4 <= litedramcore_bankmachine1_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine1_cmd_payload_ras;
         end
         2'd2: begin
-            t_self4 <= litedramcore_bankmachine2_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine2_cmd_payload_ras;
         end
         2'd3: begin
-            t_self4 <= litedramcore_bankmachine3_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine3_cmd_payload_ras;
         end
         3'd4: begin
-            t_self4 <= litedramcore_bankmachine4_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine4_cmd_payload_ras;
         end
         3'd5: begin
-            t_self4 <= litedramcore_bankmachine5_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine5_cmd_payload_ras;
         end
         3'd6: begin
-            t_self4 <= litedramcore_bankmachine6_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine6_cmd_payload_ras;
         end
         default: begin
-            t_self4 <= litedramcore_bankmachine7_cmd_payload_ras;
+            t_array_muxed4 <= litedramcore_bankmachine7_cmd_payload_ras;
         end
     endcase
 end
 always @(*) begin
-    t_self5 <= 1'd0;
+    t_array_muxed5 <= 1'd0;
     case (litedramcore_choose_req_grant)
         1'd0: begin
-            t_self5 <= litedramcore_bankmachine0_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine0_cmd_payload_we;
         end
         1'd1: begin
-            t_self5 <= litedramcore_bankmachine1_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine1_cmd_payload_we;
         end
         2'd2: begin
-            t_self5 <= litedramcore_bankmachine2_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine2_cmd_payload_we;
         end
         2'd3: begin
-            t_self5 <= litedramcore_bankmachine3_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine3_cmd_payload_we;
         end
         3'd4: begin
-            t_self5 <= litedramcore_bankmachine4_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine4_cmd_payload_we;
         end
         3'd5: begin
-            t_self5 <= litedramcore_bankmachine5_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine5_cmd_payload_we;
         end
         3'd6: begin
-            t_self5 <= litedramcore_bankmachine6_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine6_cmd_payload_we;
         end
         default: begin
-            t_self5 <= litedramcore_bankmachine7_cmd_payload_we;
+            t_array_muxed5 <= litedramcore_bankmachine7_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self12 <= 20'd0;
+    rhs_array_muxed12 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin0_grant)
         default: begin
-            rhs_self12 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed12 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self13 <= 1'd0;
+    rhs_array_muxed13 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin0_grant)
         default: begin
-            rhs_self13 <= port_cmd_payload_we;
+            rhs_array_muxed13 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self14 <= 1'd0;
+    rhs_array_muxed14 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin0_grant)
         default: begin
-            rhs_self14 <= (((port_cmd_payload_addr[9:7] == 1'd0) & (~(((((((litedramcore_litedramcore_locked0 | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed14 <= (((port_cmd_payload_addr[9:7] == 1'd0) & (~(((((((litedramcore_litedramcore_locked0 | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self15 <= 20'd0;
+    rhs_array_muxed15 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin1_grant)
         default: begin
-            rhs_self15 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed15 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self16 <= 1'd0;
+    rhs_array_muxed16 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin1_grant)
         default: begin
-            rhs_self16 <= port_cmd_payload_we;
+            rhs_array_muxed16 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self17 <= 1'd0;
+    rhs_array_muxed17 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin1_grant)
         default: begin
-            rhs_self17 <= (((port_cmd_payload_addr[9:7] == 1'd1) & (~(((((((litedramcore_litedramcore_locked1 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed17 <= (((port_cmd_payload_addr[9:7] == 1'd1) & (~(((((((litedramcore_litedramcore_locked1 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self18 <= 20'd0;
+    rhs_array_muxed18 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin2_grant)
         default: begin
-            rhs_self18 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed18 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self19 <= 1'd0;
+    rhs_array_muxed19 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin2_grant)
         default: begin
-            rhs_self19 <= port_cmd_payload_we;
+            rhs_array_muxed19 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self20 <= 1'd0;
+    rhs_array_muxed20 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin2_grant)
         default: begin
-            rhs_self20 <= (((port_cmd_payload_addr[9:7] == 2'd2) & (~(((((((litedramcore_litedramcore_locked2 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed20 <= (((port_cmd_payload_addr[9:7] == 2'd2) & (~(((((((litedramcore_litedramcore_locked2 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self21 <= 20'd0;
+    rhs_array_muxed21 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin3_grant)
         default: begin
-            rhs_self21 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed21 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self22 <= 1'd0;
+    rhs_array_muxed22 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin3_grant)
         default: begin
-            rhs_self22 <= port_cmd_payload_we;
+            rhs_array_muxed22 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self23 <= 1'd0;
+    rhs_array_muxed23 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin3_grant)
         default: begin
-            rhs_self23 <= (((port_cmd_payload_addr[9:7] == 2'd3) & (~(((((((litedramcore_litedramcore_locked3 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed23 <= (((port_cmd_payload_addr[9:7] == 2'd3) & (~(((((((litedramcore_litedramcore_locked3 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self24 <= 20'd0;
+    rhs_array_muxed24 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin4_grant)
         default: begin
-            rhs_self24 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed24 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self25 <= 1'd0;
+    rhs_array_muxed25 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin4_grant)
         default: begin
-            rhs_self25 <= port_cmd_payload_we;
+            rhs_array_muxed25 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self26 <= 1'd0;
+    rhs_array_muxed26 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin4_grant)
         default: begin
-            rhs_self26 <= (((port_cmd_payload_addr[9:7] == 3'd4) & (~(((((((litedramcore_litedramcore_locked4 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed26 <= (((port_cmd_payload_addr[9:7] == 3'd4) & (~(((((((litedramcore_litedramcore_locked4 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self27 <= 20'd0;
+    rhs_array_muxed27 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin5_grant)
         default: begin
-            rhs_self27 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed27 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self28 <= 1'd0;
+    rhs_array_muxed28 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin5_grant)
         default: begin
-            rhs_self28 <= port_cmd_payload_we;
+            rhs_array_muxed28 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self29 <= 1'd0;
+    rhs_array_muxed29 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin5_grant)
         default: begin
-            rhs_self29 <= (((port_cmd_payload_addr[9:7] == 3'd5) & (~(((((((litedramcore_litedramcore_locked5 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed29 <= (((port_cmd_payload_addr[9:7] == 3'd5) & (~(((((((litedramcore_litedramcore_locked5 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self30 <= 20'd0;
+    rhs_array_muxed30 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin6_grant)
         default: begin
-            rhs_self30 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed30 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self31 <= 1'd0;
+    rhs_array_muxed31 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin6_grant)
         default: begin
-            rhs_self31 <= port_cmd_payload_we;
+            rhs_array_muxed31 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self32 <= 1'd0;
+    rhs_array_muxed32 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin6_grant)
         default: begin
-            rhs_self32 <= (((port_cmd_payload_addr[9:7] == 3'd6) & (~(((((((litedramcore_litedramcore_locked6 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed32 <= (((port_cmd_payload_addr[9:7] == 3'd6) & (~(((((((litedramcore_litedramcore_locked6 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank7_lock & (litedramcore_litedramcore_roundrobin7_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    rhs_self33 <= 20'd0;
+    rhs_array_muxed33 <= 20'd0;
     case (litedramcore_litedramcore_roundrobin7_grant)
         default: begin
-            rhs_self33 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
+            rhs_array_muxed33 <= {port_cmd_payload_addr[22:10], port_cmd_payload_addr[6:0]};
         end
     endcase
 end
 always @(*) begin
-    rhs_self34 <= 1'd0;
+    rhs_array_muxed34 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin7_grant)
         default: begin
-            rhs_self34 <= port_cmd_payload_we;
+            rhs_array_muxed34 <= port_cmd_payload_we;
         end
     endcase
 end
 always @(*) begin
-    rhs_self35 <= 1'd0;
+    rhs_array_muxed35 <= 1'd0;
     case (litedramcore_litedramcore_roundrobin7_grant)
         default: begin
-            rhs_self35 <= (((port_cmd_payload_addr[9:7] == 3'd7) & (~(((((((litedramcore_litedramcore_locked7 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))))) & port_cmd_valid);
+            rhs_array_muxed35 <= (((port_cmd_payload_addr[9:7] == 3'd7) & (~(((((((litedramcore_litedramcore_locked7 | (litedramcore_interface_bank0_lock & (litedramcore_litedramcore_roundrobin0_grant == 1'd0))) | (litedramcore_interface_bank1_lock & (litedramcore_litedramcore_roundrobin1_grant == 1'd0))) | (litedramcore_interface_bank2_lock & (litedramcore_litedramcore_roundrobin2_grant == 1'd0))) | (litedramcore_interface_bank3_lock & (litedramcore_litedramcore_roundrobin3_grant == 1'd0))) | (litedramcore_interface_bank4_lock & (litedramcore_litedramcore_roundrobin4_grant == 1'd0))) | (litedramcore_interface_bank5_lock & (litedramcore_litedramcore_roundrobin5_grant == 1'd0))) | (litedramcore_interface_bank6_lock & (litedramcore_litedramcore_roundrobin6_grant == 1'd0))))) & port_cmd_valid);
         end
     endcase
 end
 always @(*) begin
-    self0 <= 3'd0;
-    case (litedramcore_steerer0)
+    array_muxed0 <= 3'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self0 <= litedramcore_nop_ba[2:0];
+            array_muxed0 <= litedramcore_nop_ba[2:0];
         end
         1'd1: begin
-            self0 <= litedramcore_choose_cmd_cmd_payload_ba[2:0];
+            array_muxed0 <= litedramcore_choose_cmd_cmd_payload_ba[2:0];
         end
         2'd2: begin
-            self0 <= litedramcore_choose_req_cmd_payload_ba[2:0];
+            array_muxed0 <= litedramcore_choose_req_cmd_payload_ba[2:0];
         end
         default: begin
-            self0 <= litedramcore_cmd_payload_ba[2:0];
+            array_muxed0 <= litedramcore_cmd_payload_ba[2:0];
         end
     endcase
 end
 always @(*) begin
-    self1 <= 13'd0;
-    case (litedramcore_steerer0)
+    array_muxed1 <= 13'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self1 <= litedramcore_nop_a;
+            array_muxed1 <= litedramcore_nop_a;
         end
         1'd1: begin
-            self1 <= litedramcore_choose_cmd_cmd_payload_a;
+            array_muxed1 <= litedramcore_choose_cmd_cmd_payload_a;
         end
         2'd2: begin
-            self1 <= litedramcore_choose_req_cmd_payload_a;
+            array_muxed1 <= litedramcore_choose_req_cmd_payload_a;
         end
         default: begin
-            self1 <= litedramcore_cmd_payload_a;
+            array_muxed1 <= litedramcore_cmd_payload_a;
         end
     endcase
 end
 always @(*) begin
-    self2 <= 1'd0;
-    case (litedramcore_steerer0)
+    array_muxed2 <= 1'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self2 <= 1'd0;
+            array_muxed2 <= 1'd0;
         end
         1'd1: begin
-            self2 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_cas);
+            array_muxed2 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_cas);
         end
         2'd2: begin
-            self2 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_cas);
+            array_muxed2 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_cas);
         end
         default: begin
-            self2 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_cas);
+            array_muxed2 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_cas);
         end
     endcase
 end
 always @(*) begin
-    self3 <= 1'd0;
-    case (litedramcore_steerer0)
+    array_muxed3 <= 1'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self3 <= 1'd0;
+            array_muxed3 <= 1'd0;
         end
         1'd1: begin
-            self3 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_ras);
+            array_muxed3 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_ras);
         end
         2'd2: begin
-            self3 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_ras);
+            array_muxed3 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_ras);
         end
         default: begin
-            self3 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_ras);
+            array_muxed3 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_ras);
         end
     endcase
 end
 always @(*) begin
-    self4 <= 1'd0;
-    case (litedramcore_steerer0)
+    array_muxed4 <= 1'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self4 <= 1'd0;
+            array_muxed4 <= 1'd0;
         end
         1'd1: begin
-            self4 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_we);
+            array_muxed4 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_we);
         end
         2'd2: begin
-            self4 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_we);
+            array_muxed4 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_we);
         end
         default: begin
-            self4 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_we);
+            array_muxed4 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_we);
         end
     endcase
 end
 always @(*) begin
-    self5 <= 1'd0;
-    case (litedramcore_steerer0)
+    array_muxed5 <= 1'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self5 <= 1'd0;
+            array_muxed5 <= 1'd0;
         end
         1'd1: begin
-            self5 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_read);
+            array_muxed5 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_read);
         end
         2'd2: begin
-            self5 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_read);
+            array_muxed5 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_read);
         end
         default: begin
-            self5 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_read);
+            array_muxed5 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_read);
         end
     endcase
 end
 always @(*) begin
-    self6 <= 1'd0;
-    case (litedramcore_steerer0)
+    array_muxed6 <= 1'd0;
+    case (litedramcore_steerer_sel0)
         1'd0: begin
-            self6 <= 1'd0;
+            array_muxed6 <= 1'd0;
         end
         1'd1: begin
-            self6 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_write);
+            array_muxed6 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_write);
         end
         2'd2: begin
-            self6 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_write);
+            array_muxed6 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_write);
         end
         default: begin
-            self6 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_write);
+            array_muxed6 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_write);
         end
     endcase
 end
 always @(*) begin
-    self7 <= 3'd0;
-    case (litedramcore_steerer1)
+    array_muxed7 <= 3'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self7 <= litedramcore_nop_ba[2:0];
+            array_muxed7 <= litedramcore_nop_ba[2:0];
         end
         1'd1: begin
-            self7 <= litedramcore_choose_cmd_cmd_payload_ba[2:0];
+            array_muxed7 <= litedramcore_choose_cmd_cmd_payload_ba[2:0];
         end
         2'd2: begin
-            self7 <= litedramcore_choose_req_cmd_payload_ba[2:0];
+            array_muxed7 <= litedramcore_choose_req_cmd_payload_ba[2:0];
         end
         default: begin
-            self7 <= litedramcore_cmd_payload_ba[2:0];
+            array_muxed7 <= litedramcore_cmd_payload_ba[2:0];
         end
     endcase
 end
 always @(*) begin
-    self8 <= 13'd0;
-    case (litedramcore_steerer1)
+    array_muxed8 <= 13'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self8 <= litedramcore_nop_a;
+            array_muxed8 <= litedramcore_nop_a;
         end
         1'd1: begin
-            self8 <= litedramcore_choose_cmd_cmd_payload_a;
+            array_muxed8 <= litedramcore_choose_cmd_cmd_payload_a;
         end
         2'd2: begin
-            self8 <= litedramcore_choose_req_cmd_payload_a;
+            array_muxed8 <= litedramcore_choose_req_cmd_payload_a;
         end
         default: begin
-            self8 <= litedramcore_cmd_payload_a;
+            array_muxed8 <= litedramcore_cmd_payload_a;
         end
     endcase
 end
 always @(*) begin
-    self9 <= 1'd0;
-    case (litedramcore_steerer1)
+    array_muxed9 <= 1'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self9 <= 1'd0;
+            array_muxed9 <= 1'd0;
         end
         1'd1: begin
-            self9 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_cas);
+            array_muxed9 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_cas);
         end
         2'd2: begin
-            self9 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_cas);
+            array_muxed9 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_cas);
         end
         default: begin
-            self9 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_cas);
+            array_muxed9 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_cas);
         end
     endcase
 end
 always @(*) begin
-    self10 <= 1'd0;
-    case (litedramcore_steerer1)
+    array_muxed10 <= 1'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self10 <= 1'd0;
+            array_muxed10 <= 1'd0;
         end
         1'd1: begin
-            self10 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_ras);
+            array_muxed10 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_ras);
         end
         2'd2: begin
-            self10 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_ras);
+            array_muxed10 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_ras);
         end
         default: begin
-            self10 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_ras);
+            array_muxed10 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_ras);
         end
     endcase
 end
 always @(*) begin
-    self11 <= 1'd0;
-    case (litedramcore_steerer1)
+    array_muxed11 <= 1'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self11 <= 1'd0;
+            array_muxed11 <= 1'd0;
         end
         1'd1: begin
-            self11 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_we);
+            array_muxed11 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_we);
         end
         2'd2: begin
-            self11 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_we);
+            array_muxed11 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_we);
         end
         default: begin
-            self11 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_we);
+            array_muxed11 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_we);
         end
     endcase
 end
 always @(*) begin
-    self12 <= 1'd0;
-    case (litedramcore_steerer1)
+    array_muxed12 <= 1'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self12 <= 1'd0;
+            array_muxed12 <= 1'd0;
         end
         1'd1: begin
-            self12 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_read);
+            array_muxed12 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_read);
         end
         2'd2: begin
-            self12 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_read);
+            array_muxed12 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_read);
         end
         default: begin
-            self12 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_read);
+            array_muxed12 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_read);
         end
     endcase
 end
 always @(*) begin
-    self13 <= 1'd0;
-    case (litedramcore_steerer1)
+    array_muxed13 <= 1'd0;
+    case (litedramcore_steerer_sel1)
         1'd0: begin
-            self13 <= 1'd0;
+            array_muxed13 <= 1'd0;
         end
         1'd1: begin
-            self13 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_write);
+            array_muxed13 <= ((litedramcore_choose_cmd_cmd_valid & litedramcore_choose_cmd_cmd_ready) & litedramcore_choose_cmd_cmd_payload_is_write);
         end
         2'd2: begin
-            self13 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_write);
+            array_muxed13 <= ((litedramcore_choose_req_cmd_valid & litedramcore_choose_req_cmd_ready) & litedramcore_choose_req_cmd_payload_is_write);
         end
         default: begin
-            self13 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_write);
+            array_muxed13 <= ((litedramcore_cmd_valid & litedramcore_cmd_ready) & litedramcore_cmd_payload_is_write);
         end
     endcase
 end
-assign ddrphy_lock1 = multiregimpl1;
+assign ddrphy_lock1 = regs1;
 
 
 //------------------------------------------------------------------------------
@@ -10576,44 +10594,44 @@ assign ddrphy_lock1 = multiregimpl1;
 
 always @(posedge init_clk) begin
     ddrphy_lock_d <= ddrphy_lock1;
-    if ((ddrphy_trigger == 4'd8)) begin
+    if ((ddrphy_counter == 4'd8)) begin
         ddrphy_freeze <= 1'd1;
     end
-    if ((ddrphy_trigger == 5'd16)) begin
+    if ((ddrphy_counter == 5'd16)) begin
         ddrphy_stop1 <= 1'd1;
     end
-    if ((ddrphy_trigger == 5'd24)) begin
+    if ((ddrphy_counter == 5'd24)) begin
         ddrphy_reset1 <= 1'd1;
     end
-    if ((ddrphy_trigger == 6'd32)) begin
+    if ((ddrphy_counter == 6'd32)) begin
         ddrphy_reset1 <= 1'd0;
     end
-    if ((ddrphy_trigger == 6'd40)) begin
+    if ((ddrphy_counter == 6'd40)) begin
         ddrphy_stop1 <= 1'd0;
     end
-    if ((ddrphy_trigger == 6'd48)) begin
+    if ((ddrphy_counter == 6'd48)) begin
         ddrphy_freeze <= 1'd0;
     end
-    if ((ddrphy_trigger == 6'd56)) begin
+    if ((ddrphy_counter == 6'd56)) begin
         ddrphy_pause1 <= 1'd1;
     end
-    if ((ddrphy_trigger == 7'd64)) begin
+    if ((ddrphy_counter == 7'd64)) begin
         ddrphy_update <= 1'd1;
     end
-    if ((ddrphy_trigger == 7'd72)) begin
+    if ((ddrphy_counter == 7'd72)) begin
         ddrphy_update <= 1'd0;
     end
-    if ((ddrphy_trigger == 7'd80)) begin
+    if ((ddrphy_counter == 7'd80)) begin
         ddrphy_pause1 <= 1'd0;
     end
-    if ((ddrphy_trigger == 7'd80)) begin
-        ddrphy_trigger <= 1'd0;
+    if ((ddrphy_counter == 7'd80)) begin
+        ddrphy_counter <= 1'd0;
     end else begin
-        if ((ddrphy_trigger != 1'd0)) begin
-            ddrphy_trigger <= (ddrphy_trigger + 1'd1);
+        if ((ddrphy_counter != 1'd0)) begin
+            ddrphy_counter <= (ddrphy_counter + 1'd1);
         end else begin
             if (ddrphy_new_lock) begin
-                ddrphy_trigger <= 1'd1;
+                ddrphy_counter <= 1'd1;
             end
         end
     end
@@ -10624,10 +10642,10 @@ always @(posedge init_clk) begin
         ddrphy_pause1 <= 1'd0;
         ddrphy_reset1 <= 1'd0;
         ddrphy_lock_d <= 1'd0;
-        ddrphy_trigger <= 7'd0;
+        ddrphy_counter <= 7'd0;
     end
-    multiregimpl0 <= ddrphy_lock0;
-    multiregimpl1 <= multiregimpl0;
+    regs0 <= ddrphy_lock0;
+    regs1 <= regs0;
 end
 
 always @(posedge por_clk) begin
@@ -11008,21 +11026,21 @@ always @(posedge sys_clk) begin
     litedramcore_cmd_payload_ras <= 1'd0;
     litedramcore_cmd_payload_we <= 1'd0;
     litedramcore_sequencer_done1 <= 1'd0;
-    if ((litedramcore_sequencer_start1 & (litedramcore_sequencer_trigger == 1'd0))) begin
+    if ((litedramcore_sequencer_start1 & (litedramcore_sequencer_counter == 1'd0))) begin
         litedramcore_cmd_payload_a <= 11'd1024;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd0;
         litedramcore_cmd_payload_ras <= 1'd1;
         litedramcore_cmd_payload_we <= 1'd1;
     end
-    if ((litedramcore_sequencer_trigger == 2'd2)) begin
+    if ((litedramcore_sequencer_counter == 2'd2)) begin
         litedramcore_cmd_payload_a <= 11'd1024;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd1;
         litedramcore_cmd_payload_ras <= 1'd1;
         litedramcore_cmd_payload_we <= 1'd0;
     end
-    if ((litedramcore_sequencer_trigger == 7'd66)) begin
+    if ((litedramcore_sequencer_counter == 7'd66)) begin
         litedramcore_cmd_payload_a <= 1'd0;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd0;
@@ -11030,14 +11048,14 @@ always @(posedge sys_clk) begin
         litedramcore_cmd_payload_we <= 1'd0;
         litedramcore_sequencer_done1 <= 1'd1;
     end
-    if ((litedramcore_sequencer_trigger == 7'd66)) begin
-        litedramcore_sequencer_trigger <= 1'd0;
+    if ((litedramcore_sequencer_counter == 7'd66)) begin
+        litedramcore_sequencer_counter <= 1'd0;
     end else begin
-        if ((litedramcore_sequencer_trigger != 1'd0)) begin
-            litedramcore_sequencer_trigger <= (litedramcore_sequencer_trigger + 1'd1);
+        if ((litedramcore_sequencer_counter != 1'd0)) begin
+            litedramcore_sequencer_counter <= (litedramcore_sequencer_counter + 1'd1);
         end else begin
             if (litedramcore_sequencer_start1) begin
-                litedramcore_sequencer_trigger <= 1'd1;
+                litedramcore_sequencer_counter <= 1'd1;
             end
         end
     end
@@ -11047,21 +11065,21 @@ always @(posedge sys_clk) begin
         litedramcore_zqcs_timer_count1 <= 26'd49999999;
     end
     litedramcore_zqcs_executer_done <= 1'd0;
-    if ((litedramcore_zqcs_executer_start & (litedramcore_zqcs_executer_trigger == 1'd0))) begin
+    if ((litedramcore_zqcs_executer_start & (litedramcore_zqcs_executer_counter == 1'd0))) begin
         litedramcore_cmd_payload_a <= 11'd1024;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd0;
         litedramcore_cmd_payload_ras <= 1'd1;
         litedramcore_cmd_payload_we <= 1'd1;
     end
-    if ((litedramcore_zqcs_executer_trigger == 2'd2)) begin
+    if ((litedramcore_zqcs_executer_counter == 2'd2)) begin
         litedramcore_cmd_payload_a <= 1'd0;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd0;
         litedramcore_cmd_payload_ras <= 1'd0;
         litedramcore_cmd_payload_we <= 1'd1;
     end
-    if ((litedramcore_zqcs_executer_trigger == 6'd34)) begin
+    if ((litedramcore_zqcs_executer_counter == 6'd34)) begin
         litedramcore_cmd_payload_a <= 1'd0;
         litedramcore_cmd_payload_ba <= 1'd0;
         litedramcore_cmd_payload_cas <= 1'd0;
@@ -11069,14 +11087,14 @@ always @(posedge sys_clk) begin
         litedramcore_cmd_payload_we <= 1'd0;
         litedramcore_zqcs_executer_done <= 1'd1;
     end
-    if ((litedramcore_zqcs_executer_trigger == 6'd34)) begin
-        litedramcore_zqcs_executer_trigger <= 1'd0;
+    if ((litedramcore_zqcs_executer_counter == 6'd34)) begin
+        litedramcore_zqcs_executer_counter <= 1'd0;
     end else begin
-        if ((litedramcore_zqcs_executer_trigger != 1'd0)) begin
-            litedramcore_zqcs_executer_trigger <= (litedramcore_zqcs_executer_trigger + 1'd1);
+        if ((litedramcore_zqcs_executer_counter != 1'd0)) begin
+            litedramcore_zqcs_executer_counter <= (litedramcore_zqcs_executer_counter + 1'd1);
         end else begin
             if (litedramcore_zqcs_executer_start) begin
-                litedramcore_zqcs_executer_trigger <= 1'd1;
+                litedramcore_zqcs_executer_counter <= 1'd1;
             end
         end
     end
@@ -12176,21 +12194,21 @@ always @(posedge sys_clk) begin
         endcase
     end
     litedramcore_dfi_p0_cs_n <= 1'd0;
-    litedramcore_dfi_p0_bank <= self0;
-    litedramcore_dfi_p0_address <= self1;
-    litedramcore_dfi_p0_cas_n <= (~self2);
-    litedramcore_dfi_p0_ras_n <= (~self3);
-    litedramcore_dfi_p0_we_n <= (~self4);
-    litedramcore_dfi_p0_rddata_en <= self5;
-    litedramcore_dfi_p0_wrdata_en <= self6;
+    litedramcore_dfi_p0_bank <= array_muxed0;
+    litedramcore_dfi_p0_address <= array_muxed1;
+    litedramcore_dfi_p0_cas_n <= (~array_muxed2);
+    litedramcore_dfi_p0_ras_n <= (~array_muxed3);
+    litedramcore_dfi_p0_we_n <= (~array_muxed4);
+    litedramcore_dfi_p0_rddata_en <= array_muxed5;
+    litedramcore_dfi_p0_wrdata_en <= array_muxed6;
     litedramcore_dfi_p1_cs_n <= 1'd0;
-    litedramcore_dfi_p1_bank <= self7;
-    litedramcore_dfi_p1_address <= self8;
-    litedramcore_dfi_p1_cas_n <= (~self9);
-    litedramcore_dfi_p1_ras_n <= (~self10);
-    litedramcore_dfi_p1_we_n <= (~self11);
-    litedramcore_dfi_p1_rddata_en <= self12;
-    litedramcore_dfi_p1_wrdata_en <= self13;
+    litedramcore_dfi_p1_bank <= array_muxed7;
+    litedramcore_dfi_p1_address <= array_muxed8;
+    litedramcore_dfi_p1_cas_n <= (~array_muxed9);
+    litedramcore_dfi_p1_ras_n <= (~array_muxed10);
+    litedramcore_dfi_p1_we_n <= (~array_muxed11);
+    litedramcore_dfi_p1_rddata_en <= array_muxed12;
+    litedramcore_dfi_p1_wrdata_en <= array_muxed13;
     if (litedramcore_trrdcon_valid) begin
         litedramcore_trrdcon_count <= 1'd1;
         if (1'd0) begin
@@ -12702,11 +12720,11 @@ always @(posedge sys_clk) begin
         litedramcore_postponer_req_o <= 1'd0;
         litedramcore_postponer_count <= 1'd0;
         litedramcore_sequencer_done1 <= 1'd0;
-        litedramcore_sequencer_trigger <= 7'd0;
+        litedramcore_sequencer_counter <= 7'd0;
         litedramcore_sequencer_count <= 1'd0;
         litedramcore_zqcs_timer_count1 <= 26'd49999999;
         litedramcore_zqcs_executer_done <= 1'd0;
-        litedramcore_zqcs_executer_trigger <= 6'd0;
+        litedramcore_zqcs_executer_counter <= 6'd0;
         litedramcore_bankmachine0_level <= 4'd0;
         litedramcore_bankmachine0_produce <= 3'd0;
         litedramcore_bankmachine0_consume <= 3'd0;
@@ -12900,2146 +12918,1413 @@ end
 // Specialized Logic
 //------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------
-// Instance ECLKBRIDGECS of ECLKBRIDGECS Module.
-//------------------------------------------------------------------------------
 ECLKBRIDGECS ECLKBRIDGECS(
-	// Inputs.
-	.CLK0   (sys2x_i_clk),
-	.SEL    (1'd0),
-
-	// Outputs.
-	.ECSOUT (crg_sys2x_clk_ecsout)
+	.CLK0(sys2x_i_clk),
+	.SEL(1'd0),
+	.ECSOUT(crg_sys2x_clk_ecsout)
 );
 
-//------------------------------------------------------------------------------
-// Instance ECLKSYNCB of ECLKSYNCB Module.
-//------------------------------------------------------------------------------
 ECLKSYNCB ECLKSYNCB(
-	// Inputs.
-	.ECLKI (crg_sys2x_clk_ecsout),
-	.STOP  (crg_stop),
-
-	// Outputs.
-	.ECLKO (sys2x_clk)
+	.ECLKI(crg_sys2x_clk_ecsout),
+	.STOP(crg_stop),
+	.ECLKO(sys2x_clk)
 );
 
-//------------------------------------------------------------------------------
-// Instance CLKDIVF of CLKDIVF Module.
-//------------------------------------------------------------------------------
 CLKDIVF #(
-	// Parameters.
-	.DIV ("2.0")
+	.DIV("2.0")
 ) CLKDIVF (
-	// Inputs.
-	.ALIGNWD (1'd0),
-	.CLKI    (sys2x_clk),
-	.RST     (crg_reset0),
-
-	// Outputs.
-	.CDIVX   (sys_clk)
+	.ALIGNWD(1'd0),
+	.CLKI(sys2x_clk),
+	.RST(crg_reset0),
+	.CDIVX(sys_clk)
 );
 
-//------------------------------------------------------------------------------
-// Instance DDRDLLA of DDRDLLA Module.
-//------------------------------------------------------------------------------
 DDRDLLA DDRDLLA(
-	// Inputs.
-	.CLK      (sys2x_clk),
-	.FREEZE   (ddrphy_freeze),
-	.RST      (init_rst),
-	.UDDCNTLN ((~ddrphy_update)),
-
-	// Outputs.
-	.DDRDEL   (ddrphy_delay1),
-	.LOCK     (ddrphy_lock0)
+	.CLK(sys2x_clk),
+	.FREEZE(ddrphy_freeze),
+	.RST(init_rst),
+	.UDDCNTLN((~ddrphy_update)),
+	.DDRDEL(ddrphy_delay1),
+	.LOCK(ddrphy_lock0)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F(
-	// Inputs.
-	.D0   (1'd0),
-	.D1   (1'd1),
-	.D2   (1'd0),
-	.D3   (1'd1),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f0)
+	.D0(1'd0),
+	.D1(1'd1),
+	.D2(1'd0),
+	.D3(1'd1),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f0)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f0),
-
-	// Outputs.
-	.Z (ddram_clk_p)
+	.A(ddrphy_pad_oddrx2f0),
+	.Z(ddram_clk_p)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_1 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_1(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_reset_n),
-	.D1   (ddrphy_dfi_p0_reset_n),
-	.D2   (ddrphy_dfi_p1_reset_n),
-	.D3   (ddrphy_dfi_p1_reset_n),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f1)
+	.D0(ddrphy_dfi_p0_reset_n),
+	.D1(ddrphy_dfi_p0_reset_n),
+	.D2(ddrphy_dfi_p1_reset_n),
+	.D3(ddrphy_dfi_p1_reset_n),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f1)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_1 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_1 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f1),
-
-	// Outputs.
-	.Z (ddram_reset_n)
+	.A(ddrphy_pad_oddrx2f1),
+	.Z(ddram_reset_n)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_2 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_2(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_cs_n),
-	.D1   (ddrphy_dfi_p0_cs_n),
-	.D2   (ddrphy_dfi_p1_cs_n),
-	.D3   (ddrphy_dfi_p1_cs_n),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f2)
+	.D0(ddrphy_dfi_p0_cs_n),
+	.D1(ddrphy_dfi_p0_cs_n),
+	.D2(ddrphy_dfi_p1_cs_n),
+	.D3(ddrphy_dfi_p1_cs_n),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f2)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_2 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_2 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f2),
-
-	// Outputs.
-	.Z (ddram_cs_n)
+	.A(ddrphy_pad_oddrx2f2),
+	.Z(ddram_cs_n)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_3 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_3(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[0]),
-	.D1   (ddrphy_dfi_p0_address[0]),
-	.D2   (ddrphy_dfi_p1_address[0]),
-	.D3   (ddrphy_dfi_p1_address[0]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f3)
+	.D0(ddrphy_dfi_p0_address[0]),
+	.D1(ddrphy_dfi_p0_address[0]),
+	.D2(ddrphy_dfi_p1_address[0]),
+	.D3(ddrphy_dfi_p1_address[0]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f3)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_3 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_3 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f3),
-
-	// Outputs.
-	.Z (ddram_a[0])
+	.A(ddrphy_pad_oddrx2f3),
+	.Z(ddram_a[0])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_4 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_4(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[1]),
-	.D1   (ddrphy_dfi_p0_address[1]),
-	.D2   (ddrphy_dfi_p1_address[1]),
-	.D3   (ddrphy_dfi_p1_address[1]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f4)
+	.D0(ddrphy_dfi_p0_address[1]),
+	.D1(ddrphy_dfi_p0_address[1]),
+	.D2(ddrphy_dfi_p1_address[1]),
+	.D3(ddrphy_dfi_p1_address[1]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f4)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_4 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_4 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f4),
-
-	// Outputs.
-	.Z (ddram_a[1])
+	.A(ddrphy_pad_oddrx2f4),
+	.Z(ddram_a[1])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_5 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_5(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[2]),
-	.D1   (ddrphy_dfi_p0_address[2]),
-	.D2   (ddrphy_dfi_p1_address[2]),
-	.D3   (ddrphy_dfi_p1_address[2]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f5)
+	.D0(ddrphy_dfi_p0_address[2]),
+	.D1(ddrphy_dfi_p0_address[2]),
+	.D2(ddrphy_dfi_p1_address[2]),
+	.D3(ddrphy_dfi_p1_address[2]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f5)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_5 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_5 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f5),
-
-	// Outputs.
-	.Z (ddram_a[2])
+	.A(ddrphy_pad_oddrx2f5),
+	.Z(ddram_a[2])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_6 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_6(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[3]),
-	.D1   (ddrphy_dfi_p0_address[3]),
-	.D2   (ddrphy_dfi_p1_address[3]),
-	.D3   (ddrphy_dfi_p1_address[3]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f6)
+	.D0(ddrphy_dfi_p0_address[3]),
+	.D1(ddrphy_dfi_p0_address[3]),
+	.D2(ddrphy_dfi_p1_address[3]),
+	.D3(ddrphy_dfi_p1_address[3]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f6)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_6 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_6 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f6),
-
-	// Outputs.
-	.Z (ddram_a[3])
+	.A(ddrphy_pad_oddrx2f6),
+	.Z(ddram_a[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_7 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_7(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[4]),
-	.D1   (ddrphy_dfi_p0_address[4]),
-	.D2   (ddrphy_dfi_p1_address[4]),
-	.D3   (ddrphy_dfi_p1_address[4]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f7)
+	.D0(ddrphy_dfi_p0_address[4]),
+	.D1(ddrphy_dfi_p0_address[4]),
+	.D2(ddrphy_dfi_p1_address[4]),
+	.D3(ddrphy_dfi_p1_address[4]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f7)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_7 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_7 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f7),
-
-	// Outputs.
-	.Z (ddram_a[4])
+	.A(ddrphy_pad_oddrx2f7),
+	.Z(ddram_a[4])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_8 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_8(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[5]),
-	.D1   (ddrphy_dfi_p0_address[5]),
-	.D2   (ddrphy_dfi_p1_address[5]),
-	.D3   (ddrphy_dfi_p1_address[5]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f8)
+	.D0(ddrphy_dfi_p0_address[5]),
+	.D1(ddrphy_dfi_p0_address[5]),
+	.D2(ddrphy_dfi_p1_address[5]),
+	.D3(ddrphy_dfi_p1_address[5]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f8)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_8 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_8 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f8),
-
-	// Outputs.
-	.Z (ddram_a[5])
+	.A(ddrphy_pad_oddrx2f8),
+	.Z(ddram_a[5])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_9 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_9(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[6]),
-	.D1   (ddrphy_dfi_p0_address[6]),
-	.D2   (ddrphy_dfi_p1_address[6]),
-	.D3   (ddrphy_dfi_p1_address[6]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f9)
+	.D0(ddrphy_dfi_p0_address[6]),
+	.D1(ddrphy_dfi_p0_address[6]),
+	.D2(ddrphy_dfi_p1_address[6]),
+	.D3(ddrphy_dfi_p1_address[6]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f9)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_9 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_9 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f9),
-
-	// Outputs.
-	.Z (ddram_a[6])
+	.A(ddrphy_pad_oddrx2f9),
+	.Z(ddram_a[6])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_10 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_10(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[7]),
-	.D1   (ddrphy_dfi_p0_address[7]),
-	.D2   (ddrphy_dfi_p1_address[7]),
-	.D3   (ddrphy_dfi_p1_address[7]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f10)
+	.D0(ddrphy_dfi_p0_address[7]),
+	.D1(ddrphy_dfi_p0_address[7]),
+	.D2(ddrphy_dfi_p1_address[7]),
+	.D3(ddrphy_dfi_p1_address[7]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f10)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_10 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_10 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f10),
-
-	// Outputs.
-	.Z (ddram_a[7])
+	.A(ddrphy_pad_oddrx2f10),
+	.Z(ddram_a[7])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_11 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_11(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[8]),
-	.D1   (ddrphy_dfi_p0_address[8]),
-	.D2   (ddrphy_dfi_p1_address[8]),
-	.D3   (ddrphy_dfi_p1_address[8]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f11)
+	.D0(ddrphy_dfi_p0_address[8]),
+	.D1(ddrphy_dfi_p0_address[8]),
+	.D2(ddrphy_dfi_p1_address[8]),
+	.D3(ddrphy_dfi_p1_address[8]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f11)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_11 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_11 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f11),
-
-	// Outputs.
-	.Z (ddram_a[8])
+	.A(ddrphy_pad_oddrx2f11),
+	.Z(ddram_a[8])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_12 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_12(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[9]),
-	.D1   (ddrphy_dfi_p0_address[9]),
-	.D2   (ddrphy_dfi_p1_address[9]),
-	.D3   (ddrphy_dfi_p1_address[9]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f12)
+	.D0(ddrphy_dfi_p0_address[9]),
+	.D1(ddrphy_dfi_p0_address[9]),
+	.D2(ddrphy_dfi_p1_address[9]),
+	.D3(ddrphy_dfi_p1_address[9]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f12)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_12 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_12 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f12),
-
-	// Outputs.
-	.Z (ddram_a[9])
+	.A(ddrphy_pad_oddrx2f12),
+	.Z(ddram_a[9])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_13 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_13(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[10]),
-	.D1   (ddrphy_dfi_p0_address[10]),
-	.D2   (ddrphy_dfi_p1_address[10]),
-	.D3   (ddrphy_dfi_p1_address[10]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f13)
+	.D0(ddrphy_dfi_p0_address[10]),
+	.D1(ddrphy_dfi_p0_address[10]),
+	.D2(ddrphy_dfi_p1_address[10]),
+	.D3(ddrphy_dfi_p1_address[10]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f13)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_13 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_13 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f13),
-
-	// Outputs.
-	.Z (ddram_a[10])
+	.A(ddrphy_pad_oddrx2f13),
+	.Z(ddram_a[10])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_14 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_14(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[11]),
-	.D1   (ddrphy_dfi_p0_address[11]),
-	.D2   (ddrphy_dfi_p1_address[11]),
-	.D3   (ddrphy_dfi_p1_address[11]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f14)
+	.D0(ddrphy_dfi_p0_address[11]),
+	.D1(ddrphy_dfi_p0_address[11]),
+	.D2(ddrphy_dfi_p1_address[11]),
+	.D3(ddrphy_dfi_p1_address[11]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f14)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_14 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_14 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f14),
-
-	// Outputs.
-	.Z (ddram_a[11])
+	.A(ddrphy_pad_oddrx2f14),
+	.Z(ddram_a[11])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_15 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_15(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_address[12]),
-	.D1   (ddrphy_dfi_p0_address[12]),
-	.D2   (ddrphy_dfi_p1_address[12]),
-	.D3   (ddrphy_dfi_p1_address[12]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f15)
+	.D0(ddrphy_dfi_p0_address[12]),
+	.D1(ddrphy_dfi_p0_address[12]),
+	.D2(ddrphy_dfi_p1_address[12]),
+	.D3(ddrphy_dfi_p1_address[12]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f15)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_15 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_15 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f15),
-
-	// Outputs.
-	.Z (ddram_a[12])
+	.A(ddrphy_pad_oddrx2f15),
+	.Z(ddram_a[12])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_16 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_16(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_bank[0]),
-	.D1   (ddrphy_dfi_p0_bank[0]),
-	.D2   (ddrphy_dfi_p1_bank[0]),
-	.D3   (ddrphy_dfi_p1_bank[0]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f16)
+	.D0(ddrphy_dfi_p0_bank[0]),
+	.D1(ddrphy_dfi_p0_bank[0]),
+	.D2(ddrphy_dfi_p1_bank[0]),
+	.D3(ddrphy_dfi_p1_bank[0]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f16)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_16 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_16 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f16),
-
-	// Outputs.
-	.Z (ddram_ba[0])
+	.A(ddrphy_pad_oddrx2f16),
+	.Z(ddram_ba[0])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_17 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_17(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_bank[1]),
-	.D1   (ddrphy_dfi_p0_bank[1]),
-	.D2   (ddrphy_dfi_p1_bank[1]),
-	.D3   (ddrphy_dfi_p1_bank[1]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f17)
+	.D0(ddrphy_dfi_p0_bank[1]),
+	.D1(ddrphy_dfi_p0_bank[1]),
+	.D2(ddrphy_dfi_p1_bank[1]),
+	.D3(ddrphy_dfi_p1_bank[1]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f17)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_17 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_17 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f17),
-
-	// Outputs.
-	.Z (ddram_ba[1])
+	.A(ddrphy_pad_oddrx2f17),
+	.Z(ddram_ba[1])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_18 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_18(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_bank[2]),
-	.D1   (ddrphy_dfi_p0_bank[2]),
-	.D2   (ddrphy_dfi_p1_bank[2]),
-	.D3   (ddrphy_dfi_p1_bank[2]),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f18)
+	.D0(ddrphy_dfi_p0_bank[2]),
+	.D1(ddrphy_dfi_p0_bank[2]),
+	.D2(ddrphy_dfi_p1_bank[2]),
+	.D3(ddrphy_dfi_p1_bank[2]),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f18)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_18 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_18 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f18),
-
-	// Outputs.
-	.Z (ddram_ba[2])
+	.A(ddrphy_pad_oddrx2f18),
+	.Z(ddram_ba[2])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_19 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_19(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_ras_n),
-	.D1   (ddrphy_dfi_p0_ras_n),
-	.D2   (ddrphy_dfi_p1_ras_n),
-	.D3   (ddrphy_dfi_p1_ras_n),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f19)
+	.D0(ddrphy_dfi_p0_ras_n),
+	.D1(ddrphy_dfi_p0_ras_n),
+	.D2(ddrphy_dfi_p1_ras_n),
+	.D3(ddrphy_dfi_p1_ras_n),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f19)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_19 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_19 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f19),
-
-	// Outputs.
-	.Z (ddram_ras_n)
+	.A(ddrphy_pad_oddrx2f19),
+	.Z(ddram_ras_n)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_20 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_20(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_cas_n),
-	.D1   (ddrphy_dfi_p0_cas_n),
-	.D2   (ddrphy_dfi_p1_cas_n),
-	.D3   (ddrphy_dfi_p1_cas_n),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f20)
+	.D0(ddrphy_dfi_p0_cas_n),
+	.D1(ddrphy_dfi_p0_cas_n),
+	.D2(ddrphy_dfi_p1_cas_n),
+	.D3(ddrphy_dfi_p1_cas_n),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f20)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_20 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_20 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f20),
-
-	// Outputs.
-	.Z (ddram_cas_n)
+	.A(ddrphy_pad_oddrx2f20),
+	.Z(ddram_cas_n)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_21 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_21(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_we_n),
-	.D1   (ddrphy_dfi_p0_we_n),
-	.D2   (ddrphy_dfi_p1_we_n),
-	.D3   (ddrphy_dfi_p1_we_n),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f21)
+	.D0(ddrphy_dfi_p0_we_n),
+	.D1(ddrphy_dfi_p0_we_n),
+	.D2(ddrphy_dfi_p1_we_n),
+	.D3(ddrphy_dfi_p1_we_n),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f21)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_21 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_21 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f21),
-
-	// Outputs.
-	.Z (ddram_we_n)
+	.A(ddrphy_pad_oddrx2f21),
+	.Z(ddram_we_n)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_22 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_22(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_cke),
-	.D1   (ddrphy_dfi_p0_cke),
-	.D2   (ddrphy_dfi_p1_cke),
-	.D3   (ddrphy_dfi_p1_cke),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f22)
+	.D0(ddrphy_dfi_p0_cke),
+	.D1(ddrphy_dfi_p0_cke),
+	.D2(ddrphy_dfi_p1_cke),
+	.D3(ddrphy_dfi_p1_cke),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f22)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_22 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_22 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f22),
-
-	// Outputs.
-	.Z (ddram_cke)
+	.A(ddrphy_pad_oddrx2f22),
+	.Z(ddram_cke)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2F_23 of ODDRX2F Module.
-//------------------------------------------------------------------------------
 ODDRX2F ODDRX2F_23(
-	// Inputs.
-	.D0   (ddrphy_dfi_p0_odt),
-	.D1   (ddrphy_dfi_p0_odt),
-	.D2   (ddrphy_dfi_p1_odt),
-	.D3   (ddrphy_dfi_p1_odt),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_pad_oddrx2f23)
+	.D0(ddrphy_dfi_p0_odt),
+	.D1(ddrphy_dfi_p0_odt),
+	.D2(ddrphy_dfi_p1_odt),
+	.D3(ddrphy_dfi_p1_odt),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_pad_oddrx2f23)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_23 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_VALUE (1'd0)
+	.DEL_VALUE(1'd0)
 ) DELAYG_23 (
-	// Inputs.
-	.A (ddrphy_pad_oddrx2f23),
-
-	// Outputs.
-	.Z (ddram_odt)
+	.A(ddrphy_pad_oddrx2f23),
+	.Z(ddram_odt)
 );
 
-//------------------------------------------------------------------------------
-// Instance DQSBUFM of DQSBUFM Module.
-//------------------------------------------------------------------------------
 DQSBUFM #(
-	// Parameters.
-	.DQS_LI_DEL_ADJ ("MINUS"),
-	.DQS_LI_DEL_VAL (1'd1),
-	.DQS_LO_DEL_ADJ ("MINUS"),
-	.DQS_LO_DEL_VAL (3'd4)
+	.DQS_LI_DEL_ADJ("MINUS"),
+	.DQS_LI_DEL_VAL(1'd1),
+	.DQS_LO_DEL_ADJ("MINUS"),
+	.DQS_LO_DEL_VAL(3'd4)
 ) DQSBUFM (
-	// Inputs.
-	.DDRDEL      (ddrphy_delay0),
-	.DQSI        (ddrphy_dqs_i0),
-	.ECLK        (sys2x_clk),
-	.PAUSE       ((ddrphy_pause0 | ddrphy_dly_sel_storage[0])),
-	.RDDIRECTION (1'd1),
-	.RDLOADN     (1'd0),
-	.RDMOVE      (1'd0),
-	.READ0       (ddrphy_dqs_re),
-	.READ1       (ddrphy_dqs_re),
-	.READCLKSEL0 (ddrphy_rdly0[0]),
-	.READCLKSEL1 (ddrphy_rdly0[1]),
-	.READCLKSEL2 (ddrphy_rdly0[2]),
-	.RST         (sys_rst),
-	.SCLK        (sys_clk),
-	.WRDIRECTION (1'd1),
-	.WRLOADN     (1'd0),
-	.WRMOVE      (1'd0),
-
-	// Outputs.
-	.BURSTDET    (ddrphy_burstdet0),
-	.DATAVALID   (ddrphy_datavalid[0]),
-	.DQSR90      (ddrphy_dqsr900),
-	.DQSW        (ddrphy_dqsw0),
-	.DQSW270     (ddrphy_dqsw2700),
-	.RDPNTR0     (ddrphy_rdpntr0[0]),
-	.RDPNTR1     (ddrphy_rdpntr0[1]),
-	.RDPNTR2     (ddrphy_rdpntr0[2]),
-	.WRPNTR0     (ddrphy_wrpntr0[0]),
-	.WRPNTR1     (ddrphy_wrpntr0[1]),
-	.WRPNTR2     (ddrphy_wrpntr0[2])
+	.DDRDEL(ddrphy_delay0),
+	.DQSI(ddrphy_dqs_i0),
+	.ECLK(sys2x_clk),
+	.PAUSE((ddrphy_pause0 | ddrphy_dly_sel_storage[0])),
+	.RDDIRECTION(1'd1),
+	.RDLOADN(1'd0),
+	.RDMOVE(1'd0),
+	.READ0(ddrphy_dqs_re),
+	.READ1(ddrphy_dqs_re),
+	.READCLKSEL0(ddrphy_rdly0[0]),
+	.READCLKSEL1(ddrphy_rdly0[1]),
+	.READCLKSEL2(ddrphy_rdly0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRDIRECTION(1'd1),
+	.WRLOADN(1'd0),
+	.WRMOVE(1'd0),
+	.BURSTDET(ddrphy_burstdet0),
+	.DATAVALID(ddrphy_datavalid[0]),
+	.DQSR90(ddrphy_dqsr900),
+	.DQSW(ddrphy_dqsw0),
+	.DQSW270(ddrphy_dqsw2700),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQSB of ODDRX2DQSB Module.
-//------------------------------------------------------------------------------
 ODDRX2DQSB ODDRX2DQSB(
-	// Inputs.
-	.D0   (1'd0),
-	.D1   (1'd1),
-	.D2   (1'd0),
-	.D3   (1'd1),
-	.DQSW (ddrphy_dqsw0),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_dqs0)
+	.D0(1'd0),
+	.D1(1'd1),
+	.D2(1'd0),
+	.D3(1'd1),
+	.DQSW(ddrphy_dqsw0),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dqs0)
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQSA of TSHX2DQSA Module.
-//------------------------------------------------------------------------------
 TSHX2DQSA TSHX2DQSA(
-	// Inputs.
-	.DQSW (ddrphy_dqsw0),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-	.T0   ((~(ddrphy_dqs_oe | ddrphy_dqs_postamble))),
-	.T1   ((~(ddrphy_dqs_oe | ddrphy_dqs_preamble))),
-
-	// Outputs.
-	.Q    (ddrphy_dqs_oe_n0)
+	.DQSW(ddrphy_dqsw0),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~(ddrphy_dqs_oe | ddrphy_dqs_postamble))),
+	.T1((~(ddrphy_dqs_oe | ddrphy_dqs_preamble))),
+	.Q(ddrphy_dqs_oe_n0)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dqs_p[0] = (~ddrphy_dqs_oe_n0) ? ddrphy_dqs0 : 1'bz;
+assign ddrphy_dqs_i0 = ddram_dqs_p[0];
+
 ODDRX2DQA ODDRX2DQA(
-	// Inputs.
-	.D0      (ddrphy_dm_o_data_muxed0[0]),
-	.D1      (ddrphy_dm_o_data_muxed0[1]),
-	.D2      (ddrphy_dm_o_data_muxed0[2]),
-	.D3      (ddrphy_dm_o_data_muxed0[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddram_dm[0])
+	.D0(ddrphy_dm_o_data_muxed0[0]),
+	.D1(ddrphy_dm_o_data_muxed0[1]),
+	.D2(ddrphy_dm_o_data_muxed0[2]),
+	.D3(ddrphy_dm_o_data_muxed0[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddram_dm[0])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_1 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
 ODDRX2DQA ODDRX2DQA_1(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed0[0]),
-	.D1      (ddrphy_dq_o_data_muxed0[1]),
-	.D2      (ddrphy_dq_o_data_muxed0[2]),
-	.D3      (ddrphy_dq_o_data_muxed0[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o0)
+	.D0(ddrphy_dq_o_data_muxed0[0]),
+	.D1(ddrphy_dq_o_data_muxed0[1]),
+	.D2(ddrphy_dq_o_data_muxed0[2]),
+	.D3(ddrphy_dq_o_data_muxed0[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o0)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_24 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_24 (
-	// Inputs.
-	.A (ddrphy_dq_i0),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed0)
+	.A(ddrphy_dq_i0),
+	.Z(ddrphy_dq_i_delayed0)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed0),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip0_i[0]),
-	.Q1      (ddrphy_bitslip0_i[1]),
-	.Q2      (ddrphy_bitslip0_i[2]),
-	.Q3      (ddrphy_bitslip0_i[3])
+	.D(ddrphy_dq_i_delayed0),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip0_i[0]),
+	.Q1(ddrphy_bitslip0_i[1]),
+	.Q2(ddrphy_bitslip0_i[2]),
+	.Q3(ddrphy_bitslip0_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n0)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n0)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_2 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[0] = (~ddrphy_dq_oe_n0) ? ddrphy_dq_o0 : 1'bz;
+assign ddrphy_dq_i0 = ddram_dq[0];
+
 ODDRX2DQA ODDRX2DQA_2(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed1[0]),
-	.D1      (ddrphy_dq_o_data_muxed1[1]),
-	.D2      (ddrphy_dq_o_data_muxed1[2]),
-	.D3      (ddrphy_dq_o_data_muxed1[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o1)
+	.D0(ddrphy_dq_o_data_muxed1[0]),
+	.D1(ddrphy_dq_o_data_muxed1[1]),
+	.D2(ddrphy_dq_o_data_muxed1[2]),
+	.D3(ddrphy_dq_o_data_muxed1[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o1)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_25 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_25 (
-	// Inputs.
-	.A (ddrphy_dq_i1),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed1)
+	.A(ddrphy_dq_i1),
+	.Z(ddrphy_dq_i_delayed1)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_1 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_1(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed1),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip1_i[0]),
-	.Q1      (ddrphy_bitslip1_i[1]),
-	.Q2      (ddrphy_bitslip1_i[2]),
-	.Q3      (ddrphy_bitslip1_i[3])
+	.D(ddrphy_dq_i_delayed1),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip1_i[0]),
+	.Q1(ddrphy_bitslip1_i[1]),
+	.Q2(ddrphy_bitslip1_i[2]),
+	.Q3(ddrphy_bitslip1_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_1 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_1(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n1)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n1)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_3 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[1] = (~ddrphy_dq_oe_n1) ? ddrphy_dq_o1 : 1'bz;
+assign ddrphy_dq_i1 = ddram_dq[1];
+
 ODDRX2DQA ODDRX2DQA_3(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed2[0]),
-	.D1      (ddrphy_dq_o_data_muxed2[1]),
-	.D2      (ddrphy_dq_o_data_muxed2[2]),
-	.D3      (ddrphy_dq_o_data_muxed2[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o2)
+	.D0(ddrphy_dq_o_data_muxed2[0]),
+	.D1(ddrphy_dq_o_data_muxed2[1]),
+	.D2(ddrphy_dq_o_data_muxed2[2]),
+	.D3(ddrphy_dq_o_data_muxed2[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o2)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_26 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_26 (
-	// Inputs.
-	.A (ddrphy_dq_i2),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed2)
+	.A(ddrphy_dq_i2),
+	.Z(ddrphy_dq_i_delayed2)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_2 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_2(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed2),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip2_i[0]),
-	.Q1      (ddrphy_bitslip2_i[1]),
-	.Q2      (ddrphy_bitslip2_i[2]),
-	.Q3      (ddrphy_bitslip2_i[3])
+	.D(ddrphy_dq_i_delayed2),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip2_i[0]),
+	.Q1(ddrphy_bitslip2_i[1]),
+	.Q2(ddrphy_bitslip2_i[2]),
+	.Q3(ddrphy_bitslip2_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_2 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_2(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n2)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n2)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_4 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[2] = (~ddrphy_dq_oe_n2) ? ddrphy_dq_o2 : 1'bz;
+assign ddrphy_dq_i2 = ddram_dq[2];
+
 ODDRX2DQA ODDRX2DQA_4(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed3[0]),
-	.D1      (ddrphy_dq_o_data_muxed3[1]),
-	.D2      (ddrphy_dq_o_data_muxed3[2]),
-	.D3      (ddrphy_dq_o_data_muxed3[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o3)
+	.D0(ddrphy_dq_o_data_muxed3[0]),
+	.D1(ddrphy_dq_o_data_muxed3[1]),
+	.D2(ddrphy_dq_o_data_muxed3[2]),
+	.D3(ddrphy_dq_o_data_muxed3[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o3)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_27 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_27 (
-	// Inputs.
-	.A (ddrphy_dq_i3),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed3)
+	.A(ddrphy_dq_i3),
+	.Z(ddrphy_dq_i_delayed3)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_3 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_3(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed3),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip3_i[0]),
-	.Q1      (ddrphy_bitslip3_i[1]),
-	.Q2      (ddrphy_bitslip3_i[2]),
-	.Q3      (ddrphy_bitslip3_i[3])
+	.D(ddrphy_dq_i_delayed3),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip3_i[0]),
+	.Q1(ddrphy_bitslip3_i[1]),
+	.Q2(ddrphy_bitslip3_i[2]),
+	.Q3(ddrphy_bitslip3_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_3 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_3(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n3)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n3)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_5 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[3] = (~ddrphy_dq_oe_n3) ? ddrphy_dq_o3 : 1'bz;
+assign ddrphy_dq_i3 = ddram_dq[3];
+
 ODDRX2DQA ODDRX2DQA_5(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed4[0]),
-	.D1      (ddrphy_dq_o_data_muxed4[1]),
-	.D2      (ddrphy_dq_o_data_muxed4[2]),
-	.D3      (ddrphy_dq_o_data_muxed4[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o4)
+	.D0(ddrphy_dq_o_data_muxed4[0]),
+	.D1(ddrphy_dq_o_data_muxed4[1]),
+	.D2(ddrphy_dq_o_data_muxed4[2]),
+	.D3(ddrphy_dq_o_data_muxed4[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o4)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_28 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_28 (
-	// Inputs.
-	.A (ddrphy_dq_i4),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed4)
+	.A(ddrphy_dq_i4),
+	.Z(ddrphy_dq_i_delayed4)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_4 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_4(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed4),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip4_i[0]),
-	.Q1      (ddrphy_bitslip4_i[1]),
-	.Q2      (ddrphy_bitslip4_i[2]),
-	.Q3      (ddrphy_bitslip4_i[3])
+	.D(ddrphy_dq_i_delayed4),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip4_i[0]),
+	.Q1(ddrphy_bitslip4_i[1]),
+	.Q2(ddrphy_bitslip4_i[2]),
+	.Q3(ddrphy_bitslip4_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_4 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_4(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n4)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n4)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_6 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[4] = (~ddrphy_dq_oe_n4) ? ddrphy_dq_o4 : 1'bz;
+assign ddrphy_dq_i4 = ddram_dq[4];
+
 ODDRX2DQA ODDRX2DQA_6(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed5[0]),
-	.D1      (ddrphy_dq_o_data_muxed5[1]),
-	.D2      (ddrphy_dq_o_data_muxed5[2]),
-	.D3      (ddrphy_dq_o_data_muxed5[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o5)
+	.D0(ddrphy_dq_o_data_muxed5[0]),
+	.D1(ddrphy_dq_o_data_muxed5[1]),
+	.D2(ddrphy_dq_o_data_muxed5[2]),
+	.D3(ddrphy_dq_o_data_muxed5[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o5)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_29 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_29 (
-	// Inputs.
-	.A (ddrphy_dq_i5),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed5)
+	.A(ddrphy_dq_i5),
+	.Z(ddrphy_dq_i_delayed5)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_5 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_5(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed5),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip5_i[0]),
-	.Q1      (ddrphy_bitslip5_i[1]),
-	.Q2      (ddrphy_bitslip5_i[2]),
-	.Q3      (ddrphy_bitslip5_i[3])
+	.D(ddrphy_dq_i_delayed5),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip5_i[0]),
+	.Q1(ddrphy_bitslip5_i[1]),
+	.Q2(ddrphy_bitslip5_i[2]),
+	.Q3(ddrphy_bitslip5_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_5 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_5(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n5)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n5)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_7 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[5] = (~ddrphy_dq_oe_n5) ? ddrphy_dq_o5 : 1'bz;
+assign ddrphy_dq_i5 = ddram_dq[5];
+
 ODDRX2DQA ODDRX2DQA_7(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed6[0]),
-	.D1      (ddrphy_dq_o_data_muxed6[1]),
-	.D2      (ddrphy_dq_o_data_muxed6[2]),
-	.D3      (ddrphy_dq_o_data_muxed6[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o6)
+	.D0(ddrphy_dq_o_data_muxed6[0]),
+	.D1(ddrphy_dq_o_data_muxed6[1]),
+	.D2(ddrphy_dq_o_data_muxed6[2]),
+	.D3(ddrphy_dq_o_data_muxed6[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o6)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_30 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_30 (
-	// Inputs.
-	.A (ddrphy_dq_i6),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed6)
+	.A(ddrphy_dq_i6),
+	.Z(ddrphy_dq_i_delayed6)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_6 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_6(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed6),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip6_i[0]),
-	.Q1      (ddrphy_bitslip6_i[1]),
-	.Q2      (ddrphy_bitslip6_i[2]),
-	.Q3      (ddrphy_bitslip6_i[3])
+	.D(ddrphy_dq_i_delayed6),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip6_i[0]),
+	.Q1(ddrphy_bitslip6_i[1]),
+	.Q2(ddrphy_bitslip6_i[2]),
+	.Q3(ddrphy_bitslip6_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_6 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_6(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n6)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n6)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_8 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[6] = (~ddrphy_dq_oe_n6) ? ddrphy_dq_o6 : 1'bz;
+assign ddrphy_dq_i6 = ddram_dq[6];
+
 ODDRX2DQA ODDRX2DQA_8(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed7[0]),
-	.D1      (ddrphy_dq_o_data_muxed7[1]),
-	.D2      (ddrphy_dq_o_data_muxed7[2]),
-	.D3      (ddrphy_dq_o_data_muxed7[3]),
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o7)
+	.D0(ddrphy_dq_o_data_muxed7[0]),
+	.D1(ddrphy_dq_o_data_muxed7[1]),
+	.D2(ddrphy_dq_o_data_muxed7[2]),
+	.D3(ddrphy_dq_o_data_muxed7[3]),
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o7)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_31 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_31 (
-	// Inputs.
-	.A (ddrphy_dq_i7),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed7)
+	.A(ddrphy_dq_i7),
+	.Z(ddrphy_dq_i_delayed7)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_7 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_7(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed7),
-	.DQSR90  (ddrphy_dqsr900),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr0[0]),
-	.RDPNTR1 (ddrphy_rdpntr0[1]),
-	.RDPNTR2 (ddrphy_rdpntr0[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr0[0]),
-	.WRPNTR1 (ddrphy_wrpntr0[1]),
-	.WRPNTR2 (ddrphy_wrpntr0[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip7_i[0]),
-	.Q1      (ddrphy_bitslip7_i[1]),
-	.Q2      (ddrphy_bitslip7_i[2]),
-	.Q3      (ddrphy_bitslip7_i[3])
+	.D(ddrphy_dq_i_delayed7),
+	.DQSR90(ddrphy_dqsr900),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr0[0]),
+	.RDPNTR1(ddrphy_rdpntr0[1]),
+	.RDPNTR2(ddrphy_rdpntr0[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr0[0]),
+	.WRPNTR1(ddrphy_wrpntr0[1]),
+	.WRPNTR2(ddrphy_wrpntr0[2]),
+	.Q0(ddrphy_bitslip7_i[0]),
+	.Q1(ddrphy_bitslip7_i[1]),
+	.Q2(ddrphy_bitslip7_i[2]),
+	.Q3(ddrphy_bitslip7_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_7 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_7(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2700),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n7)
+	.DQSW270(ddrphy_dqsw2700),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n7)
 );
 
-//------------------------------------------------------------------------------
-// Instance DQSBUFM_1 of DQSBUFM Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[7] = (~ddrphy_dq_oe_n7) ? ddrphy_dq_o7 : 1'bz;
+assign ddrphy_dq_i7 = ddram_dq[7];
+
 DQSBUFM #(
-	// Parameters.
-	.DQS_LI_DEL_ADJ ("MINUS"),
-	.DQS_LI_DEL_VAL (1'd1),
-	.DQS_LO_DEL_ADJ ("MINUS"),
-	.DQS_LO_DEL_VAL (3'd4)
+	.DQS_LI_DEL_ADJ("MINUS"),
+	.DQS_LI_DEL_VAL(1'd1),
+	.DQS_LO_DEL_ADJ("MINUS"),
+	.DQS_LO_DEL_VAL(3'd4)
 ) DQSBUFM_1 (
-	// Inputs.
-	.DDRDEL      (ddrphy_delay0),
-	.DQSI        (ddrphy_dqs_i1),
-	.ECLK        (sys2x_clk),
-	.PAUSE       ((ddrphy_pause0 | ddrphy_dly_sel_storage[1])),
-	.RDDIRECTION (1'd1),
-	.RDLOADN     (1'd0),
-	.RDMOVE      (1'd0),
-	.READ0       (ddrphy_dqs_re),
-	.READ1       (ddrphy_dqs_re),
-	.READCLKSEL0 (ddrphy_rdly1[0]),
-	.READCLKSEL1 (ddrphy_rdly1[1]),
-	.READCLKSEL2 (ddrphy_rdly1[2]),
-	.RST         (sys_rst),
-	.SCLK        (sys_clk),
-	.WRDIRECTION (1'd1),
-	.WRLOADN     (1'd0),
-	.WRMOVE      (1'd0),
-
-	// Outputs.
-	.BURSTDET    (ddrphy_burstdet1),
-	.DATAVALID   (ddrphy_datavalid[1]),
-	.DQSR90      (ddrphy_dqsr901),
-	.DQSW        (ddrphy_dqsw1),
-	.DQSW270     (ddrphy_dqsw2701),
-	.RDPNTR0     (ddrphy_rdpntr1[0]),
-	.RDPNTR1     (ddrphy_rdpntr1[1]),
-	.RDPNTR2     (ddrphy_rdpntr1[2]),
-	.WRPNTR0     (ddrphy_wrpntr1[0]),
-	.WRPNTR1     (ddrphy_wrpntr1[1]),
-	.WRPNTR2     (ddrphy_wrpntr1[2])
+	.DDRDEL(ddrphy_delay0),
+	.DQSI(ddrphy_dqs_i1),
+	.ECLK(sys2x_clk),
+	.PAUSE((ddrphy_pause0 | ddrphy_dly_sel_storage[1])),
+	.RDDIRECTION(1'd1),
+	.RDLOADN(1'd0),
+	.RDMOVE(1'd0),
+	.READ0(ddrphy_dqs_re),
+	.READ1(ddrphy_dqs_re),
+	.READCLKSEL0(ddrphy_rdly1[0]),
+	.READCLKSEL1(ddrphy_rdly1[1]),
+	.READCLKSEL2(ddrphy_rdly1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRDIRECTION(1'd1),
+	.WRLOADN(1'd0),
+	.WRMOVE(1'd0),
+	.BURSTDET(ddrphy_burstdet1),
+	.DATAVALID(ddrphy_datavalid[1]),
+	.DQSR90(ddrphy_dqsr901),
+	.DQSW(ddrphy_dqsw1),
+	.DQSW270(ddrphy_dqsw2701),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQSB_1 of ODDRX2DQSB Module.
-//------------------------------------------------------------------------------
 ODDRX2DQSB ODDRX2DQSB_1(
-	// Inputs.
-	.D0   (1'd0),
-	.D1   (1'd1),
-	.D2   (1'd0),
-	.D3   (1'd1),
-	.DQSW (ddrphy_dqsw1),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-
-	// Outputs.
-	.Q    (ddrphy_dqs1)
+	.D0(1'd0),
+	.D1(1'd1),
+	.D2(1'd0),
+	.D3(1'd1),
+	.DQSW(ddrphy_dqsw1),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dqs1)
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQSA_1 of TSHX2DQSA Module.
-//------------------------------------------------------------------------------
 TSHX2DQSA TSHX2DQSA_1(
-	// Inputs.
-	.DQSW (ddrphy_dqsw1),
-	.ECLK (sys2x_clk),
-	.RST  (sys_rst),
-	.SCLK (sys_clk),
-	.T0   ((~(ddrphy_dqs_oe | ddrphy_dqs_postamble))),
-	.T1   ((~(ddrphy_dqs_oe | ddrphy_dqs_preamble))),
-
-	// Outputs.
-	.Q    (ddrphy_dqs_oe_n1)
+	.DQSW(ddrphy_dqsw1),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~(ddrphy_dqs_oe | ddrphy_dqs_postamble))),
+	.T1((~(ddrphy_dqs_oe | ddrphy_dqs_preamble))),
+	.Q(ddrphy_dqs_oe_n1)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_9 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dqs_p[1] = (~ddrphy_dqs_oe_n1) ? ddrphy_dqs1 : 1'bz;
+assign ddrphy_dqs_i1 = ddram_dqs_p[1];
+
 ODDRX2DQA ODDRX2DQA_9(
-	// Inputs.
-	.D0      (ddrphy_dm_o_data_muxed1[0]),
-	.D1      (ddrphy_dm_o_data_muxed1[1]),
-	.D2      (ddrphy_dm_o_data_muxed1[2]),
-	.D3      (ddrphy_dm_o_data_muxed1[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddram_dm[1])
+	.D0(ddrphy_dm_o_data_muxed1[0]),
+	.D1(ddrphy_dm_o_data_muxed1[1]),
+	.D2(ddrphy_dm_o_data_muxed1[2]),
+	.D3(ddrphy_dm_o_data_muxed1[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddram_dm[1])
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_10 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
 ODDRX2DQA ODDRX2DQA_10(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed8[0]),
-	.D1      (ddrphy_dq_o_data_muxed8[1]),
-	.D2      (ddrphy_dq_o_data_muxed8[2]),
-	.D3      (ddrphy_dq_o_data_muxed8[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o8)
+	.D0(ddrphy_dq_o_data_muxed8[0]),
+	.D1(ddrphy_dq_o_data_muxed8[1]),
+	.D2(ddrphy_dq_o_data_muxed8[2]),
+	.D3(ddrphy_dq_o_data_muxed8[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o8)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_32 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_32 (
-	// Inputs.
-	.A (ddrphy_dq_i8),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed8)
+	.A(ddrphy_dq_i8),
+	.Z(ddrphy_dq_i_delayed8)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_8 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_8(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed8),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip8_i[0]),
-	.Q1      (ddrphy_bitslip8_i[1]),
-	.Q2      (ddrphy_bitslip8_i[2]),
-	.Q3      (ddrphy_bitslip8_i[3])
+	.D(ddrphy_dq_i_delayed8),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip8_i[0]),
+	.Q1(ddrphy_bitslip8_i[1]),
+	.Q2(ddrphy_bitslip8_i[2]),
+	.Q3(ddrphy_bitslip8_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_8 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_8(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n8)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n8)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_11 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[8] = (~ddrphy_dq_oe_n8) ? ddrphy_dq_o8 : 1'bz;
+assign ddrphy_dq_i8 = ddram_dq[8];
+
 ODDRX2DQA ODDRX2DQA_11(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed9[0]),
-	.D1      (ddrphy_dq_o_data_muxed9[1]),
-	.D2      (ddrphy_dq_o_data_muxed9[2]),
-	.D3      (ddrphy_dq_o_data_muxed9[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o9)
+	.D0(ddrphy_dq_o_data_muxed9[0]),
+	.D1(ddrphy_dq_o_data_muxed9[1]),
+	.D2(ddrphy_dq_o_data_muxed9[2]),
+	.D3(ddrphy_dq_o_data_muxed9[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o9)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_33 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_33 (
-	// Inputs.
-	.A (ddrphy_dq_i9),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed9)
+	.A(ddrphy_dq_i9),
+	.Z(ddrphy_dq_i_delayed9)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_9 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_9(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed9),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip9_i[0]),
-	.Q1      (ddrphy_bitslip9_i[1]),
-	.Q2      (ddrphy_bitslip9_i[2]),
-	.Q3      (ddrphy_bitslip9_i[3])
+	.D(ddrphy_dq_i_delayed9),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip9_i[0]),
+	.Q1(ddrphy_bitslip9_i[1]),
+	.Q2(ddrphy_bitslip9_i[2]),
+	.Q3(ddrphy_bitslip9_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_9 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_9(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n9)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n9)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_12 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[9] = (~ddrphy_dq_oe_n9) ? ddrphy_dq_o9 : 1'bz;
+assign ddrphy_dq_i9 = ddram_dq[9];
+
 ODDRX2DQA ODDRX2DQA_12(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed10[0]),
-	.D1      (ddrphy_dq_o_data_muxed10[1]),
-	.D2      (ddrphy_dq_o_data_muxed10[2]),
-	.D3      (ddrphy_dq_o_data_muxed10[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o10)
+	.D0(ddrphy_dq_o_data_muxed10[0]),
+	.D1(ddrphy_dq_o_data_muxed10[1]),
+	.D2(ddrphy_dq_o_data_muxed10[2]),
+	.D3(ddrphy_dq_o_data_muxed10[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o10)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_34 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_34 (
-	// Inputs.
-	.A (ddrphy_dq_i10),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed10)
+	.A(ddrphy_dq_i10),
+	.Z(ddrphy_dq_i_delayed10)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_10 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_10(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed10),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip10_i[0]),
-	.Q1      (ddrphy_bitslip10_i[1]),
-	.Q2      (ddrphy_bitslip10_i[2]),
-	.Q3      (ddrphy_bitslip10_i[3])
+	.D(ddrphy_dq_i_delayed10),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip10_i[0]),
+	.Q1(ddrphy_bitslip10_i[1]),
+	.Q2(ddrphy_bitslip10_i[2]),
+	.Q3(ddrphy_bitslip10_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_10 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_10(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n10)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n10)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_13 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[10] = (~ddrphy_dq_oe_n10) ? ddrphy_dq_o10 : 1'bz;
+assign ddrphy_dq_i10 = ddram_dq[10];
+
 ODDRX2DQA ODDRX2DQA_13(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed11[0]),
-	.D1      (ddrphy_dq_o_data_muxed11[1]),
-	.D2      (ddrphy_dq_o_data_muxed11[2]),
-	.D3      (ddrphy_dq_o_data_muxed11[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o11)
+	.D0(ddrphy_dq_o_data_muxed11[0]),
+	.D1(ddrphy_dq_o_data_muxed11[1]),
+	.D2(ddrphy_dq_o_data_muxed11[2]),
+	.D3(ddrphy_dq_o_data_muxed11[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o11)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_35 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_35 (
-	// Inputs.
-	.A (ddrphy_dq_i11),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed11)
+	.A(ddrphy_dq_i11),
+	.Z(ddrphy_dq_i_delayed11)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_11 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_11(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed11),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip11_i[0]),
-	.Q1      (ddrphy_bitslip11_i[1]),
-	.Q2      (ddrphy_bitslip11_i[2]),
-	.Q3      (ddrphy_bitslip11_i[3])
+	.D(ddrphy_dq_i_delayed11),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip11_i[0]),
+	.Q1(ddrphy_bitslip11_i[1]),
+	.Q2(ddrphy_bitslip11_i[2]),
+	.Q3(ddrphy_bitslip11_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_11 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_11(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n11)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n11)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_14 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[11] = (~ddrphy_dq_oe_n11) ? ddrphy_dq_o11 : 1'bz;
+assign ddrphy_dq_i11 = ddram_dq[11];
+
 ODDRX2DQA ODDRX2DQA_14(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed12[0]),
-	.D1      (ddrphy_dq_o_data_muxed12[1]),
-	.D2      (ddrphy_dq_o_data_muxed12[2]),
-	.D3      (ddrphy_dq_o_data_muxed12[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o12)
+	.D0(ddrphy_dq_o_data_muxed12[0]),
+	.D1(ddrphy_dq_o_data_muxed12[1]),
+	.D2(ddrphy_dq_o_data_muxed12[2]),
+	.D3(ddrphy_dq_o_data_muxed12[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o12)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_36 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_36 (
-	// Inputs.
-	.A (ddrphy_dq_i12),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed12)
+	.A(ddrphy_dq_i12),
+	.Z(ddrphy_dq_i_delayed12)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_12 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_12(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed12),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip12_i[0]),
-	.Q1      (ddrphy_bitslip12_i[1]),
-	.Q2      (ddrphy_bitslip12_i[2]),
-	.Q3      (ddrphy_bitslip12_i[3])
+	.D(ddrphy_dq_i_delayed12),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip12_i[0]),
+	.Q1(ddrphy_bitslip12_i[1]),
+	.Q2(ddrphy_bitslip12_i[2]),
+	.Q3(ddrphy_bitslip12_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_12 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_12(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n12)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n12)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_15 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[12] = (~ddrphy_dq_oe_n12) ? ddrphy_dq_o12 : 1'bz;
+assign ddrphy_dq_i12 = ddram_dq[12];
+
 ODDRX2DQA ODDRX2DQA_15(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed13[0]),
-	.D1      (ddrphy_dq_o_data_muxed13[1]),
-	.D2      (ddrphy_dq_o_data_muxed13[2]),
-	.D3      (ddrphy_dq_o_data_muxed13[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o13)
+	.D0(ddrphy_dq_o_data_muxed13[0]),
+	.D1(ddrphy_dq_o_data_muxed13[1]),
+	.D2(ddrphy_dq_o_data_muxed13[2]),
+	.D3(ddrphy_dq_o_data_muxed13[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o13)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_37 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_37 (
-	// Inputs.
-	.A (ddrphy_dq_i13),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed13)
+	.A(ddrphy_dq_i13),
+	.Z(ddrphy_dq_i_delayed13)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_13 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_13(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed13),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip13_i[0]),
-	.Q1      (ddrphy_bitslip13_i[1]),
-	.Q2      (ddrphy_bitslip13_i[2]),
-	.Q3      (ddrphy_bitslip13_i[3])
+	.D(ddrphy_dq_i_delayed13),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip13_i[0]),
+	.Q1(ddrphy_bitslip13_i[1]),
+	.Q2(ddrphy_bitslip13_i[2]),
+	.Q3(ddrphy_bitslip13_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_13 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_13(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n13)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n13)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_16 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[13] = (~ddrphy_dq_oe_n13) ? ddrphy_dq_o13 : 1'bz;
+assign ddrphy_dq_i13 = ddram_dq[13];
+
 ODDRX2DQA ODDRX2DQA_16(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed14[0]),
-	.D1      (ddrphy_dq_o_data_muxed14[1]),
-	.D2      (ddrphy_dq_o_data_muxed14[2]),
-	.D3      (ddrphy_dq_o_data_muxed14[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o14)
+	.D0(ddrphy_dq_o_data_muxed14[0]),
+	.D1(ddrphy_dq_o_data_muxed14[1]),
+	.D2(ddrphy_dq_o_data_muxed14[2]),
+	.D3(ddrphy_dq_o_data_muxed14[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o14)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_38 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_38 (
-	// Inputs.
-	.A (ddrphy_dq_i14),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed14)
+	.A(ddrphy_dq_i14),
+	.Z(ddrphy_dq_i_delayed14)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_14 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_14(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed14),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip14_i[0]),
-	.Q1      (ddrphy_bitslip14_i[1]),
-	.Q2      (ddrphy_bitslip14_i[2]),
-	.Q3      (ddrphy_bitslip14_i[3])
+	.D(ddrphy_dq_i_delayed14),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip14_i[0]),
+	.Q1(ddrphy_bitslip14_i[1]),
+	.Q2(ddrphy_bitslip14_i[2]),
+	.Q3(ddrphy_bitslip14_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_14 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_14(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n14)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n14)
 );
 
-//------------------------------------------------------------------------------
-// Instance ODDRX2DQA_17 of ODDRX2DQA Module.
-//------------------------------------------------------------------------------
+assign ddram_dq[14] = (~ddrphy_dq_oe_n14) ? ddrphy_dq_o14 : 1'bz;
+assign ddrphy_dq_i14 = ddram_dq[14];
+
 ODDRX2DQA ODDRX2DQA_17(
-	// Inputs.
-	.D0      (ddrphy_dq_o_data_muxed15[0]),
-	.D1      (ddrphy_dq_o_data_muxed15[1]),
-	.D2      (ddrphy_dq_o_data_muxed15[2]),
-	.D3      (ddrphy_dq_o_data_muxed15[3]),
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-
-	// Outputs.
-	.Q       (ddrphy_dq_o15)
+	.D0(ddrphy_dq_o_data_muxed15[0]),
+	.D1(ddrphy_dq_o_data_muxed15[1]),
+	.D2(ddrphy_dq_o_data_muxed15[2]),
+	.D3(ddrphy_dq_o_data_muxed15[3]),
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.Q(ddrphy_dq_o15)
 );
 
-//------------------------------------------------------------------------------
-// Instance DELAYG_39 of DELAYG Module.
-//------------------------------------------------------------------------------
 DELAYG #(
-	// Parameters.
-	.DEL_MODE ("DQS_ALIGNED_X2")
+	.DEL_MODE("DQS_ALIGNED_X2")
 ) DELAYG_39 (
-	// Inputs.
-	.A (ddrphy_dq_i15),
-
-	// Outputs.
-	.Z (ddrphy_dq_i_delayed15)
+	.A(ddrphy_dq_i15),
+	.Z(ddrphy_dq_i_delayed15)
 );
 
-//------------------------------------------------------------------------------
-// Instance IDDRX2DQA_15 of IDDRX2DQA Module.
-//------------------------------------------------------------------------------
 IDDRX2DQA IDDRX2DQA_15(
-	// Inputs.
-	.D       (ddrphy_dq_i_delayed15),
-	.DQSR90  (ddrphy_dqsr901),
-	.ECLK    (sys2x_clk),
-	.RDPNTR0 (ddrphy_rdpntr1[0]),
-	.RDPNTR1 (ddrphy_rdpntr1[1]),
-	.RDPNTR2 (ddrphy_rdpntr1[2]),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.WRPNTR0 (ddrphy_wrpntr1[0]),
-	.WRPNTR1 (ddrphy_wrpntr1[1]),
-	.WRPNTR2 (ddrphy_wrpntr1[2]),
-
-	// Outputs.
-	.Q0      (ddrphy_bitslip15_i[0]),
-	.Q1      (ddrphy_bitslip15_i[1]),
-	.Q2      (ddrphy_bitslip15_i[2]),
-	.Q3      (ddrphy_bitslip15_i[3])
+	.D(ddrphy_dq_i_delayed15),
+	.DQSR90(ddrphy_dqsr901),
+	.ECLK(sys2x_clk),
+	.RDPNTR0(ddrphy_rdpntr1[0]),
+	.RDPNTR1(ddrphy_rdpntr1[1]),
+	.RDPNTR2(ddrphy_rdpntr1[2]),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.WRPNTR0(ddrphy_wrpntr1[0]),
+	.WRPNTR1(ddrphy_wrpntr1[1]),
+	.WRPNTR2(ddrphy_wrpntr1[2]),
+	.Q0(ddrphy_bitslip15_i[0]),
+	.Q1(ddrphy_bitslip15_i[1]),
+	.Q2(ddrphy_bitslip15_i[2]),
+	.Q3(ddrphy_bitslip15_i[3])
 );
 
-//------------------------------------------------------------------------------
-// Instance TSHX2DQA_15 of TSHX2DQA Module.
-//------------------------------------------------------------------------------
 TSHX2DQA TSHX2DQA_15(
-	// Inputs.
-	.DQSW270 (ddrphy_dqsw2701),
-	.ECLK    (sys2x_clk),
-	.RST     (sys_rst),
-	.SCLK    (sys_clk),
-	.T0      ((~ddrphy_dq_oe)),
-	.T1      ((~ddrphy_dq_oe)),
-
-	// Outputs.
-	.Q       (ddrphy_dq_oe_n15)
+	.DQSW270(ddrphy_dqsw2701),
+	.ECLK(sys2x_clk),
+	.RST(sys_rst),
+	.SCLK(sys_clk),
+	.T0((~ddrphy_dq_oe)),
+	.T1((~ddrphy_dq_oe)),
+	.Q(ddrphy_dq_oe_n15)
 );
+
+assign ddram_dq[15] = (~ddrphy_dq_oe_n15) ? ddrphy_dq_o15 : 1'bz;
+assign ddrphy_dq_i15 = ddram_dq[15];
 
 //------------------------------------------------------------------------------
 // Memory storage: 8-words x 23-bit
@@ -15222,433 +14507,90 @@ assign litedramnativeportconverter_wdata_fifo_rdport_dat_r = storage_9[litedramn
 
 
 (* FREQUENCY_PIN_CLKI = "48.0", FREQUENCY_PIN_CLKOP = "100.0", FREQUENCY_PIN_CLKOS = "25.0", ICP_CURRENT = "6", LPF_RESISTOR = "16", MFG_ENABLE_FILTEROPAMP = "1", MFG_GMCREF_SEL = "2" *)
-//------------------------------------------------------------------------------
-// Instance EHXPLLL of EHXPLLL Module.
-//------------------------------------------------------------------------------
 EHXPLLL #(
-	// Parameters.
-	.CLKFB_DIV     (5'd21),
-	.CLKI_DIV      (2'd2),
-	.CLKOP_CPHASE  (3'd4),
-	.CLKOP_DIV     (3'd5),
-	.CLKOP_ENABLE  ("ENABLED"),
-	.CLKOP_FPHASE  (1'd0),
-	.CLKOS2_CPHASE (1'd0),
-	.CLKOS2_DIV    (1'd1),
-	.CLKOS2_ENABLE ("ENABLED"),
-	.CLKOS2_FPHASE (1'd0),
-	.CLKOS_CPHASE  (5'd19),
-	.CLKOS_DIV     (5'd20),
-	.CLKOS_ENABLE  ("ENABLED"),
-	.CLKOS_FPHASE  (1'd0),
-	.FEEDBK_PATH   ("INT_OS2")
+	.CLKFB_DIV(5'd21),
+	.CLKI_DIV(2'd2),
+	.CLKOP_CPHASE(3'd4),
+	.CLKOP_DIV(3'd5),
+	.CLKOP_ENABLE("ENABLED"),
+	.CLKOP_FPHASE(1'd0),
+	.CLKOS2_CPHASE(1'd0),
+	.CLKOS2_DIV(1'd1),
+	.CLKOS2_ENABLE("ENABLED"),
+	.CLKOS2_FPHASE(1'd0),
+	.CLKOS_CPHASE(5'd19),
+	.CLKOS_DIV(5'd20),
+	.CLKOS_ENABLE("ENABLED"),
+	.CLKOS_FPHASE(1'd0),
+	.FEEDBK_PATH("INT_OS2")
 ) EHXPLLL (
-	// Inputs.
-	.CLKI   (crg_clkin),
-	.RST    (crg_reset1),
-	.STDBY  (crg_stdby),
-
-	// Outputs.
-	.CLKOP  (crg_clkout0),
-	.CLKOS  (crg_clkout1),
-	.CLKOS2 (litedramcore_litedramecp5ddrphycrg_ecp5pll),
-	.LOCK   (litedramcore_litedramecp5ddrphycrg_locked)
+	.CLKI(crg_clkin),
+	.RST(crg_reset1),
+	.STDBY(crg_stdby),
+	.CLKOP(crg_clkout0),
+	.CLKOS(crg_clkout1),
+	.CLKOS2(litedramcore_litedramecp5ddrphycrg_ecp5pll),
+	.LOCK(litedramcore_litedramecp5ddrphycrg_locked)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX(
-	// Inputs.
-	.CK (sys2x_i_clk),
-	.D  (1'd0),
-	.PD ((~crg_locked)),
-
-	// Outputs.
-	.Q  (latticeecp5asyncresetsynchronizerimpl0_rst1)
+	.CK(sys2x_i_clk),
+	.D(1'd0),
+	.PD((~crg_locked)),
+	.Q(latticeecp5asyncresetsynchronizerimpl0_rst1)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_1 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_1(
-	// Inputs.
-	.CK (sys2x_i_clk),
-	.D  (latticeecp5asyncresetsynchronizerimpl0_rst1),
-	.PD ((~crg_locked)),
-
-	// Outputs.
-	.Q  (latticeecp5asyncresetsynchronizerimpl0_expr)
+	.CK(sys2x_i_clk),
+	.D(latticeecp5asyncresetsynchronizerimpl0_rst1),
+	.PD((~crg_locked)),
+	.Q(latticeecp5asyncresetsynchronizerimpl0_expr)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_2 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_2(
-	// Inputs.
-	.CK (init_clk),
-	.D  (1'd0),
-	.PD ((~crg_locked)),
-
-	// Outputs.
-	.Q  (latticeecp5asyncresetsynchronizerimpl1_rst1)
+	.CK(init_clk),
+	.D(1'd0),
+	.PD((~crg_locked)),
+	.Q(latticeecp5asyncresetsynchronizerimpl1_rst1)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_3 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_3(
-	// Inputs.
-	.CK (init_clk),
-	.D  (latticeecp5asyncresetsynchronizerimpl1_rst1),
-	.PD ((~crg_locked)),
-
-	// Outputs.
-	.Q  (init_rst)
+	.CK(init_clk),
+	.D(latticeecp5asyncresetsynchronizerimpl1_rst1),
+	.PD((~crg_locked)),
+	.Q(init_rst)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_4 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_4(
-	// Inputs.
-	.CK (sys_clk),
-	.D  (1'd0),
-	.PD (((~crg_locked) | crg_reset0)),
-
-	// Outputs.
-	.Q  (latticeecp5asyncresetsynchronizerimpl2_rst1)
+	.CK(sys_clk),
+	.D(1'd0),
+	.PD(((~crg_locked) | crg_reset0)),
+	.Q(latticeecp5asyncresetsynchronizerimpl2_rst1)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_5 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_5(
-	// Inputs.
-	.CK (sys_clk),
-	.D  (latticeecp5asyncresetsynchronizerimpl2_rst1),
-	.PD (((~crg_locked) | crg_reset0)),
-
-	// Outputs.
-	.Q  (sys_rst)
+	.CK(sys_clk),
+	.D(latticeecp5asyncresetsynchronizerimpl2_rst1),
+	.PD(((~crg_locked) | crg_reset0)),
+	.Q(sys_rst)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_6 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_6(
-	// Inputs.
-	.CK (sys2x_clk),
-	.D  (1'd0),
-	.PD (((~crg_locked) | crg_reset0)),
-
-	// Outputs.
-	.Q  (latticeecp5asyncresetsynchronizerimpl3_rst1)
+	.CK(sys2x_clk),
+	.D(1'd0),
+	.PD(((~crg_locked) | crg_reset0)),
+	.Q(latticeecp5asyncresetsynchronizerimpl3_rst1)
 );
 
-//------------------------------------------------------------------------------
-// Instance FD1S3BX_7 of FD1S3BX Module.
-//------------------------------------------------------------------------------
 FD1S3BX FD1S3BX_7(
-	// Inputs.
-	.CK (sys2x_clk),
-	.D  (latticeecp5asyncresetsynchronizerimpl3_rst1),
-	.PD (((~crg_locked) | crg_reset0)),
-
-	// Outputs.
-	.Q  (sys2x_rst)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO (
-	// Inputs.
-	.B (ddram_dqs_p[0]),
-	.I (ddrphy_dqs0),
-	.T ((~(~ddrphy_dqs_oe_n0))),
-
-	// Outputs.
-	.O (ddrphy_dqs_i0)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_1 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_1 (
-	// Inputs.
-	.B (ddram_dq[0]),
-	.I (ddrphy_dq_o0),
-	.T ((~(~ddrphy_dq_oe_n0))),
-
-	// Outputs.
-	.O (ddrphy_dq_i0)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_2 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_2 (
-	// Inputs.
-	.B (ddram_dq[1]),
-	.I (ddrphy_dq_o1),
-	.T ((~(~ddrphy_dq_oe_n1))),
-
-	// Outputs.
-	.O (ddrphy_dq_i1)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_3 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_3 (
-	// Inputs.
-	.B (ddram_dq[2]),
-	.I (ddrphy_dq_o2),
-	.T ((~(~ddrphy_dq_oe_n2))),
-
-	// Outputs.
-	.O (ddrphy_dq_i2)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_4 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_4 (
-	// Inputs.
-	.B (ddram_dq[3]),
-	.I (ddrphy_dq_o3),
-	.T ((~(~ddrphy_dq_oe_n3))),
-
-	// Outputs.
-	.O (ddrphy_dq_i3)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_5 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_5 (
-	// Inputs.
-	.B (ddram_dq[4]),
-	.I (ddrphy_dq_o4),
-	.T ((~(~ddrphy_dq_oe_n4))),
-
-	// Outputs.
-	.O (ddrphy_dq_i4)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_6 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_6 (
-	// Inputs.
-	.B (ddram_dq[5]),
-	.I (ddrphy_dq_o5),
-	.T ((~(~ddrphy_dq_oe_n5))),
-
-	// Outputs.
-	.O (ddrphy_dq_i5)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_7 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_7 (
-	// Inputs.
-	.B (ddram_dq[6]),
-	.I (ddrphy_dq_o6),
-	.T ((~(~ddrphy_dq_oe_n6))),
-
-	// Outputs.
-	.O (ddrphy_dq_i6)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_8 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_8 (
-	// Inputs.
-	.B (ddram_dq[7]),
-	.I (ddrphy_dq_o7),
-	.T ((~(~ddrphy_dq_oe_n7))),
-
-	// Outputs.
-	.O (ddrphy_dq_i7)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_9 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_9 (
-	// Inputs.
-	.B (ddram_dqs_p[1]),
-	.I (ddrphy_dqs1),
-	.T ((~(~ddrphy_dqs_oe_n1))),
-
-	// Outputs.
-	.O (ddrphy_dqs_i1)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_10 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_10 (
-	// Inputs.
-	.B (ddram_dq[8]),
-	.I (ddrphy_dq_o8),
-	.T ((~(~ddrphy_dq_oe_n8))),
-
-	// Outputs.
-	.O (ddrphy_dq_i8)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_11 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_11 (
-	// Inputs.
-	.B (ddram_dq[9]),
-	.I (ddrphy_dq_o9),
-	.T ((~(~ddrphy_dq_oe_n9))),
-
-	// Outputs.
-	.O (ddrphy_dq_i9)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_12 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_12 (
-	// Inputs.
-	.B (ddram_dq[10]),
-	.I (ddrphy_dq_o10),
-	.T ((~(~ddrphy_dq_oe_n10))),
-
-	// Outputs.
-	.O (ddrphy_dq_i10)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_13 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_13 (
-	// Inputs.
-	.B (ddram_dq[11]),
-	.I (ddrphy_dq_o11),
-	.T ((~(~ddrphy_dq_oe_n11))),
-
-	// Outputs.
-	.O (ddrphy_dq_i11)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_14 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_14 (
-	// Inputs.
-	.B (ddram_dq[12]),
-	.I (ddrphy_dq_o12),
-	.T ((~(~ddrphy_dq_oe_n12))),
-
-	// Outputs.
-	.O (ddrphy_dq_i12)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_15 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_15 (
-	// Inputs.
-	.B (ddram_dq[13]),
-	.I (ddrphy_dq_o13),
-	.T ((~(~ddrphy_dq_oe_n13))),
-
-	// Outputs.
-	.O (ddrphy_dq_i13)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_16 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_16 (
-	// Inputs.
-	.B (ddram_dq[14]),
-	.I (ddrphy_dq_o14),
-	.T ((~(~ddrphy_dq_oe_n14))),
-
-	// Outputs.
-	.O (ddrphy_dq_i14)
-);
-
-//------------------------------------------------------------------------------
-// Instance TRELLIS_IO_17 of TRELLIS_IO Module.
-//------------------------------------------------------------------------------
-TRELLIS_IO #(
-	// Parameters.
-	.DIR ("BIDIR")
-) TRELLIS_IO_17 (
-	// Inputs.
-	.B (ddram_dq[15]),
-	.I (ddrphy_dq_o15),
-	.T ((~(~ddrphy_dq_oe_n15))),
-
-	// Outputs.
-	.O (ddrphy_dq_i15)
+	.CK(sys2x_clk),
+	.D(latticeecp5asyncresetsynchronizerimpl3_rst1),
+	.PD(((~crg_locked) | crg_reset0)),
+	.Q(sys2x_rst)
 );
 
 endmodule
 
 // -----------------------------------------------------------------------------
-//  Auto-Generated by LiteX on 2023-11-17 12:10:32.
+//  Auto-Generated by LiteX on 2024-01-23 18:25:02.
 //------------------------------------------------------------------------------
