@@ -1,0 +1,44 @@
+diff --git a/litedram/gen.py b/litedram/gen.py
+index d9de9ea..1f2d0ce 100755
+--- a/litedram/gen.py
++++ b/litedram/gen.py
+@@ -862,6 +862,7 @@ def main():
+     parser.add_argument("config", help="YAML config file")
+     parser.add_argument("--sim",  action='store_true',     help="Integrate SDRAMPHYModel in core for simulation")
+     parser.add_argument("--name", default="litedram_core", help="Standalone core/module name")
++    parser.add_argument("--toolchain", type=str)
+     args = parser.parse_args()
+     core_config = yaml.load(open(args.config).read(), Loader=yaml.Loader)
+ 
+@@ -879,16 +880,27 @@ def main():
+             core_config[k] = getattr(litedram_phys, core_config[k])
+ 
+     # Generate core --------------------------------------------------------------------------------
++    if args.toolchain:
++        toolchain = args.toolchain
++    else:
++        if core_config["sdram_phy"] in [litedram_phys.GENSDRPHY, litedram_phys.ECP5DDRPHY]:
++            toolchain = "trellis"
++        elif core_config["sdram_phy"] in [litedram_phys.A7DDRPHY, litedram_phys.K7DDRPHY, litedram_phys.V7DDRPHY, litedram_phys.USDDRPHY, litedram_phys.USPDDRPHY]:
++            toolchain = "vivado"
++        else:
++            raise ValueError("Unsupported SDRAM PHY: {}".format(core_config["sdram_phy"]))
++
++
+     if args.sim:
+         platform = SimPlatform("", io=[])
+     elif core_config["sdram_phy"] in [litedram_phys.GENSDRPHY]:
+-        platform = LatticePlatform(core_config["device"], io=[], toolchain="trellis") # FIXME: Allow other Vendors.
++        platform = LatticePlatform(core_config["device"], io=[], toolchain=toolchain) # FIXME: Allow other Vendors.
+     elif core_config["sdram_phy"] in [litedram_phys.ECP5DDRPHY]:
+-        platform = LatticePlatform(core_config["device"], io=[], toolchain="trellis")
++        platform = LatticePlatform(core_config["device"], io=[], toolchain=toolchain)
+     elif core_config["sdram_phy"] in [litedram_phys.A7DDRPHY, litedram_phys.K7DDRPHY, litedram_phys.V7DDRPHY]:
+-        platform = XilinxPlatform("", io=[], toolchain="vivado")
++        platform = XilinxPlatform("", io=[], toolchain=toolchain)
+     elif core_config["sdram_phy"] in [litedram_phys.USDDRPHY, litedram_phys.USPDDRPHY]:
+-        platform = XilinxPlatform("", io=[], toolchain="vivado")
++        platform = XilinxPlatform("", io=[], toolchain=toolchain)
+     else:
+         raise ValueError("Unsupported SDRAM PHY: {}".format(core_config["sdram_phy"]))
+ 

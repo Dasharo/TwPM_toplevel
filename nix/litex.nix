@@ -31,6 +31,9 @@
     };
     litedram = buildPackageFromFlakeInput "litedram" {
       propagatedBuildInputs = with pythonPackages; [ litex pyyaml ];
+      patches = [
+        ./patches/0001-Add-toolchain-selection.patch
+      ];
     };
     litex-boards = buildPackageFromFlakeInput "litex-boards" {
       propagatedBuildInputs = [ litex ];
