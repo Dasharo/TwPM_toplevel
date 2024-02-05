@@ -36,12 +36,25 @@ entity neorv32_verilog_wrapper is
     -- GPIO --
     gpio_o      : out std_ulogic_vector(63 downto 0);
     gpio_i      : in  std_ulogic_vector(63 downto 0);
-    mext_irq_i  : in  std_ulogic  -- machine external interrupt
+    mext_irq_i  : in  std_ulogic; -- machine external interrupt
+    -- PUF (Physically Unclonable Function) --
+    puf_en_i    : in  std_ulogic;
+    puf_trig_i  : in  std_ulogic;
+    puf_busy_o  : out std_ulogic;
+    puf_id_o    : out std_ulogic_vector(95 downto 0)
   );
 end entity;
 
 architecture neorv32_verilog_wrapper_rtl of neorv32_verilog_wrapper is
-
+  component fpga_puf
+  port (
+    clk_i  : in  std_ulogic; -- global clock line
+    rstn_i : in  std_ulogic; -- SYNC reset, low-active
+    trig_i : in  std_ulogic; -- set high for one clock to trigger ID sampling
+    busy_o : out std_ulogic; -- busy when set (sampling ID)
+    id_o   : out std_ulogic_vector(95 downto 0) -- PUF ID (valid after sampling is done)
+  );
+  end component;
 begin
 
   neorv32_top_inst: neorv32_top
@@ -112,6 +125,15 @@ begin
     gpio_o      => gpio_o,      -- gpio_o[2:0] controls LEDs
     gpio_i      => gpio_i,      -- currently unused
     mext_irq_i  => mext_irq_i   -- machine external interrupt
+  );
+
+  puf_inst: fpga_puf
+  port map (
+    clk_i       => clk_i,
+    rstn_i      => puf_en_i,
+    trig_i      => puf_trig_i,
+    busy_o      => puf_busy_o,
+    id_o        => puf_id_o
   );
 
 end architecture;

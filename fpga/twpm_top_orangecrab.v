@@ -39,6 +39,12 @@ parameter TPM_REG_OP_TYPE       = 16'h0004;
 parameter TPM_REG_LOCALITY      = 16'h0008;
 parameter TPM_REG_BUF_SIZE      = 16'h000C;
 parameter TPM_REG_COMPLETE      = 16'h0040;
+parameter PUF_REGS_BASE_ADDRESS = 32'hF0001800;
+parameter PUF_REGS_ADDR_WIDTH   = 11;
+parameter PUF_REG_CTRL          = 2'b00;
+parameter PUF_REG_ID0           = 2'b01;
+parameter PUF_REG_ID1           = 2'b10;
+parameter PUF_REG_ID2           = 2'b11;
 parameter RAM_BASE_ADDRESS      = 32'h80000000;
 parameter RAM_ADDR_WIDTH        = 27;
 
@@ -144,6 +150,7 @@ wire          hits_ctrl    = (wb_adr[31:LITEDRAM_ADDR_WIDTH] === LITEDRAM_BASE_A
 wire          hits_tpm_ram = (wb_adr[31:TPM_RAM_ADDR_WIDTH]  === TPM_RAM_BASE_ADDRESS[31:TPM_RAM_ADDR_WIDTH]);
 wire          hits_regs    = (wb_adr[31:TPM_REGS_ADDR_WIDTH] === TPM_REGS_BASE_ADDRESS[31:TPM_REGS_ADDR_WIDTH]);
 wire          hits_ram     = (wb_adr[31:RAM_ADDR_WIDTH]      === RAM_BASE_ADDRESS[31:RAM_ADDR_WIDTH]);
+wire          hits_puf     = (wb_adr[31:PUF_REGS_ADDR_WIDTH] === PUF_REGS_BASE_ADDRESS[31:PUF_REGS_ADDR_WIDTH]);
 
 wire          wb_stb_ddr3 = hits_ram & wb_stb;
 wire          wb_we_ddr3  = hits_ram & wb_we;
@@ -159,6 +166,11 @@ wire   [31:0] wb_dat_ctrl;
 
 wire          clk_50mhz;
 wire          user_rst;
+
+reg           puf_trig = 0;
+reg           puf_enable = 0;
+wire          puf_busy;
+wire   [95:0] puf_id;
 
 neorv32_verilog_wrapper cpu (
     .clk_i(clk_50mhz),
@@ -186,7 +198,11 @@ neorv32_verilog_wrapper cpu (
     .spi_csn_o(spi_csn),
     .gpio_o(gpio),
     .gpio_i(64'b0),
-    .mext_irq_i(exec)
+    .mext_irq_i(exec),
+    .puf_en_i(puf_enable),
+    .puf_trig_i(puf_trig),
+    .puf_busy_o(puf_busy),
+    .puf_id_o(puf_id)
 );
 
 // SPI flash interface
@@ -261,6 +277,9 @@ always @(negedge wb_clk or negedge rstn_i) begin
     end else if (hits_ctrl) begin
       wb_ack <= wb_cyc & wb_stb & wb_ack_ctrl & ~wb_ack;
       wb_err <= wb_err_ctrl;
+    end else if (hits_puf) begin
+      wb_ack <= WBs_ACK_nxt;
+      wb_err <= 1'b0;
     end else begin
       wb_ack <= 1'b0;
       wb_err <= 1'b0;
@@ -284,6 +303,28 @@ always @(*) begin
     wb_dat_rd <= wb_dat_ddr3;
   end else if (hits_ctrl) begin
     wb_dat_rd <= wb_dat_ctrl;
+  end else if (hits_puf) begin
+    case (wb_adr[3:2])
+      PUF_REG_CTRL:             wb_dat_rd <= {30'h0, puf_busy, puf_enable};
+      PUF_REG_ID0:              wb_dat_rd <= puf_id[31:0];
+      PUF_REG_ID1:              wb_dat_rd <= puf_id[63:32];
+      PUF_REG_ID2:              wb_dat_rd <= puf_id[95:64];
+      default:                  wb_dat_rd <= DEFAULT_READ_VALUE;
+    endcase
+  end
+end
+
+always @(posedge wb_clk or negedge rstn_i) begin
+  if (~rstn_i) begin
+    puf_trig       <= 1'b0;
+    puf_enable     <= 1'b0;
+  end else if (wb_cyc && wb_we && hits_puf) begin
+    case (wb_adr[3:2])
+      PUF_REG_CTRL: begin
+        puf_enable <= wb_dat_wr[0];
+        puf_trig   <= wb_dat_wr[1];
+      end
+    endcase
   end
 end
 

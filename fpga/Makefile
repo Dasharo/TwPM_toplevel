@@ -13,7 +13,7 @@ endif
 endif
 TOP = twpm_top
 NEORV32_DIR = neorv32
-NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd
+NEORV32_WRAPPER = puf/fpga_puf.vhd neorv32_wrapper_$(BOARD).vhd
 NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(BUILD_DIR)/nextpnr.config
 NEORV32_SRC = $(filter-out %neorv32_bootloader_image.vhd, $(wildcard $(NEORV32_DIR)/rtl/core/*.vhd) $(wildcard $(NEORV32_DIR)/rtl/core/mem/*.vhd))
 LPF_FILE = $(BOARD).lpf
@@ -67,7 +67,7 @@ ifeq ($(TOOLCHAIN),trellis)
 $(BUILD_DIR)/neorv32.v: $(BUILD_DIR)/neorv32 $(NEORV32_SRC) $(NEORV32_BOOTLOADER) $(NEORV32_WRAPPER)
 	@ghdl -i --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild $(NEORV32_SRC) $(NEORV32_WRAPPER) $(NEORV32_BOOTLOADER)
 	@ghdl -m --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 neorv32_verilog_wrapper
-	@ghdl synth --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild --out=verilog neorv32_verilog_wrapper > $@
+	@ghdl synth --latches --std=08 --work=neorv32 --workdir=$(BUILD_DIR)/neorv32 -Pbuild --out=verilog neorv32_verilog_wrapper > $@
 
 $(BUILD_DIR)/build.ys $(BUILD_DIR)/twpm.json $(BUILD_DIR)/twpm_synth.v: $(SRC) $(BUILD_DIR)/neorv32.v
 	@rm -f $@ $(BUILD_DIR)/build.ys
@@ -90,7 +90,8 @@ $(BUILD_DIR)/build.tcl: $(BUILD_DIR) $(NEORV32_SRC) $(NEORV32_WRAPPER) $(NEORV32
 	@for file in $(NEORV32_SRC); do \
 		echo "prj_src add -work neorv32 $$(readlink -f $$file)" >> $@; done
 	@echo "prj_src add -work neorv32 $$(readlink -f $(NEORV32_BOOTLOADER))" >> $@
-	@echo "prj_src add -work twpm $$(readlink -f $(NEORV32_WRAPPER))" >> $@
+	@for file in $$(readlink -f $(NEORV32_WRAPPER)); do \
+		echo "prj_src add -work twpm $$file" >> $@; done
 	@echo "prj_impl option top $(TOP)" >> $@
 # Save project file so that it can be opened using Diamond's GUI
 	@echo "prj_project save" >> $@
