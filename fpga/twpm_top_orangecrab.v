@@ -315,8 +315,10 @@ always @(*) begin
 end
 
 always @(posedge wb_clk or negedge rstn_i) begin
+  // Automatically clear after one clock cycle.
+  puf_trig       <= 1'b0;
+
   if (~rstn_i) begin
-    puf_trig       <= 1'b0;
     puf_enable     <= 1'b0;
   end else if (wb_cyc && wb_we && hits_puf) begin
     case (wb_adr[3:2])
