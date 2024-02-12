@@ -8,7 +8,7 @@ FPGA_TOOLCHAIN ?= trellis
 # Build directory
 BUILD_DIR ?= build
 
-all: image
+all spi: image
 clean:
 # Call to fpga/ so that neorv32 build artifacts are cleaned up (which are not
 # stored in build directory)
@@ -20,7 +20,7 @@ $(BUILD_DIR):
 
 .PHONY: fpga
 fpga: $(BUILD_DIR)
-	@$(MAKE) -C fpga BOARD=$(BOARD) BUILD_DIR=$(shell readlink -f "$(BUILD_DIR)/fpga") TOOLCHAIN=$(FPGA_TOOLCHAIN)
+	@$(MAKE) -C fpga BOARD=$(BOARD) BUILD_DIR=$(shell readlink -f "$(BUILD_DIR)/fpga") TOOLCHAIN=$(FPGA_TOOLCHAIN) $(MAKECMDGOALS)
 
 .PHONY: firmware
 firmware: $(BUILD_DIR)
