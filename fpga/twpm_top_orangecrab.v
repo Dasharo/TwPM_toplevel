@@ -1,5 +1,10 @@
 module twpm_top (clk_i, rstn_i, uart_rxd_i, uart_txd_o,
+`ifdef LPC
                  LCLK, LRESET, LFRAME, LAD, SERIRQ,
+`endif
+`ifdef SPI
+                 CLK, MISO, MOSI, CS_N, PIRQ,
+`endif
                  spi_dat_o, spi_dat_i, spi_flash_cs_o,
                  ddram_a, ddram_ba, ddram_ras_n, ddram_cas_n,
                  ddram_we_n, ddram_dm, ddram_dq, ddram_dqs_p,
@@ -52,13 +57,23 @@ input  wire         rstn_i;
 //# {{UART}}
 input  wire         uart_rxd_i;
 output wire         uart_txd_o;
+`ifdef LPC
 //# {{LPC interface}}
 input  wire         LCLK;
 input  wire         LRESET;
 input  wire         LFRAME;
 inout  wire [  3:0] LAD;
 inout  wire         SERIRQ;
-//# {{SPI interface}}
+`endif
+`ifdef SPI
+//# {{SPI interface - PC}}
+input  wire         CLK;
+output wire         MISO;
+input  wire         MOSI;
+input  wire         CS_N;
+output wire         PIRQ;
+`endif
+//# {{SPI interface - flash}}
 output wire         spi_dat_o;
 input  wire         spi_dat_i;
 output wire         spi_flash_cs_o;
@@ -235,7 +250,12 @@ assign RAM_WD =       exec ? wb_dat_wr        : DP_RAM_WD;
 assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
 // This is sketchy, may produce spurious edges and not give enough time for signals to stabilize.
 // It depends on RAM_byte_sel being zeroed on exec changes.
+`ifdef LPC
 assign RAM_CLK =      exec ? ~wb_clk          : ~LCLK;
+`endif
+`ifdef SPI
+assign RAM_CLK =      exec ? ~wb_clk          : ~CLK;
+`endif
 
 // WB acknowledge signal
 assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
@@ -286,6 +306,7 @@ always @(*) begin
   end
 end
 
+`ifdef LPC
 lpc_periph lpc_periph_inst (
   // LPC Interface
   .clk_i(LCLK),
@@ -304,10 +325,35 @@ lpc_periph lpc_periph_inst (
   .irq_num(irq_num),
   .interrupt(interrupt)
 );
+`endif
+
+`ifdef SPI
+spi_periph spi_periph_inst (
+  // SPI Interface
+  .clk_i(CLK),
+  .miso(MISO),
+  .mosi(MOSI),
+  .cs_n(CS_N),
+  // Data provider interface
+  .data_i(data_dp2lpc),
+  .data_o(data_lpc2dp),
+  .addr_o(lpc_addr),
+  .data_wr(lpc_data_wr),
+  .wr_done(lpc_wr_done),
+  .data_rd(lpc_data_rd),
+  .data_req(lpc_data_req)
+);
+assign PIRQ = !interrupt;
+`endif
 
 regs_module regs_module_inst (
-  // Signals to/from LPC module
+  // Signals to/from LPC/SPI module
+`ifdef LPC
   .clk_i(LCLK),
+`endif
+`ifdef SPI
+  .clk_i(CLK),
+`endif
   .data_i(data_lpc2dp),
   .data_o(data_dp2lpc),
   .addr_i(lpc_addr),

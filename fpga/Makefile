@@ -3,10 +3,18 @@ TOOLCHAIN ?= trellis
 BUILD_DIR ?= build
 
 
-SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+SRC = twpm_top_$(BOARD).v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+
+ifeq (,$(filter spi,$(MAKECMDGOALS)))
+SRC += verilog-lpc-module/lpc_periph.v
+else
+SRC += verilog-spi-module/spi.v
+endif
+
 ifeq ($(BOARD),orangecrab)
 SRC += orangecrab_litedram/litedram_core.v
 endif
+
 TOP = twpm_top
 NEORV32_DIR = neorv32
 NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd
@@ -39,9 +47,17 @@ NEORV32_BOOTLOADER_ARGS += -DXIP_EN=0
 
 # Silence warnings about logic loops in TRNG module, loops are where randomness comes from.
 YOSYS_ARGS=-w "logic loop in .*io_system_neorv32_trng_inst_true_neorv32_trng_inst"
+
+ifeq (,$(filter spi,$(MAKECMDGOALS)))
+YOSYS_ARGS+=-DLPC
+else
+YOSYS_ARGS+=-DSPI
+endif
 endif
 
-all: $(BUILD_DIR)/twpm.dfu
+# Build system doesn't detect switching between SPI and LPC automatically.
+# Invoke `make clean` when switching between those two.
+all spi: $(BUILD_DIR)/twpm.dfu
 
 clean:
 	@rm -rf $(BUILD_DIR)

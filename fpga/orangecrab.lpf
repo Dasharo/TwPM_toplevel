@@ -14,7 +14,9 @@ IOBUF PORT "uart_txd_o" IO_TYPE=LVCMOS33;
 LOCATE COMP "uart_rxd_i" SITE "N17";        # IO_0
 IOBUF PORT "uart_rxd_i" IO_TYPE=LVCMOS33;
 
-
+###############################################################################
+# LPC
+###############################################################################
 LOCATE COMP "LCLK" SITE "H2";               # IO_12
 IOBUF PORT "LCLK" IO_TYPE=LVCMOS33 PULLMODE=NONE;
 FREQUENCY PORT "LCLK" 33.3 MHz;
@@ -40,6 +42,28 @@ IOBUF PORT "LAD[3]" IO_TYPE=LVCMOS33 PULLMODE=NONE SLEWRATE=FAST DRIVE=4;
 LOCATE COMP "SERIRQ" SITE "C9";             # SCL
 IOBUF PORT "SERIRQ" IO_TYPE=LVCMOS33 PULLMODE=NONE SLEWRATE=FAST DRIVE=4;
 
+###############################################################################
+# SPI - PC
+###############################################################################
+LOCATE COMP "CLK" SITE "H2";                # IO_12
+IOBUF PORT "CLK" IO_TYPE=LVCMOS33 PULLMODE=NONE;
+FREQUENCY PORT "CLK" 66 MHz;
+
+LOCATE COMP "MISO" SITE "J2";               # IO_13
+IOBUF PORT "MISO" IO_TYPE=LVCMOS33 PULLMODE=NONE SLEWRATE=FAST DRIVE=4;
+
+LOCATE COMP "MOSI" SITE "A8";               # IO_11
+IOBUF PORT "MOSI" IO_TYPE=LVCMOS33 PULLMODE=NONE;
+
+LOCATE COMP "CS_N" SITE "B8";               # IO_10
+IOBUF PORT "CS_N" IO_TYPE=LVCMOS33 PULLMODE=NONE;
+
+LOCATE COMP "PIRQ" SITE "C9";               # SCL
+IOBUF PORT "PIRQ" IO_TYPE=LVCMOS33 PULLMODE=NONE SLEWRATE=FAST DRIVE=4;
+
+###############################################################################
+# SPI - flash
+###############################################################################
 LOCATE COMP "spi_dat_o" SITE "U18";         # MOSI
 IOBUF PORT "spi_dat_o" IO_TYPE=LVCMOS33;
 
