@@ -10,3 +10,6 @@
 [submodule "firmware/twpm-firmware"]
 	path = firmware/twpm-firmware
 	url = https://github.com/Dasharo/twpm-firmware
+[submodule "fpga/verilog-spi-module"]
+	path = fpga/verilog-spi-module
+	url = https://github.com/Dasharo/verilog-spi-module.git
