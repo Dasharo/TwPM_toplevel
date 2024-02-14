@@ -103,6 +103,16 @@ section above and type:
 make
 ```
 
+This will build TwPM with LPC interface. If you wish to use SPI interface, run
+this instead:
+
+```
+make spi
+```
+
+There is no automatic detection for switching between SPI and LPC, `make clean`
+must be run when doing so.
+
 ## Building - advanced
 
 Components of TwPM may also be built separately. Such approach is most useful
