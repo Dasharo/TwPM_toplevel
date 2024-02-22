@@ -1,0 +1,9 @@
+~*
+*.bin
+!*_exe.bin
+*.o
+*.elf
+*.asm
+*.out
+*.hex
+*_image.vhd

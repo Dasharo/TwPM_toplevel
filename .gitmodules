@@ -10,3 +10,9 @@
 [submodule "firmware/twpm-firmware"]
 	path = firmware/twpm-firmware
 	url = https://github.com/Dasharo/twpm-firmware
+[submodule "fpga/puf_2/fpga_puf"]
+	path = fpga/puf_2/fpga_puf
+	url = https://github.com/stnolting/fpga_puf
+[submodule "fpga/puf_2/neorv32"]
+	path = fpga/puf_2/neorv32
+	url = https://github.com/stnolting/neorv32
