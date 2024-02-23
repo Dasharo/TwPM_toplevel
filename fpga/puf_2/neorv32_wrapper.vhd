@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 library neorv32;
 use neorv32.neorv32_package.all;
 
-entity top is
+entity neorv32_wrapper is
   port (
     -- Global control --
     clk_i       : in  std_ulogic; -- global clock, rising edge
@@ -19,7 +19,7 @@ entity top is
   );
 end entity;
 
-architecture top_rtl of top is
+architecture neorv32_wrapper_rtl of neorv32_wrapper is
   constant CFS_OUT_SIZE: natural := 3;
 
   signal wb_adr: std_ulogic_vector(31 downto 0);
@@ -38,16 +38,16 @@ begin
 
   generic map (
     -- General --
-    CLOCK_FREQUENCY              => 50_400_000,  -- clock frequency of clk_i in Hz
+    CLOCK_FREQUENCY              => 96_000_000,  -- clock frequency of clk_i in Hz
     ON_CHIP_DEBUGGER_EN          => false,       -- enable JTAG support
     INT_BOOTLOADER_EN            => true,        -- boot configuration: boot explicit bootloader
     -- RISC-V CPU Extensions --
-    CPU_EXTENSION_RISCV_A        => true,       -- implement atomic memory operations extension?
-    CPU_EXTENSION_RISCV_C        => true,       -- implement compressed extension?
-    CPU_EXTENSION_RISCV_M        => true,       -- implement mul/div extension?
-    CPU_EXTENSION_RISCV_Zicntr   => true,       -- implement base counters?
+    CPU_EXTENSION_RISCV_A        => true,        -- implement atomic memory operations extension?
+    CPU_EXTENSION_RISCV_C        => true,        -- implement compressed extension?
+    CPU_EXTENSION_RISCV_M        => true,        -- implement mul/div extension?
+    CPU_EXTENSION_RISCV_Zicntr   => true,        -- implement base counters?
     -- Internal Instruction memory (IMEM) --
-    MEM_INT_IMEM_EN              => true,       -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              => false,       -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            => 32*1024,     -- size of processor-internal instruction memory in bytes
     -- Internal Data memory (DMEM) --
     MEM_INT_DMEM_EN              => true,        -- implement processor-internal data memory

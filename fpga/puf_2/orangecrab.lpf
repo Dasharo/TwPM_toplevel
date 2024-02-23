@@ -23,3 +23,4 @@ IOBUF PORT "led_g" IO_TYPE=LVCMOS33;
 LOCATE COMP "led_b" SITE "J3";
 IOBUF PORT "led_b" IO_TYPE=LVCMOS33;
 
+UGROUP "PUF" BLKNAME cpu/neorv32_top_inst/io_system.neorv32_cfs_inst_true.neorv32_cfs_inst/fpga_puf_inst;

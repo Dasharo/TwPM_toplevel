@@ -242,17 +242,17 @@ uint32_t hamming_dist(puf_data_t id_a, puf_data_t id_b) {
  **************************************************************************/
 void simple_test(void) {
 
-  // /int i;
+  int i;
 
   neorv32_uart0_printf("FPGA_PUF_CTRL = 0x%x\n", FPGA_PUF_CTRL);
   FPGA_PUF_CTRL = (1 << PUF_CTRL_SAMPLE) | (1 << PUF_CTRL_EN);
   neorv32_uart0_printf("FPGA_PUF_CTRL = 0x%x\n", FPGA_PUF_CTRL);
 
-  //for(i=0; i<NUM_RUNS; i++) {
+  for(i=0; i<NUM_RUNS; i++) {
     puf_data_t puf_data;
     get_puf_id(&puf_data);
     neorv32_uart0_printf("ID: 0x%x%x%x\n", puf_data.id[0], puf_data.id[1], puf_data.id[2]);
-  //}
+  }
 }
 
 

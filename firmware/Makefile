@@ -1,7 +1,7 @@
 BUILD_DIR ?= build
 
 .west: twpm-firmware
-	@west init -l twpm-firmware
+	@true
 
 
 .PHONY: firmware
