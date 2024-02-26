@@ -8,7 +8,8 @@ NEORV32_DIR = neorv32
 SRC = top.v pll1.v pll2.v
 NEORV32_WRAPPER = neorv32_wrapper.vhd
 
-NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(BUILD_DIR)/nextpnr.config
+NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(BUILD_DIR)/nextpnr.config \
+	--pre-pack constrain_puf.py --write $(BUILD_DIR)/twpm_nextpnr.json
 NEORV32_SRC = $(filter-out %neorv32_cfs.vhd, \
 	      $(filter-out %neorv32_application_image.vhd, \
 	      $(filter-out %neorv32_bootloader_image.vhd, $(wildcard $(NEORV32_DIR)/rtl/core/*.vhd) $(wildcard $(NEORV32_DIR)/rtl/core/mem/*.vhd)))) \
@@ -57,7 +58,6 @@ fpga_puf/sw/neorv32_exe.bin: force
 
 $(NEORV32_BOOTLOADER): force
 	@$(MAKE) -C neorv32/sw/bootloader bl_image USER_FLAGS="$(NEORV32_BOOTLOADER_ARGS)"
-	@$(MAKE) -C fpga_puf/sw bl_image USER_FLAGS="$(NEORV32_BOOTLOADER_ARGS)"
 force: ;
 
 ifeq ($(TOOLCHAIN),trellis)
@@ -108,7 +108,7 @@ else
 $(error Unsupported toolchain "$(TOOLCHAIN)")
 endif
 
-$(BUILD_DIR)/twpm.dfu: $(BUILD_DIR)/twpm.bit
+$(BUILD_DIR)/twpm.dfu: $(BUILD_DIR)/twpm.bit fpga_puf/sw/neorv32_exe.bin
 	@cp $< $@.temp
 	@dfu-suffix -v 1209 -p 5bf0 -a $@.temp
 	@mv $@.temp $@
