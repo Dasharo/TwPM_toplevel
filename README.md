@@ -22,6 +22,17 @@ Nix installed yet, follow [official installation instructions](https://nixos.org
 
 ## Starting Nix shell
 
+> Note: most of commands used require experimental Nix features to be enabled.
+> This can be done permanently by setting
+>
+> ```ignore
+> experimental-features = nix-command flakes
+> ```
+>
+> in your `nix.conf`, or by adding
+> `--extra-experimental-features "nix-command flakes"` to `nix` command
+> invocations.
+
 Shell can be started by typing:
 
 ```shell
@@ -257,7 +268,8 @@ Booting from 0x80000000...
 > Diamond has been used only for development purposes and is not tested as
 > widely as Trellis toolchain.
 
-Lattice Diamond is a proprietary synthesis tool, the tool is available for free,
+[Lattice Diamond](https://www.latticesemi.com/latticediamond) is a proprietary
+synthesis tool, the tool is available for free,
 however it requires account registration to obtain license. TwPM FPGA design can
 be synthesized using Diamond by doing:
 
