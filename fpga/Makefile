@@ -3,7 +3,8 @@ TOOLCHAIN ?= trellis
 BUILD_DIR ?= build
 
 
-SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
+SRC = twpm_top_$(BOARD).v verilog-lpc-module/lpc_periph.v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v puf/puf.v \
+	puf/switch.v puf/mux2x1.v puf/arbiter.v
 ifeq ($(BOARD),orangecrab)
 ifeq ($(TOOLCHAIN),trellis)
 SRC += orangecrab_litedram/litedram_core.v
@@ -13,7 +14,7 @@ endif
 endif
 TOP = twpm_top
 NEORV32_DIR = neorv32
-NEORV32_WRAPPER = puf/fpga_puf.vhd neorv32_wrapper_$(BOARD).vhd
+NEORV32_WRAPPER = neorv32_wrapper_$(BOARD).vhd
 NEXTPNR_ARGS = --seed 1 --top $(TOP) --json $(BUILD_DIR)/twpm.json --textcfg $(BUILD_DIR)/nextpnr.config
 NEORV32_SRC = $(filter-out %neorv32_bootloader_image.vhd, $(wildcard $(NEORV32_DIR)/rtl/core/*.vhd) $(wildcard $(NEORV32_DIR)/rtl/core/mem/*.vhd))
 LPF_FILE = $(BOARD).lpf

@@ -42,9 +42,9 @@ parameter TPM_REG_COMPLETE      = 16'h0040;
 parameter PUF_REGS_BASE_ADDRESS = 32'hF0001800;
 parameter PUF_REGS_ADDR_WIDTH   = 11;
 parameter PUF_REG_CTRL          = 2'b00;
-parameter PUF_REG_ID0           = 2'b01;
-parameter PUF_REG_ID1           = 2'b10;
-parameter PUF_REG_ID2           = 2'b11;
+parameter PUF_REG_CHALLENGE     = 2'b01;
+parameter PUF_REG_ID0           = 2'b10;
+parameter PUF_REG_ID1           = 2'b11;
 parameter RAM_BASE_ADDRESS      = 32'h80000000;
 parameter RAM_ADDR_WIDTH        = 27;
 
@@ -167,9 +167,9 @@ wire   [31:0] wb_dat_ctrl;
 wire          clk_50mhz;
 wire          user_rst;
 
-reg           puf_trig = 0;
-reg           puf_enable = 0;
-wire          puf_busy;
+reg           puf_in0 = 0;
+reg           puf_in1 = 0;
+reg    [31:0] puf_challenge;
 wire   [95:0] puf_id;
 
 neorv32_verilog_wrapper cpu (
@@ -198,11 +198,17 @@ neorv32_verilog_wrapper cpu (
     .spi_csn_o(spi_csn),
     .gpio_o(gpio),
     .gpio_i(64'b0),
-    .mext_irq_i(exec),
-    .puf_en_i(puf_enable),
+    .mext_irq_i(exec)
+    /*.puf_en_i(puf_enable),
     .puf_trig_i(puf_trig),
     .puf_busy_o(puf_busy),
-    .puf_id_o(puf_id)
+    .puf_id_o(puf_id)*/
+);
+
+puf puf_inst (
+  .switch_i({puf_in1, puf_in0}),
+  .challenge_i(puf_challenge),
+  .id_o(puf_id)
 );
 
 // SPI flash interface
@@ -305,26 +311,27 @@ always @(*) begin
     wb_dat_rd <= wb_dat_ctrl;
   end else if (hits_puf) begin
     case (wb_adr[3:2])
-      PUF_REG_CTRL:             wb_dat_rd <= {30'h0, puf_busy, puf_enable};
+      PUF_REG_CTRL:             wb_dat_rd <= {30'h0, puf_in1, puf_in0};
+      PUF_REG_CHALLENGE:        wb_dat_rd <= puf_challenge;
       PUF_REG_ID0:              wb_dat_rd <= puf_id[31:0];
       PUF_REG_ID1:              wb_dat_rd <= puf_id[63:32];
-      PUF_REG_ID2:              wb_dat_rd <= puf_id[95:64];
       default:                  wb_dat_rd <= DEFAULT_READ_VALUE;
     endcase
   end
 end
 
 always @(posedge wb_clk or negedge rstn_i) begin
-  // Automatically clear after one clock cycle.
-  puf_trig       <= 1'b0;
-
   if (~rstn_i) begin
-    puf_enable     <= 1'b0;
+    puf_in0 <= 0;
+    puf_in1 <= 0;
   end else if (wb_cyc && wb_we && hits_puf) begin
     case (wb_adr[3:2])
       PUF_REG_CTRL: begin
-        puf_enable <= wb_dat_wr[0];
-        puf_trig   <= wb_dat_wr[1];
+        puf_in0 <= wb_dat_wr[0];
+        puf_in1 <= wb_dat_wr[1];
+      end
+      PUF_REG_CHALLENGE: begin
+        puf_challenge <= wb_dat_wr;
       end
     endcase
   end
