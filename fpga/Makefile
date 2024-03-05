@@ -2,6 +2,7 @@ BOARD ?= orangecrab
 TOOLCHAIN ?= trellis
 BUILD_DIR ?= build
 
+SHELL=/bin/bash -o pipefail
 
 SRC = twpm_top_$(BOARD).v verilog-tpm-fifo-registers/regs_module.v ram/r512x32_512x32.v
 
