@@ -248,14 +248,7 @@ assign WB_RAM_byte_sel =  (hits_tpm_ram && wb_we  === 1'b1) ? wb_sel : 4'b0000;
 assign RAM_A =        exec ? WB_RAM_A         : DP_RAM_A;
 assign RAM_WD =       exec ? wb_dat_wr        : DP_RAM_WD;
 assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
-// This is sketchy, may produce spurious edges and not give enough time for signals to stabilize.
-// It depends on RAM_byte_sel being zeroed on exec changes.
-`ifdef LPC
-assign RAM_CLK =      exec ? ~wb_clk          : ~LCLK;
-`endif
-`ifdef SPI
-assign RAM_CLK =      exec ? ~wb_clk          : ~CLK;
-`endif
+assign RAM_CLK =      ~wb_clk;
 
 // WB acknowledge signal
 assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
@@ -349,10 +342,10 @@ assign PIRQ = !interrupt;
 regs_module regs_module_inst (
   // Signals to/from LPC/SPI module
 `ifdef LPC
-  .clk_i(LCLK),
+  .clk_i(clk_i),
 `endif
 `ifdef SPI
-  .clk_i(CLK),
+  .clk_i(clk_i),
 `endif
   .data_i(data_lpc2dp),
   .data_o(data_dp2lpc),
