@@ -49,8 +49,6 @@ parameter RAM_ADDR_WIDTH        = 27;
 
 parameter DEFAULT_READ_VALUE    = 32'hBAD_FAB_AC; // Bad FPGA Access
 
-parameter COMPLETE_PULSE_WIDTH  = 20;
-
 //# {{Global control}}
 input  wire         clk_i;
 input  wire         rstn_i;
@@ -128,7 +126,7 @@ wire   [ 3:0] locality;
 wire [TPM_RAM_ADDR_WIDTH-1:0] buf_len;
 wire          exec;
 wire          abort;
-wire          complete;
+reg           complete;
 
 // RAM lines - final
 wire    [8:0] RAM_A;
@@ -150,7 +148,6 @@ wire    [3:0] WB_RAM_byte_sel;
 wire          WBs_ACK_nxt;
 wire    [7:0] spi_csn;
 wire          spi_clk_o;
-reg     [7:0] complete_pulse_counter = 0;
 wire   [63:0] gpio;
 wire          pll_locked;
 
@@ -174,6 +171,9 @@ wire   [31:0] wb_dat_ctrl;
 
 wire          clk_50mhz;
 wire          user_rst;
+wire          exec_int;
+
+assign exec_int = exec & ~complete;
 
 neorv32_verilog_wrapper cpu (
     .clk_i(clk_50mhz),
@@ -201,7 +201,7 @@ neorv32_verilog_wrapper cpu (
     .spi_csn_o(spi_csn),
     .gpio_o(gpio),
     .gpio_i(64'b0),
-    .mext_irq_i(exec)
+    .mext_irq_i(exec_int)
 );
 
 // SPI flash interface
@@ -216,8 +216,6 @@ USRMCLK spi_flash_clk (
 
 // Wishbone and CPU use the same clock.
 assign wb_clk = clk_50mhz;
-
-assign complete = complete_pulse_counter === 8'h0 ? 1'b0 : 1'b1;
 
 // RAM DP lines assignments
 assign DP_RAM_A =         DP_addr[TPM_RAM_ADDR_WIDTH-1:2];    // 32b words
@@ -255,7 +253,7 @@ assign RAM_byte_sel = exec ? WB_RAM_byte_sel  : DP_RAM_byte_sel;
 assign RAM_CLK =      exec ? ~wb_clk          : ~LCLK;
 `endif
 `ifdef SPI
-assign RAM_CLK =      exec ? ~wb_clk          : ~CLK;
+assign RAM_CLK =      exec ? ~wb_clk          : ~(CLK | CS_N);
 `endif
 
 // WB acknowledge signal
@@ -263,18 +261,18 @@ assign WBs_ACK_nxt = wb_cyc & wb_stb & (~wb_ack);
 
 always @(negedge wb_clk or negedge rstn_i) begin
   if (~rstn_i) begin
-    wb_ack                  <= 1'b0;
-    wb_err                  <= 1'b0;
-    complete_pulse_counter  <= 1'b0;
+    wb_ack    <= 1'b0;
+    wb_err    <= 1'b0;
+    complete  <= 1'b0;
   end else begin
-    if (complete_pulse_counter !== 8'h0)
-      complete_pulse_counter <= complete_pulse_counter - 1;
+    if (exec === 1'b0)
+      complete <= 1'b0;
     if (hits_regs || hits_tpm_ram) begin
       wb_ack <= WBs_ACK_nxt;
       wb_err <= 1'b0;
-      if (wb_adr[15:2] === TPM_REG_COMPLETE[15:2] && complete_pulse_counter === 8'h0
+      if (wb_adr[15:2] === TPM_REG_COMPLETE[15:2] && exec === 1'b1
           && wb_cyc === 1'b1 && wb_stb === 1'b1 && wb_we  === 1'b1 && wb_ack === 1'b0)
-        complete_pulse_counter <= COMPLETE_PULSE_WIDTH;
+        complete <= 1'b1;
     end else if (hits_ram) begin
       wb_ack <= wb_cyc & wb_stb & wb_ack_ddr3 & ~wb_ack;
       wb_err <= wb_err_ddr3;
@@ -353,8 +351,9 @@ regs_module regs_module_inst (
   .clk_i(LCLK),
 `endif
 `ifdef SPI
-  .clk_i(CLK),
+  .clk_i(CLK | CS_N),
 `endif
+  .reset(rstn_i),
   .data_i(data_lpc2dp),
   .data_o(data_dp2lpc),
   .addr_i(lpc_addr),
@@ -432,12 +431,35 @@ litedram_core litedram (
     .wb_ctrl_we(wb_we_crtl)
 );
 
+// FIXME: without those, nothing works as it should. Assigning 1'b1 to LEDs
+// directly doesn't work, even though it is should behave identically. It breaks
+// in different ways, depending on what is assigned to LEDs: all accessed return
+// FF or 00 (the latter is treated as indefinite wait state so host hangs),
+// writes don't work or strange data is sent from FPGA to SoC (cmd size 4,
+// locality 10 - seems to always be the same).
+reg dummy_r = 0;
+reg dummy_g = 0;
+reg dummy_b = 0;
+
+// After uncommenting block below strange things happen. Commands are passed to
+// the TPM stack, executed, and proper response is sent. However, TPM itself
+// behaves strangely - e.g. all PCR algorithms are permanently disabled and
+// random returns 0 bytes of data, regardless of how much was requested. Leaving
+// this in case further debugging is needed.
+/*
+always @(posedge clk_50mhz) begin
+  dummy_r <= gpio[1];
+  dummy_g <= gpio[0];
+  dummy_b <= gpio[2];
+end
+*/
+
 // Hardwire unused outputs
 assign ddram_a[15:13] = 0;
 // LEDs are active-low. Neorv32 by default sets all GPIOs to low so we negate
 // GPIO signal to keep LEDs off until explicitly enabled.
-assign led_r = ~gpio[1];
-assign led_g = ~gpio[0];
-assign led_b = pll_locked & ~gpio[2];
+assign led_r = ~dummy_r;
+assign led_g = ~dummy_g;
+assign led_b = pll_locked & ~dummy_b;
 
 endmodule
