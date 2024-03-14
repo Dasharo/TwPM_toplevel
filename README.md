@@ -179,8 +179,8 @@ UART is accessible on following pins
 | Pin | Function |
 | --- | -------- |
 | GND | Ground   |
-| 0   | TX       |
-| 1   | RX       |
+| 0   | RX       |
+| 1   | TX       |
 
 UART is configured to run at *115200n8* (115200 baud rate, 8 data bits, 1 stop
 bit, parity off, flow control off).
