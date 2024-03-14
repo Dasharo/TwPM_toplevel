@@ -149,6 +149,18 @@ can follow [the easy path](#building---easy).
 
 > TBD: description of building and hacking TPM stack and platform glue code.
 
+## Flashing
+
+As of now, flashing is done in two separate steps. First part (the FPGA
+bitstream) is flashed to persistent memory. The second part (TPM software stack)
+on the other hand is loaded to the memory, and it disappears after power loss.
+As a consequence, the platform to which the TwPM is connected must be started
+**after that part is loaded**. Depending on the platform's firmware, it may be
+enough to reboot after uploading the software stack, but in some cases platform
+won't boot without it, or booting may take unreasonably long amount of time.
+
+This limitation will be removed as the project progresses.
+
 ### Programmming FPGA bitstream
 
 To flash firmware enter bootloader mode on OrangeCrab by connecting USB while
@@ -273,7 +285,7 @@ Booting from 0x80000000...
 [00:00:04.734,000] <inf> test: HASH: 12f411d0eebfb9c4d81df9f1cb10e22e9841a91428ea7f00969fa7f29db0f7fa
 ```
 
-### Building with Lattice Diamond
+## Building with Lattice Diamond
 
 > Diamond has been used only for development purposes and is not tested as
 > widely as Trellis toolchain.
