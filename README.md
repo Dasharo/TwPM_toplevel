@@ -200,7 +200,8 @@ minicom -D /dev/ttyUSB0 -b 115200
 
 > Make sure you have UART configured properly: while in Minicom press *Ctrl+A O*,
 > go to *Serial Port Setup* menu, make sure that *Flow Control* is disabled,
-> and make sure data bits, stop bits and parity is configured properly.
+> and make sure data bits, stop bits and parity is configured properly to
+> the same values as listed above.
 
 ### Uploading TwPM firmware trough UART
 
