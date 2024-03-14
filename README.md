@@ -164,13 +164,20 @@ This limitation will be removed as the project progresses.
 ### Programmming FPGA bitstream
 
 To flash firmware enter bootloader mode on OrangeCrab by connecting USB while
-holding on-board button pressed.
+holding on-board button pressed. Alternatively, RST pin may be shorted to ground
+instead of reconnecting USB - this is especially useful when many jumper wires
+are already connected to the platform.
 
-Then type:
+If done properly, the RGB LED will start to alternate between colors. In that
+state, type:
 
 ```shell
 $ dfu-util -D build/fpga/twpm.dfu
 ```
+
+It may return the error after the flashing, due to inability to read status
+register or request reboot, because the reboot already took place at that point.
+As long as the progress bar reaches 100%, the bitstream is flashed successfully.
 
 ### Connecting UART
 
