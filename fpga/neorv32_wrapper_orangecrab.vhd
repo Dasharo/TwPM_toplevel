@@ -70,12 +70,11 @@ begin
     IO_TRNG_EN                   => true,        -- implement true random number generator (TRNG)?
     IO_SPI_EN                    => true,
     -- External memory interface (WISHBONE) --
-    MEM_EXT_EN                   => true,        -- implement external memory bus interface?
-    MEM_EXT_TIMEOUT              => 4096,        -- cycles after a pending bus access auto-terminates (0 = disabled)
-    MEM_EXT_PIPE_MODE            => false,       -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
-    MEM_EXT_BIG_ENDIAN           => false,       -- byte order: true=big-endian, false=little-endian
-    MEM_EXT_ASYNC_RX             => false,       -- use register buffer for RX data when false
-    MEM_EXT_ASYNC_TX             => false,       -- use register buffer for TX data when false
+    XBUS_EN                      => true,        -- implement external memory bus interface?
+    XBUS_TIMEOUT                 => 4096,        -- cycles after a pending bus access auto-terminates (0 = disabled)
+    XBUS_PIPE_MODE               => false,       -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
+    XBUS_ASYNC_RX                => false,       -- use register buffer for RX data when false
+    XBUS_ASYNC_TX                => false,       -- use register buffer for TX data when false
     -- GPIO --
     IO_GPIO_NUM                  => 3            -- use GPIO for controlling LEDs
   )
@@ -93,16 +92,15 @@ begin
     jtag_tdo_o  => jtag_tdo_o,  -- serial data output
     jtag_tms_i  => jtag_tms_i,  -- mode select
     -- Wishbone bus interface --
-    wb_tag_o    => open,        -- request tag
-    wb_adr_o    => wb_adr_o,    -- address
-    wb_dat_i    => wb_dat_i,    -- read data
-    wb_dat_o    => wb_dat_o,    -- write data
-    wb_we_o     => wb_we_o,     -- read/write
-    wb_sel_o    => wb_sel_o,    -- byte enable
-    wb_stb_o    => wb_stb_o,    -- strobe
-    wb_cyc_o    => wb_cyc_o,    -- valid cycle
-    wb_ack_i    => wb_ack_i,    -- transfer acknowledge
-    wb_err_i    => wb_err_i,    -- transfer error
+    xbus_adr_o  => wb_adr_o,    -- address
+    xbus_dat_i  => wb_dat_i,    -- read data
+    xbus_dat_o  => wb_dat_o,    -- write data
+    xbus_we_o   => wb_we_o,     -- read/write
+    xbus_sel_o  => wb_sel_o,    -- byte enable
+    xbus_stb_o  => wb_stb_o,    -- strobe
+    xbus_cyc_o  => wb_cyc_o,    -- valid cycle
+    xbus_ack_i  => wb_ack_i,    -- transfer acknowledge
+    xbus_err_i  => wb_err_i,    -- transfer error
     -- SPI interface --
     spi_clk_o   => spi_clk_o,   -- serial clock output
     spi_dat_o   => spi_dat_o,   -- serial data output
