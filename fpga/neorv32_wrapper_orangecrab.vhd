@@ -75,6 +75,9 @@ begin
     XBUS_PIPE_MODE               => false,       -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
     XBUS_ASYNC_RX                => false,       -- use register buffer for RX data when false
     XBUS_ASYNC_TX                => false,       -- use register buffer for TX data when false
+    XBUS_CACHE_EN                => true,        -- enable external bus cache (x-cache)
+    XBUS_CACHE_NUM_BLOCKS        => 64,          -- x-cache: number of blocks (min 1), has to be a power of 2
+    XBUS_CACHE_BLOCK_SIZE        => 64,          -- x-cache: block size in bytes (min 4), has to be a power of 2
     -- GPIO --
     IO_GPIO_NUM                  => 3            -- use GPIO for controlling LEDs
   )
